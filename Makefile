@@ -1,0 +1,41 @@
+.PHONY: help sync lint fmt fmt-check typecheck test check fix clean
+
+help:
+	@echo "Targets:"
+	@echo "  sync       - install dependencies via uv"
+	@echo "  lint       - ruff check"
+	@echo "  fmt        - ruff format (write)"
+	@echo "  fmt-check  - ruff format --check"
+	@echo "  typecheck  - mypy"
+	@echo "  test       - pytest"
+	@echo "  check      - lint + fmt-check + typecheck + test"
+	@echo "  fix        - ruff check --fix + ruff format"
+	@echo "  clean      - remove caches"
+
+sync:
+	uv sync
+
+lint:
+	uv run ruff check .
+
+fmt:
+	uv run ruff format .
+
+fmt-check:
+	uv run ruff format --check .
+
+typecheck:
+	uv run mypy
+
+test:
+	uv run pytest
+
+check: lint fmt-check typecheck test
+
+fix:
+	uv run ruff check --fix .
+	uv run ruff format .
+
+clean:
+	rm -rf .ruff_cache .mypy_cache .pytest_cache
+	find . -type d -name __pycache__ -prune -exec rm -rf {} +
