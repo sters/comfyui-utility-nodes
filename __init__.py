@@ -23,6 +23,8 @@ for _modname, _relpath in [
     ("_cuun_list_shuffle", "nodes/list_shuffle.py"),
     ("_cuun_text_concat", "nodes/text_concat.py"),
     ("_cuun_pony_prompt_builder", "nodes/pony_prompt_builder.py"),
+    ("_cuun_danbooru_bad_tags", "nodes/danbooru_bad_tags.py"),
+    ("_cuun_composition_tags", "nodes/composition_tags.py"),
 ]:
     _mod = _load(_modname, _relpath)
     NODE_CLASS_MAPPINGS.update(_mod.NODE_CLASS_MAPPINGS)  # type: ignore[attr-defined]
