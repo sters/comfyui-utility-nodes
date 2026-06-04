@@ -14,9 +14,18 @@ def _load(name: str, relpath: str) -> object:
     return mod
 
 
-_random_text_picker = _load("_cuun_random_text_picker", "nodes/random_text_picker.py")
+NODE_CLASS_MAPPINGS: dict[str, type] = {}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
 
-NODE_CLASS_MAPPINGS = _random_text_picker.NODE_CLASS_MAPPINGS  # type: ignore[attr-defined]
-NODE_DISPLAY_NAME_MAPPINGS = _random_text_picker.NODE_DISPLAY_NAME_MAPPINGS  # type: ignore[attr-defined]
+for _modname, _relpath in [
+    ("_cuun_random_text_picker", "nodes/random_text_picker.py"),
+    ("_cuun_prompt_combinator", "nodes/prompt_combinator.py"),
+    ("_cuun_list_shuffle", "nodes/list_shuffle.py"),
+    ("_cuun_text_concat", "nodes/text_concat.py"),
+    ("_cuun_pony_prompt_builder", "nodes/pony_prompt_builder.py"),
+]:
+    _mod = _load(_modname, _relpath)
+    NODE_CLASS_MAPPINGS.update(_mod.NODE_CLASS_MAPPINGS)  # type: ignore[attr-defined]
+    NODE_DISPLAY_NAME_MAPPINGS.update(_mod.NODE_DISPLAY_NAME_MAPPINGS)  # type: ignore[attr-defined]
 
 __all__ = ["NODE_CLASS_MAPPINGS", "NODE_DISPLAY_NAME_MAPPINGS"]
