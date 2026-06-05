@@ -1648,6 +1648,389 @@ def test_archetype_sitting_on_chair_classroom_sunset() -> None:
         assert tag in prompt
 
 
+def test_archetype_crying_schoolgirl() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
+        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.face.eyes.color", ("blue_eyes",), mutex_within=True),),
+        bundle_4=(_sel("body.face.eyes.state", ("crying", "teary_eyes", "looking_down")),),
+        bundle_5=(_sel("body.face.expression", ("sad", "tearful")),),
+        bundle_6=(_sel("body.face.blush_flush", ("light_blush",)),),
+        bundle_7=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
+    )
+    for tag in (
+        "brown_hair",
+        "blue_eyes",
+        "crying",
+        "teary_eyes",
+        "looking_down",
+        "sad",
+        "tearful",
+        "light_blush",
+        "serafuku",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_smug_yandere() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
+        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.face.eyes.color", ("red_eyes",), mutex_within=True),),
+        bundle_4=(_sel("body.face.eyes.state", ("narrowed_eyes", "looking_at_viewer")),),
+        bundle_5=(_sel("body.face.eyes.details", ("heart-shaped_pupils", "slit_pupils")),),
+        bundle_6=(_sel("body.face.expression", ("yandere", "smirk", "smug")),),
+        bundle_7=(_sel("body.face.mouth.details", ("licking_lips",)),),
+    )
+    for tag in (
+        "very_long_hair",
+        "black_hair",
+        "red_eyes",
+        "narrowed_eyes",
+        "heart-shaped_pupils",
+        "slit_pupils",
+        "yandere",
+        "smirk",
+        "licking_lips",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_tsundere_blush() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("twintails",)),),
+        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.face.eyes.state", ("looking_away", "looking_to_the_side")),),
+        bundle_4=(_sel("body.face.expression", ("embarrassed", "pouting", "annoyed")),),
+        bundle_5=(_sel("body.face.blush_flush", ("blush", "full-face_blush")),),
+        bundle_6=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
+    )
+    for tag in (
+        "twintails",
+        "blonde_hair",
+        "looking_away",
+        "embarrassed",
+        "pouting",
+        "blush",
+        "full-face_blush",
+        "serafuku",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_sleepy_morning() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair", "messy_hair")),),
+        bundle_2=(_sel("body.face.eyes.state", ("half-closed_eyes",)),),
+        bundle_3=(_sel("body.face.mouth.state", ("parted_lips",)),),
+        bundle_4=(_sel("body.face.expression", ("sleepy", "drowsy", "tired")),),
+        bundle_5=(_sel("clothing.fit", ("oversized_shirt", "loose_clothes")),),
+        bundle_6=(_sel("body.pose.posture", ("sitting",), mutex_within=True),),
+        bundle_7=(_sel("body.pose.seating", ("sitting_on_bed",), mutex_within=True),),
+        bundle_8=(_sel("scene.indoor", ("bedroom",)),),
+        bundle_9=(_sel("scene.time_of_day", ("morning",), mutex_within=True),),
+        bundle_10=(_sel("scene.lighting", ("soft_lighting", "sunlight")),),
+    )
+    for tag in (
+        "messy_hair",
+        "half-closed_eyes",
+        "parted_lips",
+        "sleepy",
+        "oversized_shirt",
+        "sitting_on_bed",
+        "bedroom",
+        "morning",
+        "soft_lighting",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_genki_energetic() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("short_hair", "ponytail")),),
+        bundle_2=(_sel("body.face.eyes.details", ("sparkling_eyes",)),),
+        bundle_3=(_sel("body.face.expression", ("smile", "happy", "grin")),),
+        bundle_4=(_sel("body.face.blush_flush", ("blush_stickers",)),),
+        bundle_5=(_sel("body.face.mouth.state", ("open_mouth", ":d")),),
+        bundle_6=(_sel("body.pose.posture", ("jumping",), mutex_within=True),),
+    )
+    for tag in (
+        "ponytail",
+        "sparkling_eyes",
+        "smile",
+        "happy",
+        "grin",
+        "blush_stickers",
+        "open_mouth",
+        ":d",
+        "jumping",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_foxgirl_shrine() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
+        bundle_2=(_sel("body.hair.color", ("white_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.animal.ears", ("fox_ears",), mutex_within=True),),
+        bundle_4=(_sel("body.animal.tail", ("fox_tail",), mutex_within=True),),
+        bundle_5=(_sel("body.face.eyes.color", ("yellow_eyes",), mutex_within=True),),
+        bundle_6=(_sel("body.face.eyes.details", ("slit_pupils",)),),
+        bundle_7=(_sel("clothing.uniform", ("miko",), mutex_within=True),),
+        bundle_8=(_sel("scene.outdoor", ("shrine_outdoors",)),),
+    )
+    for tag in ("white_hair", "fox_ears", "fox_tail", "yellow_eyes", "slit_pupils", "miko", "shrine_outdoors"):
+        assert tag in prompt
+
+
+def test_archetype_wolf_knight() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
+        bundle_2=(_sel("body.animal.ears", ("wolf_ears",), mutex_within=True),),
+        bundle_3=(_sel("body.animal.tail", ("wolf_tail",), mutex_within=True),),
+        bundle_4=(_sel("body.face.eyes.color", ("yellow_eyes",), mutex_within=True),),
+        bundle_5=(_sel("body.marks.scars", ("scar_on_cheek",)),),
+        bundle_6=(_sel("body.face.expression", ("serious",)),),
+        bundle_7=(_sel("clothing.uniform", ("armor",), mutex_within=True),),
+        bundle_8=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
+    )
+    for tag in ("wolf_ears", "wolf_tail", "yellow_eyes", "scar_on_cheek", "serious", "armor", "knee_boots"):
+        assert tag in prompt
+
+
+def test_archetype_dragon_girl() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.color", ("red_hair",), mutex_within=True),),
+        bundle_2=(_sel("body.animal.horns", ("dragon_horns",), mutex_within=True),),
+        bundle_3=(_sel("body.animal.tail", ("dragon_tail",), mutex_within=True),),
+        bundle_4=(_sel("body.animal.wings", ("dragon_wings",), mutex_within=True),),
+        bundle_5=(_sel("body.face.eyes.color", ("red_eyes",), mutex_within=True),),
+        bundle_6=(_sel("body.face.eyes.details", ("slit_pupils", "glowing_eyes")),),
+        bundle_7=(_sel("body.face.mouth.details", ("fangs",)),),
+    )
+    for tag in (
+        "red_hair",
+        "dragon_horns",
+        "dragon_tail",
+        "dragon_wings",
+        "red_eyes",
+        "slit_pupils",
+        "glowing_eyes",
+        "fangs",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_angel_devine() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
+        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
+        bundle_4=(_sel("body.animal.wings", ("angel_wings",), mutex_within=True),),
+        bundle_5=(_sel("body.face.eyes.color", ("aqua_eyes",), mutex_within=True),),
+        bundle_6=(_sel("body.face.expression", ("smile",)),),
+        bundle_7=(_sel("clothing.dress", ("long_dress",), mutex_within=True),),
+        bundle_8=(_sel("scene.lighting", ("rim_lighting", "god_rays", "light_particles", "sunlight")),),
+        bundle_9=(_sel("scene.particles", ("feathers", "sparkles", "glitter")),),
+    )
+    for tag in (
+        "blonde_hair",
+        "pale_skin",
+        "angel_wings",
+        "aqua_eyes",
+        "long_dress",
+        "rim_lighting",
+        "god_rays",
+        "feathers",
+        "sparkles",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_succubus_bikini() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.color", ("purple_hair",), mutex_within=True),),
+        bundle_2=(_sel("body.skin", ("tan",), mutex_within=True),),
+        bundle_3=(_sel("body.breasts.size", ("huge_breasts",), mutex_within=True),),
+        bundle_4=(_sel("body.animal.horns", ("demon_horns",), mutex_within=True),),
+        bundle_5=(_sel("body.animal.tail", ("demon_tail",), mutex_within=True),),
+        bundle_6=(_sel("body.animal.wings", ("demon_wings",), mutex_within=True),),
+        bundle_7=(_sel("body.face.eyes.color", ("red_eyes",), mutex_within=True),),
+        bundle_8=(_sel("body.face.expression", ("smug", "smirk")),),
+        bundle_9=(_sel("clothing.swimwear", ("micro_bikini",), mutex_within=True),),
+        bundle_10=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
+    )
+    for tag in (
+        "purple_hair",
+        "tan",
+        "huge_breasts",
+        "demon_horns",
+        "demon_tail",
+        "demon_wings",
+        "red_eyes",
+        "smug",
+        "micro_bikini",
+        "thighhighs",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_snowy_mountain_night() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("scene.outdoor", ("mountain", "snowfield")),),
+        bundle_2=(_sel("scene.time_of_day", ("night",), mutex_within=True),),
+        bundle_3=(_sel("scene.weather", ("snowing",), mutex_within=True),),
+        bundle_4=(_sel("scene.lighting", ("moonlight", "rim_lighting", "blue_hour")),),
+        bundle_5=(_sel("scene.particles", ("snowflakes", "mist")),),
+        bundle_6=(_sel("clothing.tops", ("winter_coat", "scarf")),),
+        bundle_7=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
+    )
+    for tag in ("mountain", "snowfield", "night", "snowing", "moonlight", "snowflakes", "mist", "winter_coat", "scarf"):
+        assert tag in prompt
+
+
+def test_archetype_cherry_blossom_park() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("scene.outdoor", ("park",)),),
+        bundle_2=(_sel("scene.weather", ("sunny",), mutex_within=True),),
+        bundle_3=(_sel("scene.time_of_day", ("afternoon",), mutex_within=True),),
+        bundle_4=(_sel("scene.particles", ("cherry_blossoms", "petals", "falling_petals", "light_particles")),),
+        bundle_5=(_sel("scene.lighting", ("dappled_sunlight",)),),
+        bundle_6=(_sel("body.face.expression", ("smile",)),),
+    )
+    for tag in ("park", "sunny", "afternoon", "cherry_blossoms", "petals", "dappled_sunlight", "smile"):
+        assert tag in prompt
+
+
+def test_archetype_rainy_neon_city() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("scene.outdoor", ("city", "alley")),),
+        bundle_2=(_sel("scene.time_of_day", ("night",), mutex_within=True),),
+        bundle_3=(_sel("scene.weather", ("rain", "raining"), mutex_within=True),),
+        bundle_4=(_sel("scene.lighting", ("neon_lights", "neon_trim", "lens_flare", "rim_lighting")),),
+        bundle_5=(_sel("clothing.material", ("wet_clothes",)),),
+        bundle_6=(_sel("clothing.hand_arm", ("gloves",)),),
+    )
+    for tag in ("city", "alley", "night", "rain", "neon_lights", "lens_flare", "wet_clothes", "gloves"):
+        assert tag in prompt
+
+
+def test_archetype_forest_fairy_night() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("scene.outdoor", ("forest",)),),
+        bundle_2=(_sel("scene.time_of_day", ("night",), mutex_within=True),),
+        bundle_3=(_sel("scene.particles", ("fireflies", "light_particles", "mist", "sparkles")),),
+        bundle_4=(_sel("scene.lighting", ("moonlight",)),),
+        bundle_5=(_sel("body.animal.wings", ("fairy_wings",), mutex_within=True),),
+        bundle_6=(_sel("body.face.eyes.details", ("glowing_eyes",)),),
+        bundle_7=(_sel("clothing.fit", ("loose_clothes",)),),
+    )
+    for tag in ("forest", "night", "fireflies", "moonlight", "fairy_wings", "glowing_eyes", "sparkles"):
+        assert tag in prompt
+
+
+def test_archetype_yuri_couple() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("meta.count.girls", ("2girls",), mutex_within=True),),
+        bundle_2=(_sel("meta.count.other", ("yuri", "couple")),),
+        bundle_3=(_sel("body.face.expression", ("smile",)),),
+        bundle_4=(_sel("body.face.eyes.state", ("eye_contact",)),),
+        bundle_5=(_sel("nsfw.act.oral_contact", ("kissing",)),),
+    )
+    for tag in ("2girls", "yuri", "couple", "smile", "eye_contact", "kissing"):
+        assert tag in prompt
+
+
+def test_archetype_meta_quality_one_girl_solo_full_stack() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(
+            _sel(
+                "meta.quality",
+                ("masterpiece", "best_quality", "high_quality", "highres", "absurdres", "ultra-detailed"),
+            ),
+        ),
+        bundle_2=(_sel("meta.count.girls", ("1girl",), mutex_within=True),),
+        bundle_3=(_sel("meta.count.total", ("solo",), mutex_within=True),),
+        bundle_4=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
+        bundle_5=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
+        bundle_6=(_sel("body.face.eyes.color", ("blue_eyes",), mutex_within=True),),
+        bundle_7=(_sel("body.face.expression", ("smile",)),),
+        bundle_8=(_sel("scene.bg_type", ("simple_background",), mutex_within=True),),
+    )
+    tokens = prompt.split(", ")
+    # Meta quality should appear up front (input order — Meta first).
+    assert tokens.index("masterpiece") < tokens.index("1girl")
+    assert tokens.index("1girl") < tokens.index("long_hair")
+    for tag in (
+        "masterpiece",
+        "best_quality",
+        "highres",
+        "1girl",
+        "solo",
+        "blonde_hair",
+        "blue_eyes",
+        "smile",
+        "simple_background",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_lying_on_back_beach() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.pose.posture", ("lying", "on_back"), mutex_within=True),),
+        bundle_2=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
+        bundle_3=(_sel("scene.outdoor", ("beach",)),),
+        bundle_4=(_sel("scene.time_of_day", ("sunset",), mutex_within=True),),
+        bundle_5=(_sel("scene.lighting", ("backlighting", "rim_lighting")),),
+        bundle_6=(_sel("scene.particles", ("light_particles",)),),
+    )
+    # body.pose.posture is mutex within, so multi-tag selection collapses
+    # to the first.
+    tokens = prompt.split(", ")
+    assert "lying" in tokens
+    assert "on_back" not in tokens
+    for tag in ("lying", "bikini", "beach", "sunset", "backlighting"):
+        assert tag in prompt
+
+
+def test_archetype_bent_over_skirt_lift() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.pose.posture", ("bent_over",), mutex_within=True),),
+        bundle_2=(_sel("clothing.state", ("skirt_lift", "lifting_own_clothes")),),
+        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
+        bundle_4=(_sel("clothing.underwear", ("striped_panties",)),),
+        bundle_5=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
+        bundle_6=(_sel("body.face.eyes.state", ("looking_back",)),),
+        bundle_7=(_sel("body.face.expression", ("embarrassed",)),),
+        bundle_8=(_sel("body.face.blush_flush", ("blush",)),),
+    )
+    for tag in (
+        "bent_over",
+        "skirt_lift",
+        "pleated_skirt",
+        "striped_panties",
+        "thighhighs",
+        "looking_back",
+        "embarrassed",
+        "blush",
+    ):
+        assert tag in prompt
+
+
+def test_archetype_rooftop_sunset_skyline() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("scene.outdoor", ("rooftop", "city", "skyline")),),
+        bundle_2=(_sel("scene.time_of_day", ("sunset",), mutex_within=True),),
+        bundle_3=(_sel("scene.weather", ("clear_sky",), mutex_within=True),),
+        bundle_4=(_sel("scene.lighting", ("backlighting", "rim_lighting", "lens_flare", "golden_hour")),),
+        bundle_5=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
+        bundle_6=(_sel("body.hair.length_style", ("long_hair",)),),
+        bundle_7=(_sel("body.face.expression", ("smile",)),),
+    )
+    for tag in ("rooftop", "city", "skyline", "sunset", "clear_sky", "backlighting", "lens_flare", "serafuku", "smile"):
+        assert tag in prompt
+
+
 def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),
