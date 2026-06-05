@@ -575,9 +575,7 @@ def test_bunny_outfit_with_fit_and_position() -> None:
         bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
         bundle_3=(_sel("body.breasts.size", ("huge_breasts",), mutex_within=True),),
         bundle_4=(_sel("body.figure", ("thick_thighs", "wide_hips")),),
-        bundle_5=(
-            _sel("clothing.fit", ("skin_tight", "impossible_clothes", "bursting_breasts")),
-        ),
+        bundle_5=(_sel("clothing.fit", ("skin_tight", "impossible_clothes", "bursting_breasts")),),
         bundle_6=(_sel("clothing.uniform", ("bunny_girl",), mutex_within=True),),
         bundle_7=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
         bundle_8=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
