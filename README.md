@@ -253,6 +253,21 @@ Crop 系（`cropped_*`, `*_out_of_frame`）は「見切れ」なので negative 
 | Clothing: Neck | `necklace`, `pendant`, `choker`, `frilled_choker`, `collar`, `neck_ribbon`, `neck_bow`, `necktie`, `bowtie`, `neckerchief`, `ascot`, `scarf`, `muffler`, `shawl`, `cape`, `capelet` |
 | Clothing: Accessory (other) | `earrings`, `single_earring`, `ear_piercing`, `stud_earrings`, `hoop_earrings`, `drop_earrings`, `belt`, `waist_cape`, `obi`, `sash`, `belt_pouch`, `apron`, `frilled_apron`, `waist_apron`, `bag`, `handbag`, `shoulder_bag`, `backpack`, `satchel`, `school_bag`, `umbrella`, `parasol`, `fan`, `folding_fan`, `lip_piercing`, `nose_piercing`, `navel_piercing`, `tongue_piercing` |
 
+### NSFW Tags (7ノード)
+
+行為・体位・状態・ソロ/玩具/拘束系。`Body: Exposure` (`nude` 等)、`Body: Lower Anatomy` (`pussy` 等)、`Breasts: Shape & State` (`nipples` 等) と組み合わせて使う想定。デフォルト全 False。
+
+| ノード | 対象タグ |
+| --- | --- |
+| NSFW Act: Penetrative | `sex`, `vaginal`, `anal`, `double_penetration`, `triple_penetration`, `deepthroat`, `vaginal_object_insertion`, `anal_object_insertion`, `fingering`, `vaginal_fingering`, `anal_fingering`, `rough_sex`, `sex_from_behind`, `imminent_penetration`, `spitroast` |
+| NSFW Act: Oral & Contact | `fellatio`, `irrumatio`, `cunnilingus`, `paizuri`, `handjob`, `footjob`, `thigh_sex`, `kissing`, `french_kiss`, `breast_sucking`, `nipple_sucking`, `breast_grab`, `ass_grab`, `groping`, `frottage`, `tribadism`, `autofellatio`, `autocunnilingus`, `licking`, `biting`, `bukkake` |
+| NSFW: Position | `missionary`, `cowgirl_position`, `reverse_cowgirl_position`, `doggystyle`, `anal_doggystyle`, `mating_press`, `prone_bone`, `piledriver_(sex)`, `standing_sex`, `suspended_congress`, `leg_lock`, `full_nelson`, `side-by-side`, `spooning`, `lotus_position`, `carrying_sex`, `wall_slam`, `doggystyle_(animal)`, `threesome`, `foursome`, `gangbang`, `orgy`, `mmf_threesome`, `ffm_threesome`, `mmm_threesome`, `fff_threesome` |
+| NSFW State: Fluids | `cum`, `cum_in_pussy`, `cum_in_ass`, `cum_in_mouth`, `cum_in_nose`, `cum_on_body`, `cum_on_face`, `cum_on_breasts`, `cum_on_stomach`, `cum_on_hair`, `cum_on_ass`, `cum_on_self`, `cum_string`, `facial`, `ejaculation`, `ejaculating_while_penetrated`, `excessive_cum`, `overflow`, `female_ejaculation`, `squirting`, `pussy_juice`, `pussy_juice_trail`, `saliva`, `saliva_trail`, `drooling`, `tears`, `sweat` |
+| NSFW State: Aftermath & Expression | `after_sex`, `after_vaginal`, `after_anal`, `after_oral`, `after_fellatio`, `orgasm`, `female_orgasm`, `male_orgasm`, `simultaneous_orgasm`, `ahegao`, `fucked_silly`, `heart-shaped_pupils`, `rolling_eyes`, `tongue_out`, `uvula`, `trembling`, `convulsing`, `moaning`, `open_mouth`, `x-ray`, `internal_cumshot`, `cross-section`, `blush`, `heavy_breathing` |
+| NSFW: Solo | `masturbation`, `female_masturbation`, `male_masturbation`, `pussy_juice`, `nipple_tweak`, `nipple_pinch`, `spread_pussy`, `spread_ass`, `presenting`, `anal_fingering` |
+| NSFW: Toy | `sex_toy`, `dildo`, `vibrator`, `anal_beads`, `butt_plug`, `anal_tail`, `huge_dildo`, `vibrator_in_thighhighs`, `vibrator_on_nipple`, `vibrator_under_clothes`, `onahole`, `fleshlight`, `condom`, `used_condom`, `egg_vibrator`, `wand_vibrator` |
+| NSFW: BDSM | `bdsm`, `bondage`, `restrained`, `arms_behind_back`, `tied_up`, `rope`, `shibari`, `suspension_bondage`, `handcuffs`, `shackles`, `chained`, `leash`, `ball_gag`, `ring_gag`, `gag`, `tape_gag`, `spanking`, `hair_pull`, `choking`, `torture`, `humiliation`, `slave` |
+
 ### Random Text Picker
 
 `utility/text` カテゴリ。入力テキストを区切り文字で分割し、指定数だけランダムに抽出する。プロンプトのランダム選択用途。

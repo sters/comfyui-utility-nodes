@@ -40,6 +40,10 @@ for _modname, _relpath in [
     ("_cuun_clothing_legwear_footwear_tags", "nodes/tags/clothing/legwear_footwear.py"),
     ("_cuun_clothing_headwear_eyewear_tags", "nodes/tags/clothing/headwear_eyewear.py"),
     ("_cuun_clothing_accessory_tags", "nodes/tags/clothing/accessory.py"),
+    ("_cuun_nsfw_act", "nodes/tags/nsfw/act.py"),
+    ("_cuun_nsfw_position", "nodes/tags/nsfw/position.py"),
+    ("_cuun_nsfw_state", "nodes/tags/nsfw/state.py"),
+    ("_cuun_nsfw_solo_toy_bdsm", "nodes/tags/nsfw/solo_toy_bdsm.py"),
 ]:
     _mod = _load(_modname, _relpath)
     NODE_CLASS_MAPPINGS.update(_mod.NODE_CLASS_MAPPINGS)  # type: ignore[attr-defined]
