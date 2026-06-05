@@ -125,9 +125,7 @@ def test_extra_selection_is_not_subject_to_override() -> None:
 def test_topless_keeps_panties_and_garter_belt() -> None:
     prompt, _, _ = _run(
         bundle_1=(_sel("clothing.state", ("topless",)),),
-        bundle_2=(
-            _sel("clothing.underwear", ("bra", "panties", "garter_belt")),
-        ),
+        bundle_2=(_sel("clothing.underwear", ("bra", "panties", "garter_belt")),),
     )
     assert "bra" not in prompt
     assert "panties" in prompt
