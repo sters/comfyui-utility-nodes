@@ -303,6 +303,126 @@ def test_paizuri_with_topless_drops_only_outer_top() -> None:
     assert "topless" in prompt
     assert "shirt" not in prompt.split(", ")
     assert "topless" in warnings or "conflict" in warnings
+
+
+def test_school_uniform_with_swimsuit_underneath() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("clothing.uniform", ("school_uniform",), mutex_within=True),),
+        bundle_2=(_sel("clothing.swimwear", ("school_swimsuit",), mutex_within=True),),
+    )
+    assert "school_uniform" in prompt
+    assert "school_swimsuit" in prompt
+    assert warnings == ""
+
+
+def test_bikini_with_thighhighs() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
+        bundle_2=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
+    )
+    assert prompt == "bikini, thighhighs"
+    assert warnings == ""
+
+
+def test_dress_with_jacket_layered_on_top() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.dress", ("sundress",), mutex_within=True),),
+        bundle_2=(_sel("clothing.tops", ("jacket",)),),
+    )
+    assert "sundress" in prompt
+    assert "jacket" in prompt
+
+
+def test_maid_outfit_full_stack() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("clothing.uniform", ("maid",), mutex_within=True),),
+        bundle_2=(_sel("clothing.accessory.other", ("frilled_apron",)),),
+        bundle_3=(_sel("clothing.headwear", ("headband",), mutex_within=True),),
+        bundle_4=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
+    )
+    assert prompt == "maid, frilled_apron, headband, thighhighs"
+    assert warnings == ""
+
+
+def test_kimono_with_western_boots_is_allowed() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.dress", ("kimono",), mutex_within=True),),
+        bundle_2=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
+        bundle_3=(_sel("clothing.accessory.other", ("obi",)),),
+    )
+    for tag in ("kimono", "boots", "obi"):
+        assert tag in prompt
+
+
+def test_bottomless_keeps_legwear_and_footwear() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.state", ("bottomless",)),),
+        bundle_2=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
+        bundle_3=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
+    )
+    for tag in ("bottomless", "thighhighs", "boots"):
+        assert tag in prompt
+
+
+def test_multiple_uniforms_collapse_to_first() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(
+            _sel(
+                "clothing.uniform",
+                ("school_uniform", "maid", "nurse"),
+                mutex_within=True,
+            ),
+        ),
+    )
+    assert prompt == "school_uniform"
+    assert "maid" in warnings
+    assert "nurse" in warnings
+
+
+def test_topless_with_explicit_nipples_keeps_nipples() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.state", ("topless",)),),
+        bundle_2=(
+            _sel(
+                "body.breasts.shape_state",
+                ("nipples", "puffy_nipples", "breasts_apart"),
+            ),
+        ),
+        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
+    )
+    for tag in ("topless", "nipples", "puffy_nipples", "breasts_apart", "large_breasts"):
+        assert tag in prompt
+
+
+def test_bunny_girl_outfit() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(
+            _sel(
+                "clothing.uniform",
+                ("bunny_girl", "playboy_bunny"),
+                mutex_within=True,
+            ),
+        ),
+        bundle_2=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
+        bundle_3=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
+    )
+    assert "bunny_girl" in prompt
+    assert "playboy_bunny" not in prompt.split(", ")
+    assert "pantyhose" in prompt
+    assert "high_heels" in prompt
+    assert "playboy_bunny" in warnings
+
+
+def test_long_hair_ponytail_stack_with_ribbon() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
+        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.hair.details", ("hair_ribbon",)),),
+    )
+    assert prompt == "long_hair, ponytail, black_hair, hair_ribbon"
+
+
+def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),
         bundle_2=(_sel("b", ("y",)),),
