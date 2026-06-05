@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -42,10 +42,16 @@ _SHAPE_STATE: tuple[str, ...] = (
 
 
 class BreastsSize(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.breasts.size"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _SIZE
 
 
 class BreastsShapeState(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.breasts.shape_state"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _SHAPE_STATE
 
 

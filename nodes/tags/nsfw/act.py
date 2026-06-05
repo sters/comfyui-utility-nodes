@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -49,10 +49,16 @@ _ORAL_CONTACT: tuple[str, ...] = (
 
 
 class NsfwActPenetrative(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.act.penetrative"
+    LAYER: ClassVar[str] = "nsfw_act"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _PENETRATIVE
 
 
 class NsfwActOralContact(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.act.oral_contact"
+    LAYER: ClassVar[str] = "nsfw_act"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _ORAL_CONTACT
 
 

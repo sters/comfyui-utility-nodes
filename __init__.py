@@ -19,6 +19,7 @@ NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
 
 for _modname, _relpath in [
     ("_cuun_tag_node_base", "nodes/tags/_base.py"),
+    ("_cuun_tags_conflicts", "nodes/tags/_conflicts.py"),
     ("_cuun_random_text_picker", "nodes/text/random_text_picker.py"),
     ("_cuun_prompt_combinator", "nodes/text/prompt_combinator.py"),
     ("_cuun_list_shuffle", "nodes/text/list_shuffle.py"),
@@ -44,6 +45,7 @@ for _modname, _relpath in [
     ("_cuun_nsfw_position", "nodes/tags/nsfw/position.py"),
     ("_cuun_nsfw_state", "nodes/tags/nsfw/state.py"),
     ("_cuun_nsfw_solo_toy_bdsm", "nodes/tags/nsfw/solo_toy_bdsm.py"),
+    ("_cuun_tags_merge", "nodes/tags/merge.py"),
 ]:
     _mod = _load(_modname, _relpath)
     NODE_CLASS_MAPPINGS.update(_mod.NODE_CLASS_MAPPINGS)  # type: ignore[attr-defined]

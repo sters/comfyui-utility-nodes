@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -64,14 +64,23 @@ _BDSM: tuple[str, ...] = (
 
 
 class NsfwSolo(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.solo"
+    LAYER: ClassVar[str] = "nsfw_act"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _SOLO
 
 
 class NsfwToy(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.toy"
+    LAYER: ClassVar[str] = "nsfw_act"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _TOY
 
 
 class NsfwBdsm(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.bdsm"
+    LAYER: ClassVar[str] = "nsfw_act"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _BDSM
 
 

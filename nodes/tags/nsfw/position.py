@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -36,6 +36,9 @@ _POSITION: tuple[str, ...] = (
 
 
 class NsfwPosition(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.position"
+    LAYER: ClassVar[str] = "nsfw_act"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _POSITION
 
 

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -65,10 +65,16 @@ _SWIMWEAR: tuple[str, ...] = (
 
 
 class ClothingUnderwear(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "clothing.underwear"
+    LAYER: ClassVar[str] = "clothing"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _UNDERWEAR
 
 
 class ClothingSwimwear(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "clothing.swimwear"
+    LAYER: ClassVar[str] = "clothing"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _SWIMWEAR
 
 

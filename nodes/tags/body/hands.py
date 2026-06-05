@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -60,14 +60,23 @@ _DETAIL: tuple[str, ...] = (
 
 
 class HandsPose(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.hands.pose"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _POSE
 
 
 class HandsGesture(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.hands.gesture"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _GESTURE
 
 
 class HandsDetail(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.hands.detail"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _DETAIL
 
 

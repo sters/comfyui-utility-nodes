@@ -29,7 +29,12 @@ This repo provides ComfyUI prompt-builder nodes whose only variable input is a l
 
   Then just `class FooBar(TagNodeBase): TAGS = _FOO`. For groups whose BOOLEAN default should be `True` (e.g. negative-prompt bad-tag families), override `DEFAULT_BOOLEAN: ClassVar[bool] = True` on the subclass.
 
-- `TagNodeBase` provides: `RETURN_TYPES/RETURN_NAMES/FUNCTION/CATEGORY/OUTPUT_NODE`; `INPUT_TYPES` with `separator` + `preset` combo (`custom`/`all_on`/`all_off`/`invert`, default `custom`) + one BOOLEAN per tag (defaulting from `cls.DEFAULT_BOOLEAN`) + optional `extra`; and `build(self, separator, extra="", **kwargs)` that pops `preset` from kwargs and applies preset logic. The build return shape is `{"ui": {"text": (prompt,)}, "result": (prompt,)}` for in-node preview.
+- `TagNodeBase` provides: `RETURN_TYPES = ("STRING", TAGS_TYPE)` / `RETURN_NAMES = ("prompt", "bundle")`; `INPUT_TYPES` with `separator` + `preset` combo (`custom`/`all_on`/`all_off`/`invert`) + one BOOLEAN per tag (defaulting from `cls.DEFAULT_BOOLEAN`) + optional `extra`; and `build(self, separator, extra="", **kwargs)` that pops `preset` from kwargs and applies preset logic. The build return shape is `{"ui": {"text": (prompt,)}, "result": (prompt, bundle)}` where `bundle` is a `tuple[TaggedSelection, ...]` carrying the structured payload.
+- **Every subclass MUST set `CATEGORY_ID: ClassVar[str]`, `LAYER: ClassVar[str]`, and `MUTEX_WITHIN: ClassVar[bool]`** above its `TAGS = _FOO` line. Patterns:
+  - `CATEGORY_ID` — dotted path used by `TagsMerge` for mutex dedupe. Format `<layer>.<theme>[.<subgroup>]`, e.g. `body.hair.length_style`, `clothing.footwear`, `nsfw.position`.
+  - `LAYER` — coarse bucket (`bad`, `composition`, `anatomy`, `exposure`, `clothing`, `nsfw_act`, `nsfw_state`). Used for cross-layer conflict resolution.
+  - `MUTEX_WITHIN` — `True` for pick-one groups (hair length/color, body skin tone, position, footwear, etc.). `False` for additive groups (marks, accessories, gesture).
+- If the new theme creates a conflict with an existing layer (e.g. "fully nude clothing override"), edit `nodes/tags/_conflicts.py`'s `TAG_OVERRIDES` map.
 
 - `__init__.py` MUST load `_tag_node_base.py` FIRST (registers `_cuun_tag_node_base` in `sys.modules`) before any tag-node file. Tests rely on `tests/conftest.py` doing the same pre-registration.
 - Reference implementations (see the directory layout above):

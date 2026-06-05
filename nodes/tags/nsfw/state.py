@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -64,10 +64,16 @@ _AFTERMATH_EXPRESSION: tuple[str, ...] = (
 
 
 class NsfwStateFluids(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.state.fluids"
+    LAYER: ClassVar[str] = "nsfw_state"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _FLUIDS
 
 
 class NsfwStateAftermathExpression(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "nsfw.state.aftermath"
+    LAYER: ClassVar[str] = "nsfw_state"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _AFTERMATH_EXPRESSION
 
 

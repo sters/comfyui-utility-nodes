@@ -74,26 +74,41 @@ _NSFW: tuple[str, ...] = (
 
 
 class BadGeneral(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "bad.general"
+    LAYER: ClassVar[str] = "bad"
+    MUTEX_WITHIN: ClassVar[bool] = False
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _GENERAL
 
 
 class BadHeadFace(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "bad.head_face"
+    LAYER: ClassVar[str] = "bad"
+    MUTEX_WITHIN: ClassVar[bool] = False
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _HEAD_FACE
 
 
 class BadBody(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "bad.body"
+    LAYER: ClassVar[str] = "bad"
+    MUTEX_WITHIN: ClassVar[bool] = False
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _BODY
 
 
 class BadLimbs(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "bad.limbs"
+    LAYER: ClassVar[str] = "bad"
+    MUTEX_WITHIN: ClassVar[bool] = False
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _LIMBS
 
 
 class BadNSFW(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "bad.nsfw"
+    LAYER: ClassVar[str] = "bad"
+    MUTEX_WITHIN: ClassVar[bool] = False
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _NSFW
 

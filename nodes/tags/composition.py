@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -86,22 +86,37 @@ _FOCUS: tuple[str, ...] = (
 
 
 class CompositionAngle(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "composition.angle"
+    LAYER: ClassVar[str] = "composition"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _ANGLE
 
 
 class CompositionFraming(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "composition.framing"
+    LAYER: ClassVar[str] = "composition"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _FRAMING
 
 
 class CompositionCrop(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "composition.crop"
+    LAYER: ClassVar[str] = "composition"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _CROP
 
 
 class CompositionFocus(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "composition.focus"
+    LAYER: ClassVar[str] = "composition"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _FOCUS
 
 
 class CompositionMultiView(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "composition.multi_view"
+    LAYER: ClassVar[str] = "composition"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _MULTIVIEW
 
 

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -96,14 +96,23 @@ _DETAILS: tuple[str, ...] = (
 
 
 class HairLengthStyle(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.hair.length_style"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _LENGTH_STYLE
 
 
 class HairColor(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.hair.color"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _COLOR
 
 
 class HairDetails(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.hair.details"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _DETAILS
 
 

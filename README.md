@@ -91,6 +91,39 @@ Negative prompt 用に、Danbooru の [bad_anatomy](https://danbooru.donmai.us/w
 
 「今は NSFW 生成じゃない」「猫耳/獣耳キャラなので Head & Face は外す」のようにノード単位で一括 on/off できる（不要なノードはワークフローから外すか出力を繋がない）。意図的なキャラ設計（`extra_ears`, `extra_tails`, `extra_horns` 等）と当たるタグは個別に off にする。
 
+### タグ系ノード共通: 2系統出力 + `preset` combo
+
+タグ系ノードはすべて 2 つの出力を持つ:
+
+- `prompt` (STRING): 旧来通り、選択タグを `separator` で連結した文字列。`TextConcat` などにそのまま繋げる
+- `bundle` (`CUUN_TAGS`): 構造化データ。category / layer / mutex_within をメタ情報として持つ。`TagsMerge` ノードに繋ぐと群内排他・群間矛盾の自動解決ができる
+
+整合性をきっちり取りたい時は **すべてのタグノードの `bundle` を `TagsMerge` に集約** するのが推奨ワークフロー。`prompt` 出力は手軽にちょっとだけ繋ぎたい時用。
+
+### Tags Merge & Validate
+
+`utility/text` カテゴリ。最大10個の `CUUN_TAGS` 入力を受け取り、以下を解決して STRING を出力する。
+
+- 入力
+  - `separator` (STRING)
+  - `bundle_1` ~ `bundle_10` (CUUN_TAGS, optional): 各タグノードの `bundle` を接続
+  - `extra` (STRING, multiline, optional): 後ろに追記
+- 出力
+  - `prompt` (STRING): 最終プロンプト
+  - `warnings` (STRING): 解決時に drop したタグの記録 (デバッグ用)
+  - `bundle` (CUUN_TAGS): 解決後の bundle (別の TagsMerge に再投入可能)
+
+挙動:
+1. **mutex_within**: 同 `category` に複数の選択があれば最初だけ残す。例: HairColor (mutex) を 2 つ繋いだら片方を drop。同一ノード内で `all_on` した時も最初の 1 タグだけ残す
+2. **TAG_OVERRIDES**: 特定タグがあるとレイヤー横断で drop:
+   - `nude` / `completely_nude` → `clothing.*` を全 drop
+   - `topless` → `clothing.tops` + `clothing.underwear` を drop
+   - `bottomless` → `clothing.bottoms` を drop
+   - `barefoot` / `no_shoes` → `clothing.footwear` を drop
+   - `no_legwear` → `clothing.legwear` を drop
+
+`extra` で入れた自由テキストは drop 対象外。
+
 ### タグ系ノード共通: `preset` combo
 
 Bad / Composition / Hair / Hands / Feet / Breasts / Body / Clothing 系の全タグノードは共通で `preset` combo を持つ。

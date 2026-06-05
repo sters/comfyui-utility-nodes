@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TagNodeBase
@@ -58,14 +58,23 @@ _TATTOOS: tuple[str, ...] = (
 
 
 class BodyMolesFreckles(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.marks.moles"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _MOLES_FRECKLES
 
 
 class BodyScars(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.marks.scars"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _SCARS
 
 
 class BodyTattoos(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "body.marks.tattoos"
+    LAYER: ClassVar[str] = "anatomy"
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _TATTOOS
 
 
