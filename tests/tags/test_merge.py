@@ -2031,6 +2031,101 @@ def test_archetype_rooftop_sunset_skyline() -> None:
         assert tag in prompt
 
 
+def test_face_mutex_groups_eye_openness() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.face.eyes.state", ("closed_eyes", "wide-eyed")),),
+    )
+    tokens = prompt.split(", ")
+    assert "closed_eyes" in tokens
+    assert "wide-eyed" not in tokens
+    assert "mutex_group" in warnings
+
+
+def test_face_mutex_groups_gaze_direction() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.face.eyes.state", ("looking_up", "looking_down", "looking_at_viewer")),),
+    )
+    tokens = prompt.split(", ")
+    assert tokens == ["looking_up"]
+    assert "looking_down" in warnings
+    assert "looking_at_viewer" in warnings
+
+
+def test_face_mutex_groups_mouth_open_vs_closed() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.face.mouth.state", ("open_mouth", "closed_mouth")),),
+    )
+    assert prompt == "open_mouth"
+    assert "mutex_group" in warnings
+
+
+def test_face_mutex_groups_emoticon_shapes() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.face.mouth.state", (":d", ":3", ":o", ":p")),),
+    )
+    assert prompt == ":d"
+
+
+def test_face_mutex_groups_smile_vs_frown_collapses() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.face.expression", ("smile", "frown")),),
+    )
+    assert prompt == "smile"
+    assert "frown" in warnings
+
+
+def test_face_smile_and_grin_coexist() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.face.expression", ("smile", "grin", "laughing")),),
+    )
+    for t in ("smile", "grin", "laughing"):
+        assert t in prompt
+
+
+def test_face_smile_and_sad_coexist_for_sad_smile() -> None:
+    # bittersweet sad smile — neither drops
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.face.expression", ("smile", "sad", "tearful")),),
+    )
+    for t in ("smile", "sad", "tearful"):
+        assert t in prompt
+
+
+def test_face_happy_vs_sad_mutex() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.face.expression", ("happy", "sad")),),
+    )
+    assert prompt == "happy"
+
+
+def test_face_expressionless_vs_active_expression_mutex() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.face.expression", ("expressionless", "smile", "frown")),),
+    )
+    assert prompt == "expressionless"
+    assert "smile" in warnings
+    assert "frown" in warnings
+
+
+def test_face_smug_layers_on_top_of_smile() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.face.expression", ("smile", "smug", "smirk")),),
+    )
+    for t in ("smile", "smug", "smirk"):
+        assert t in prompt
+
+
+def test_face_embarrassed_blush_still_coexist() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.face.expression", ("embarrassed",)),),
+        bundle_2=(_sel("body.face.blush_flush", ("blush", "full-face_blush")),),
+    )
+    assert "embarrassed" in prompt
+    assert "blush" in prompt
+    assert "full-face_blush" in prompt
+    assert warnings == ""
+
+
 def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),

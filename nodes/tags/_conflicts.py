@@ -66,6 +66,57 @@ MUTEX_GROUPS: tuple[frozenset[str], ...] = (
     frozenset({"very_long_hair", "long_hair", "medium_hair", "short_hair"}),
     # Skirt length (tops/bottoms otherwise stack: bike_shorts under skirt, etc.)
     frozenset({"long_skirt", "miniskirt"}),
+    # Eye openness — physically one state at a time.
+    frozenset({"closed_eyes", "half-closed_eyes", "wide-eyed", "narrowed_eyes"}),
+    # Gaze direction — looking somewhere is positional, not stackable.
+    frozenset(
+        {
+            "looking_at_viewer",
+            "looking_away",
+            "looking_down",
+            "looking_up",
+            "looking_back",
+            "looking_to_the_side",
+            "looking_ahead",
+            "looking_at_another",
+            "side_glance",
+        }
+    ),
+    # Mouth opening — one posture only.
+    frozenset(
+        {
+            "open_mouth",
+            "closed_mouth",
+            "parted_lips",
+            "gritted_teeth",
+            "clenched_teeth",
+            "biting_lip",
+        }
+    ),
+    # Emoticon mouth shapes — one shape only.
+    frozenset({":3", ":d", ":o", ":p", ":q", ":t", ":<", ":>", "wavy_mouth"}),
+    # Mouth curve direction — only enumerate the pair-wise "up vs down"
+    # contradictions so siblings can stack (smile + grin = ok,
+    # smile + frown = collapse to smile).
+    frozenset({"smile", "frown"}),
+    frozenset({"smile", "scowl"}),
+    frozenset({"grin", "frown"}),
+    frozenset({"grin", "scowl"}),
+    frozenset({"laughing", "frown"}),
+    frozenset({"laughing", "scowl"}),
+    # Emotion valence — happy vs sad are clear opposites.
+    frozenset({"happy", "sad"}),
+    # Expressionless contradicts active expressions.
+    frozenset({"expressionless", "smile"}),
+    frozenset({"expressionless", "grin"}),
+    frozenset({"expressionless", "frown"}),
+    frozenset({"expressionless", "angry"}),
+    frozenset({"expressionless", "happy"}),
+    frozenset({"expressionless", "sad"}),
+    frozenset({"blank_expression", "smile"}),
+    frozenset({"blank_expression", "frown"}),
+    frozenset({"blank_expression", "happy"}),
+    frozenset({"blank_expression", "sad"}),
 )
 
 
