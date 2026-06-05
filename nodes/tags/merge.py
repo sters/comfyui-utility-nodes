@@ -2,10 +2,10 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TAGS_TYPE, TaggedSelection
-    from nodes.tags._conflicts import TAG_CONFLICTS
+    from nodes.tags._conflicts import MUTEX_GROUPS, TAG_CONFLICTS
 else:
     from _cuun_tag_node_base import TAGS_TYPE, TaggedSelection
-    from _cuun_tags_conflicts import TAG_CONFLICTS
+    from _cuun_tags_conflicts import MUTEX_GROUPS, TAG_CONFLICTS
 
 
 _MAX_INPUTS = 10
@@ -67,7 +67,19 @@ class TagsMerge:
                 seen_mutex[sel.category] = sel
             post_mutex.append(sel)
 
-        # 3. Per-tag conflict suppression. Build the drop set from triggers
+        # 3. Apply MUTEX_GROUPS: cross-category subsets where only one
+        #    member may survive (e.g. long_hair vs short_hair).
+        mutex_drop: set[str] = set()
+        ordered_tags = [t for sel in post_mutex if sel.category != _EXTRA_CATEGORY for t in sel.tags]
+        for group in MUTEX_GROUPS:
+            present = [t for t in ordered_tags if t in group]
+            if len(present) > 1:
+                group_kept = present[0]
+                group_dropped = present[1:]
+                mutex_drop.update(group_dropped)
+                warnings.append(f"mutex_group: kept '{group_kept}', dropped {group_dropped}")
+
+        # 4. Per-tag conflict suppression. Build the drop set from triggers
         #    present in any non-extra selection, then filter each non-extra
         #    selection's tags. The trigger tags themselves are never dropped.
         all_tags_present = {t for sel in post_mutex if sel.category != _EXTRA_CATEGORY for t in sel.tags}
@@ -78,18 +90,19 @@ class TagsMerge:
                 drop_tags.update(TAG_CONFLICTS[tag])
                 triggers.add(tag)
         drop_tags -= triggers
+        all_drop = drop_tags | mutex_drop
 
         final: list[TaggedSelection] = []
         for sel in post_mutex:
             if sel.category == _EXTRA_CATEGORY:
                 final.append(sel)
                 continue
-            kept = tuple(t for t in sel.tags if t not in drop_tags)
-            dropped = tuple(t for t in sel.tags if t in drop_tags)
-            if dropped:
+            kept = tuple(t for t in sel.tags if t not in all_drop)
+            conflict_dropped = tuple(t for t in sel.tags if t in drop_tags)
+            if conflict_dropped:
                 warnings.append(
-                    f"conflict: dropped {list(dropped)} from '{sel.category}' "
-                    f"(triggered by {sorted(triggers & set(all_tags_present))})"
+                    f"conflict: dropped {list(conflict_dropped)} from '{sel.category}' "
+                    f"(triggered by {sorted(triggers)})"
                 )
             if not kept:
                 continue

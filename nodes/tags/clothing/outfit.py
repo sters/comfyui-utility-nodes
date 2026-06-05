@@ -127,14 +127,14 @@ _UNIFORM: tuple[str, ...] = (
 class ClothingTops(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "clothing.tops"
     LAYER: ClassVar[str] = "clothing"
-    MUTEX_WITHIN: ClassVar[bool] = True
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _TOPS
 
 
 class ClothingBottoms(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "clothing.bottoms"
     LAYER: ClassVar[str] = "clothing"
-    MUTEX_WITHIN: ClassVar[bool] = True
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _BOTTOMS
 
 

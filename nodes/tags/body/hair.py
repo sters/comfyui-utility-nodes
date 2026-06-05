@@ -98,7 +98,7 @@ _DETAILS: tuple[str, ...] = (
 class HairLengthStyle(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "body.hair.length_style"
     LAYER: ClassVar[str] = "anatomy"
-    MUTEX_WITHIN: ClassVar[bool] = True
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _LENGTH_STYLE
 
 

@@ -55,6 +55,20 @@ _ALL_CLOTHING: frozenset[str] = frozenset(
     {*_TOPS, *_BOTTOMS, *_DRESS_ONEPIECE, *_UNIFORM, *_UNDERWEAR, *_SWIMWEAR, *_FOOTWEAR, *_LEGWEAR}
 )
 
+# Bidirectional mutex groups. If multiple tags from a single group are
+# present in the merged bundle, keep the first one (input order) and drop
+# the rest. Use this for sub-category exclusivity that doesn't align with
+# the per-category MUTEX_WITHIN flag (e.g. hair length vs hair style are
+# in the same TagNode, but only "length" is mutex among itself).
+MUTEX_GROUPS: tuple[frozenset[str], ...] = (
+    # Hair length descriptors (style descriptors like ponytail/twintails
+    # can coexist with any length).
+    frozenset({"very_long_hair", "long_hair", "medium_hair", "short_hair"}),
+    # Skirt length (tops/bottoms otherwise stack: bike_shorts under skirt, etc.)
+    frozenset({"long_skirt", "miniskirt"}),
+)
+
+
 TAG_CONFLICTS: dict[str, frozenset[str]] = {
     "nude": _ALL_CLOTHING,
     "completely_nude": _ALL_CLOTHING,

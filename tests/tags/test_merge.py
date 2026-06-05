@@ -190,6 +190,45 @@ def test_trigger_tag_itself_is_never_dropped() -> None:
     assert "nude" in prompt
 
 
+def test_mutex_group_drops_conflicting_length_tags() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair", "short_hair")),),
+    )
+    tokens = prompt.split(", ")
+    assert "long_hair" in tokens
+    assert "short_hair" not in tokens
+    assert "mutex_group" in warnings
+
+
+def test_mutex_group_lets_orthogonal_tags_coexist() -> None:
+    # long_hair (length) + ponytail (style) belong to different mutex
+    # groups (style is not in MUTEX_GROUPS), so both survive.
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
+    )
+    assert "long_hair" in prompt
+    assert "ponytail" in prompt
+
+
+def test_tops_can_layer() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.tops", ("shirt", "cardigan", "jacket")),),
+    )
+    for t in ("shirt", "cardigan", "jacket"):
+        assert t in prompt
+
+
+def test_bottoms_layer_but_skirt_length_is_mutex() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("clothing.bottoms", ("bike_shorts", "long_skirt", "miniskirt")),),
+    )
+    tokens = prompt.split(", ")
+    assert "bike_shorts" in tokens
+    assert "long_skirt" in tokens
+    assert "miniskirt" not in tokens
+    assert "mutex_group" in warnings
+
+
 def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),

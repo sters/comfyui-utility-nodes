@@ -74,7 +74,7 @@ class ClothingMaterial(TagNodeBase):
 class ClothingPattern(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "clothing.pattern"
     LAYER: ClassVar[str] = "clothing"
-    MUTEX_WITHIN: ClassVar[bool] = True
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _PATTERN
 
 
