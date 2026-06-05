@@ -422,6 +422,203 @@ def test_long_hair_ponytail_stack_with_ribbon() -> None:
     assert prompt == "long_hair, ponytail, black_hair, hair_ribbon"
 
 
+def test_fit_layers_with_outfit_and_body_size() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("clothing.fit", ("skin_tight", "impossible_dress")),),
+        bundle_2=(_sel("clothing.dress", ("sundress",), mutex_within=True),),
+        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
+    )
+    for tag in ("skin_tight", "impossible_dress", "sundress", "large_breasts"):
+        assert tag in prompt
+    assert warnings == ""
+
+
+def test_taut_clothes_with_bursting_breasts_and_size() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.fit", ("taut_clothes", "taut_shirt", "bursting_breasts")),),
+        bundle_2=(_sel("clothing.tops", ("shirt",)),),
+        bundle_3=(_sel("body.breasts.size", ("huge_breasts",), mutex_within=True),),
+    )
+    for tag in ("taut_clothes", "taut_shirt", "bursting_breasts", "shirt", "huge_breasts"):
+        assert tag in prompt
+
+
+def test_loose_oversized_stack() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.fit", ("loose_clothes", "oversized_shirt")),),
+        bundle_2=(_sel("clothing.tops", ("sweater",)),),
+    )
+    for tag in ("loose_clothes", "oversized_shirt", "sweater"):
+        assert tag in prompt
+
+
+def test_panties_aside_and_bra_aside_coexist_with_actual_items() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.aside", ("panties_aside", "bra_aside")),),
+        bundle_2=(_sel("clothing.underwear", ("bra", "panties")),),
+    )
+    for tag in ("panties_aside", "bra_aside", "bra", "panties"):
+        assert tag in prompt
+
+
+def test_bottomless_drops_panties_but_keeps_panties_aside_marker() -> None:
+    # Edge case: bottomless removes the panties tag itself, but
+    # `panties_aside` lives in clothing.aside (separate category) and is
+    # not in any TAG_CONFLICTS drop set. The bundle ends up showing
+    # "bottomless, panties_aside" without panties — semantically odd
+    # but documents current behavior.
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("clothing.state", ("bottomless",)),),
+        bundle_2=(_sel("clothing.aside", ("panties_aside",)),),
+        bundle_3=(_sel("clothing.underwear", ("panties",)),),
+    )
+    assert "bottomless" in prompt
+    assert "panties_aside" in prompt
+    assert "panties" not in prompt.split(", ")
+    assert "panties" in warnings
+
+
+def test_strap_slip_family_stacks() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(
+            _sel(
+                "clothing.aside",
+                ("strap_slip", "double_strap_slip", "suspenders_slip"),
+            ),
+        ),
+        bundle_2=(_sel("clothing.tops", ("tank_top",)),),
+    )
+    for tag in ("strap_slip", "double_strap_slip", "suspenders_slip", "tank_top"):
+        assert tag in prompt
+
+
+def test_wind_lift_skirt_panchira() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.aside", ("wind_lift", "exposed_gusset")),),
+        bundle_2=(_sel("clothing.state", ("skirt_lift",)),),
+        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
+        bundle_4=(_sel("clothing.underwear", ("panties",)),),
+    )
+    for tag in ("wind_lift", "exposed_gusset", "skirt_lift", "pleated_skirt", "panties"):
+        assert tag in prompt
+
+
+def test_goggles_on_head_now_coexists_with_glasses() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
+        bundle_2=(_sel("clothing.position", ("goggles_on_head",)),),
+    )
+    assert "glasses" in prompt
+    assert "goggles_on_head" in prompt
+
+
+def test_hood_item_with_hood_up_state_coexist() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.headwear", ("hood",), mutex_within=True),),
+        bundle_2=(_sel("clothing.position", ("hood_up",)),),
+        bundle_3=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
+    )
+    for tag in ("hood", "hood_up", "glasses"):
+        assert tag in prompt
+
+
+def test_jacket_on_shoulders_with_jacket_and_inner_top() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.position", ("jacket_on_shoulders",)),),
+        bundle_2=(_sel("clothing.tops", ("jacket", "tank_top")),),
+    )
+    for tag in ("jacket_on_shoulders", "jacket", "tank_top"):
+        assert tag in prompt
+
+
+def test_clothes_around_waist_layered_with_actual_clothes() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.position", ("clothes_around_waist", "shirt_around_waist")),),
+        bundle_2=(_sel("clothing.bottoms", ("shorts",)),),
+        bundle_3=(_sel("clothing.tops", ("tank_top",)),),
+    )
+    for tag in ("clothes_around_waist", "shirt_around_waist", "shorts", "tank_top"):
+        assert tag in prompt
+
+
+def test_breast_lift_and_bra_lift_with_exposed_nipples() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.state", ("bra_lift", "breast_lift")),),
+        bundle_2=(_sel("body.breasts.shape_state", ("nipples", "areola_slip")),),
+        bundle_3=(_sel("clothing.underwear", ("bra",)),),
+    )
+    for tag in ("bra_lift", "breast_lift", "nipples", "areola_slip", "bra"):
+        assert tag in prompt
+
+
+def test_lift_family_panchira_full_combo() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.state", ("skirt_lift", "lifting_own_clothes")),),
+        bundle_2=(_sel("clothing.aside", ("wind_lift", "exposed_gusset")),),
+        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
+        bundle_4=(_sel("clothing.underwear", ("panties",)),),
+    )
+    for tag in (
+        "skirt_lift",
+        "lifting_own_clothes",
+        "wind_lift",
+        "exposed_gusset",
+        "pleated_skirt",
+        "panties",
+    ):
+        assert tag in prompt
+
+
+def test_bunny_outfit_with_fit_and_position() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
+        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.breasts.size", ("huge_breasts",), mutex_within=True),),
+        bundle_4=(_sel("body.figure", ("thick_thighs", "wide_hips")),),
+        bundle_5=(
+            _sel("clothing.fit", ("skin_tight", "impossible_clothes", "bursting_breasts")),
+        ),
+        bundle_6=(_sel("clothing.uniform", ("bunny_girl",), mutex_within=True),),
+        bundle_7=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
+        bundle_8=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
+        bundle_9=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
+        bundle_10=(_sel("clothing.position", ("goggles_on_head",)),),
+    )
+    for tag in (
+        "long_hair",
+        "ponytail",
+        "huge_breasts",
+        "bursting_breasts",
+        "bunny_girl",
+        "pantyhose",
+        "high_heels",
+        "glasses",
+        "goggles_on_head",
+    ):
+        assert tag in prompt
+
+
+def test_nude_currently_does_not_drop_fit_aside_position_tags() -> None:
+    # Documents current behavior: nude drops items in tops/bottoms/dress/
+    # uniform/underwear/swimwear/footwear/legwear (TAG_CONFLICTS["nude"] =
+    # _ALL_CLOTHING), but fit/aside/position categories aren't in that set.
+    # Semantically `nude + skin_tight` is incoherent; flagged for future
+    # refinement.
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.exposure", ("nude",)),),
+        bundle_2=(_sel("clothing.fit", ("skin_tight",)),),
+        bundle_3=(_sel("clothing.aside", ("panties_aside",)),),
+        bundle_4=(_sel("clothing.position", ("goggles_on_head",)),),
+        bundle_5=(_sel("clothing.underwear", ("panties",)),),
+    )
+    assert "nude" in prompt
+    assert "panties" not in prompt.split(", ")  # actual underwear dropped
+    assert "skin_tight" in prompt  # fit not dropped (edge case)
+    assert "panties_aside" in prompt  # aside not dropped (edge case)
+    assert "goggles_on_head" in prompt  # position fine (independent item)
+    assert "panties" in warnings
+
+
 def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),
