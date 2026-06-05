@@ -617,6 +617,178 @@ def test_nude_currently_does_not_drop_fit_aside_position_tags() -> None:
     assert "panties" in warnings
 
 
+def test_panchira_from_below_with_skirt_lift_and_panties() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("composition.angle", ("from_below",), mutex_within=True),),
+        bundle_2=(_sel("clothing.state", ("skirt_lift",)),),
+        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
+        bundle_4=(_sel("clothing.underwear", ("panties",)),),
+    )
+    assert prompt == "from_below, skirt_lift, pleated_skirt, panties"
+    assert warnings == ""
+
+
+def test_five_layer_tops_all_kept() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.tops", ("shirt", "sweater", "cardigan", "jacket", "coat")),),
+    )
+    for t in ("shirt", "sweater", "cardigan", "jacket", "coat"):
+        assert t in prompt
+
+
+def test_wet_seethrough_tank_top_nipples() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.material", ("wet_clothes", "see-through")),),
+        bundle_2=(_sel("clothing.tops", ("tank_top",)),),
+        bundle_3=(_sel("body.breasts.shape_state", ("nipples",)),),
+    )
+    for tag in ("wet_clothes", "see-through", "tank_top", "nipples"):
+        assert tag in prompt
+
+
+def test_bondage_setup_with_clothing_layers() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("nsfw.bdsm", ("tied_up", "handcuffs", "ball_gag", "bondage")),),
+        bundle_2=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
+        bundle_3=(_sel("clothing.underwear", ("corset",)),),
+    )
+    for tag in ("tied_up", "handcuffs", "ball_gag", "bondage", "thighhighs", "corset"):
+        assert tag in prompt
+
+
+def test_lewd_expression_stack() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(
+            _sel(
+                "nsfw.state.aftermath",
+                ("ahegao", "tongue_out", "heart-shaped_pupils", "drooling", "blush"),
+            ),
+        ),
+    )
+    for tag in ("ahegao", "tongue_out", "heart-shaped_pupils", "drooling", "blush"):
+        assert tag in prompt
+
+
+def test_full_body_tattoo_stack() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(
+            _sel(
+                "body.marks.tattoos",
+                (
+                    "arm_tattoo",
+                    "back_tattoo",
+                    "chest_tattoo",
+                    "thigh_tattoo",
+                    "facial_tattoo",
+                    "neck_tattoo",
+                ),
+            ),
+        ),
+    )
+    for tag in (
+        "arm_tattoo",
+        "back_tattoo",
+        "chest_tattoo",
+        "thigh_tattoo",
+        "facial_tattoo",
+        "neck_tattoo",
+    ):
+        assert tag in prompt
+
+
+def test_eleventh_bundle_is_ignored() -> None:
+    bundles = {f"bundle_{i + 1}": (_sel("test", (f"t{i + 1}",)),) for i in range(11)}
+    prompt, _, _ = _run(**bundles)
+    tokens = prompt.split(", ")
+    assert "t10" in tokens
+    assert "t11" not in tokens
+
+
+def test_hair_details_stack_with_headwear() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(
+            _sel(
+                "body.hair.details",
+                ("ahoge", "bangs", "hair_over_one_eye", "hair_ornament", "hair_bow"),
+            ),
+        ),
+        bundle_2=(_sel("clothing.headwear", ("tiara",), mutex_within=True),),
+    )
+    for tag in (
+        "ahoge",
+        "bangs",
+        "hair_over_one_eye",
+        "hair_ornament",
+        "hair_bow",
+        "tiara",
+    ):
+        assert tag in prompt
+
+
+def test_composition_crop_layers_keep_all() -> None:
+    # Crops are non-mutex — overlapping crop tags coexist (over-cropped
+    # framing is intentional, mostly for negative prompts).
+    prompt, _, _ = _run(
+        bundle_1=(
+            _sel(
+                "composition.crop",
+                ("cropped_legs", "cropped_head", "head_out_of_frame", "feet_out_of_frame"),
+            ),
+        ),
+    )
+    for tag in ("cropped_legs", "cropped_head", "head_out_of_frame", "feet_out_of_frame"):
+        assert tag in prompt
+
+
+def test_three_hair_colors_collapsed_by_mutex_within() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(
+            _sel(
+                "body.hair.color",
+                ("blonde_hair", "black_hair", "brown_hair"),
+                mutex_within=True,
+            ),
+        ),
+    )
+    assert prompt == "blonde_hair"
+    assert "black_hair" in warnings
+    assert "brown_hair" in warnings
+
+
+def test_eyewear_and_position_goggles_and_monocle() -> None:
+    # Eyewear keeps mutex_within=True; monocle vs glasses collapses.
+    # goggles_on_head (Position) is independent and survives alongside.
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("clothing.eyewear", ("glasses", "monocle"), mutex_within=True),),
+        bundle_2=(_sel("clothing.position", ("goggles_on_head",)),),
+    )
+    assert "glasses" in prompt
+    assert "monocle" not in prompt.split(", ")
+    assert "goggles_on_head" in prompt
+    assert "monocle" in warnings
+
+
+def test_solo_kink_stack() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(
+            _sel(
+                "nsfw.solo",
+                ("masturbation", "female_masturbation", "spread_pussy", "nipple_tweak"),
+            ),
+        ),
+        bundle_2=(_sel("nsfw.toy", ("dildo", "vibrator_on_nipple")),),
+    )
+    for tag in (
+        "masturbation",
+        "female_masturbation",
+        "spread_pussy",
+        "nipple_tweak",
+        "dildo",
+        "vibrator_on_nipple",
+    ):
+        assert tag in prompt
+
+
 def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),
