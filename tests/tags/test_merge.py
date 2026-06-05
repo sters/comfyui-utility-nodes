@@ -229,7 +229,80 @@ def test_bottoms_layer_but_skirt_length_is_mutex() -> None:
     assert "mutex_group" in warnings
 
 
-def test_returned_bundle_can_be_re_merged() -> None:
+def test_realistic_schoolgirl_passes_through_unchanged() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
+        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
+        bundle_3=(_sel("body.hair.details", ("bangs", "hair_ribbon")),),
+        bundle_4=(_sel("body.breasts.size", ("medium_breasts",), mutex_within=True),),
+        bundle_5=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
+        bundle_6=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
+        bundle_7=(_sel("clothing.footwear", ("loafers",), mutex_within=True),),
+    )
+    expected = "long_hair, black_hair, bangs, hair_ribbon, medium_breasts, serafuku, thighhighs, loafers"
+    assert prompt == expected
+    assert warnings == ""
+
+
+def test_marks_and_accessories_stack_on_nude_body() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("body.exposure", ("nude",)),),
+        bundle_2=(_sel("body.marks.moles", ("mole_under_eye", "freckles")),),
+        bundle_3=(_sel("body.marks.tattoos", ("arm_tattoo", "back_tattoo")),),
+        bundle_4=(_sel("clothing.hand_arm", ("bracelet", "ring", "watch")),),
+        bundle_5=(_sel("clothing.neck", ("necklace", "choker")),),
+        bundle_6=(_sel("clothing.accessory.other", ("earrings",)),),
+    )
+    for tag in (
+        "nude",
+        "mole_under_eye",
+        "freckles",
+        "arm_tattoo",
+        "bracelet",
+        "ring",
+        "necklace",
+        "choker",
+        "earrings",
+    ):
+        assert tag in prompt
+    assert warnings == ""
+
+
+def test_composition_mutex_picks_first_angle_framing_focus() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("composition.angle", ("from_above",), mutex_within=True),),
+        bundle_2=(_sel("composition.angle", ("dutch_angle",), mutex_within=True),),
+        bundle_3=(_sel("composition.framing", ("portrait",), mutex_within=True),),
+        bundle_4=(_sel("composition.framing", ("full_body",), mutex_within=True),),
+        bundle_5=(_sel("composition.focus", ("hand_focus",), mutex_within=True),),
+    )
+    tokens = prompt.split(", ")
+    assert tokens == ["from_above", "portrait", "hand_focus"]
+    assert "dutch_angle" in warnings
+    assert "full_body" in warnings
+
+
+def test_nsfw_solo_toy_bdsm_stack_independently() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("nsfw.solo", ("masturbation", "spread_pussy")),),
+        bundle_2=(_sel("nsfw.toy", ("dildo", "vibrator")),),
+        bundle_3=(_sel("nsfw.bdsm", ("restrained", "ball_gag")),),
+    )
+    for tag in ("masturbation", "spread_pussy", "dildo", "vibrator", "restrained", "ball_gag"):
+        assert tag in prompt
+    assert warnings == ""
+
+
+def test_paizuri_with_topless_drops_only_outer_top() -> None:
+    prompt, warnings, _ = _run(
+        bundle_1=(_sel("nsfw.act.oral_contact", ("paizuri",)),),
+        bundle_2=(_sel("clothing.state", ("topless",)),),
+        bundle_3=(_sel("clothing.tops", ("shirt",)),),
+    )
+    assert "paizuri" in prompt
+    assert "topless" in prompt
+    assert "shirt" not in prompt.split(", ")
+    assert "topless" in warnings or "conflict" in warnings
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),
         bundle_2=(_sel("b", ("y",)),),
