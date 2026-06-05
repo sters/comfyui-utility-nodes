@@ -24,8 +24,6 @@ _STATE: tuple[str, ...] = (
     "partially_unbuttoned",
     "unbuttoned",
     "untied",
-    "loose_clothes",
-    "loose_shirt",
     "loose_necktie",
     "wardrobe_malfunction",
 )
@@ -45,11 +43,16 @@ _LIFT_PULL: tuple[str, ...] = (
     "panties_down",
     "shirt_tug",
     "clothes_tug",
+    "holding_skirt",
+    "bunching_skirt",
+    "clothes_held_up",
+    "skirt_hold",
+    "lifted_by_self",
+    "lifted_by_another",
     "clothes_removed",
     "shirt_removed",
     "panties_removed",
     "bra_removed",
-    "clothes_around_waist",
     "clothes_in_mouth",
 )
 

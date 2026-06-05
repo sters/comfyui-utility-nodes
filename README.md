@@ -277,8 +277,20 @@ Crop 系（`cropped_*`, `*_out_of_frame`）は「見切れ」なので negative 
 
 | ノード | 対象タグ |
 | --- | --- |
-| Clothing: Headwear | `hat`, `baseball_cap`, `beret`, `cap`, `peaked_cap`, `newsboy_cap`, `flat_cap`, `fedora`, `top_hat`, `bowler_hat`, `mob_cap`, `sun_hat`, `straw_hat`, `witch_hat`, `wizard_hat`, `santa_hat`, `party_hat`, `nurse_cap`, `police_hat`, `military_hat`, `helmet`, `bicycle_helmet`, `motorcycle_helmet`, `hood`, `hood_up`, `hood_down`, `hooded_jacket`, `hooded_cape`, `headphones`, `headset`, `earmuffs`, `headband`, `head_wreath`, `head_scarf`, `veil`, `crown`, `mini_crown`, `tiara`, `hat_ribbon`, `hat_bow`, `hat_flower`, `hat_feather` |
-| Clothing: Eyewear | `glasses`, `sunglasses`, `round_eyewear`, `semi-rimless_eyewear`, `rimless_eyewear`, `over-rim_eyewear`, `under-rim_eyewear`, `goggles`, `goggles_on_head`, `swim_goggles`, `eyepatch`, `medical_eyepatch`, `monocle`, `pince-nez`, `blindfold` |
+| Clothing: Headwear | `hat`, `baseball_cap`, `beret`, `cap`, `peaked_cap`, `newsboy_cap`, `flat_cap`, `fedora`, `top_hat`, `bowler_hat`, `mob_cap`, `sun_hat`, `straw_hat`, `witch_hat`, `wizard_hat`, `santa_hat`, `party_hat`, `nurse_cap`, `police_hat`, `military_hat`, `helmet`, `bicycle_helmet`, `motorcycle_helmet`, `hood`, `hooded_jacket`, `hooded_cape`, `headphones`, `headset`, `earmuffs`, `headband`, `head_wreath`, `head_scarf`, `veil`, `crown`, `mini_crown`, `tiara`, `hat_ribbon`, `hat_bow`, `hat_flower`, `hat_feather` |
+| Clothing: Eyewear | `glasses`, `sunglasses`, `round_eyewear`, `semi-rimless_eyewear`, `rimless_eyewear`, `over-rim_eyewear`, `under-rim_eyewear`, `goggles`, `swim_goggles`, `eyepatch`, `medical_eyepatch`, `monocle`, `pince-nez`, `blindfold` |
+
+### Clothing Fit / Position / Aside Tags (3ノード)
+
+服の「状態」をさらに細分化したノード群。デフォルト全 False、全部 mutex なし。
+
+| ノード | 対象タグ |
+| --- | --- |
+| Clothing: Fit | `skin_tight`, `form_fitting`, `tight_clothes`, `tight_shirt`, `tight_dress`, `tight_pants`, `taut_clothes`, `taut_shirt`, `taut_dress`, `taut_swimsuit`, `loose_clothes`, `loose_shirt`, `loose_pants`, `baggy_clothes`, `baggy_pants`, `oversized_clothes`, `oversized_shirt`, `bursting_breasts` |
+| Clothing: Position (displacement) | `goggles_on_head`, `glasses_on_head`, `sunglasses_on_head`, `hood_up`, `hood_down`, `headphones_around_neck`, `mask_pull`, `mask_down`, `mask_up`, `hat_over_eyes`, `hat_tip`, `jacket_on_shoulders`, `coat_on_shoulders`, `jacket_partially_removed`, `off_shoulder`, `single_off_shoulder`, `clothes_around_waist`, `shirt_around_waist`, `scarf_over_mouth`, `necktie_over_shoulder` |
+| Clothing: Aside & Partial Expose | `panties_aside`, `thong_aside`, `swimsuit_aside`, `bikini_aside`, `bra_aside`, `bra_lift`, `panties_under_pantyhose_aside`, `one_breast_out`, `breast_slip`, `shoulder_strap_slip`, `one_side_pulled_down`, `pulled_by_self`, `pulled_by_another`, `exposed_belly`, `exposed_collarbone`, `exposed_pussy` |
+
+`Position` 系は「アイテムを通常と違う位置に着けている」状態 (ゴーグルを頭に乗せる / フードを被る / 腰に巻く)。`goggles_on_head`/`hood_up`/`hood_down` は以前 Eyewear/Headwear にあったが、こちらに移動 (Eyewear/Headwear は実アイテムだけ持ち、mutex が綺麗に効くようにする)。
 
 ### Clothing Accessory Tags (3ノード)
 
