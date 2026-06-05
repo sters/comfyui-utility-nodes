@@ -75,7 +75,7 @@ axes:
 
 `OUTPUT_NODE = True` を設定しているので、Queue Prompt 実行後にノード下に組み立て結果のプレビューが表示される。
 
-### Danbooru Bad Tags (5ノード)
+### Bad Tags (5ノード)
 
 Negative prompt 用に、Danbooru の [bad_anatomy](https://danbooru.donmai.us/wiki_pages/bad_anatomy) / [artistic_error](https://danbooru.donmai.us/wiki_pages/artistic_error) 系タグをパーツ別に分けた5ノード。各ノードは個別 BOOLEAN（デフォルト全 True）。合計52タグ。`TextConcat` で繋いで最終 negative prompt を組み立てる想定。
 
@@ -83,17 +83,17 @@ Negative prompt 用に、Danbooru の [bad_anatomy](https://danbooru.donmai.us/w
 
 | ノード | 対象タグ |
 | --- | --- |
-| Danbooru Bad: General | `artistic_error`, `bad_anatomy`, `anatomical_nonsense`, `bad_proportions`, `bad_perspective`, `bad_reflection`, `bad_multiple_views`, `bad_shadow`, `bad_gun_anatomy`, `bad_vehicle_anatomy`, `bad_internal_anatomy` |
-| Danbooru Bad: Head & Face | `bad_face`, `bad_neck`, `bad_ears`, `bad_teeth`, `extra_ears`, `extra_eyes`, `extra_eyelids`, `extra_eyebrows`, `extra_pupils`, `extra_mouth`, `extra_tongue`, `extra_teeth`, `extra_noses`, `extra_faces`, `extra_horns`, `extra_tusks` |
-| Danbooru Bad: Body | `bad_torso`, `bad_ass`, `extra_pectorals`, `extra_nipples`, `extra_breasts`, `extra_tails` |
-| Danbooru Bad: Limbs | `bad_arm`, `bad_hands`, `bad_leg`, `bad_knees`, `bad_feet`, `wrong_hand`, `wrong_foot`, `extra_digits`, `extra_arms`, `extra_hands`, `extra_legs`, `extra_toes`, `fewer_digits` |
-| Danbooru Bad: NSFW | `bad_vulva`, `extra_penises`, `extra_testicles`, `extra_pussies`, `extra_clitorises`, `extra_anus` |
+| Bad: General | `artistic_error`, `bad_anatomy`, `anatomical_nonsense`, `bad_proportions`, `bad_perspective`, `bad_reflection`, `bad_multiple_views`, `bad_shadow`, `bad_gun_anatomy`, `bad_vehicle_anatomy`, `bad_internal_anatomy` |
+| Bad: Head & Face | `bad_face`, `bad_neck`, `bad_ears`, `bad_teeth`, `extra_ears`, `extra_eyes`, `extra_eyelids`, `extra_eyebrows`, `extra_pupils`, `extra_mouth`, `extra_tongue`, `extra_teeth`, `extra_noses`, `extra_faces`, `extra_horns`, `extra_tusks` |
+| Bad: Body | `bad_torso`, `bad_ass`, `extra_pectorals`, `extra_nipples`, `extra_breasts`, `extra_tails` |
+| Bad: Limbs | `bad_arm`, `bad_hands`, `bad_leg`, `bad_knees`, `bad_feet`, `wrong_hand`, `wrong_foot`, `extra_digits`, `extra_arms`, `extra_hands`, `extra_legs`, `extra_toes`, `fewer_digits` |
+| Bad: NSFW | `bad_vulva`, `extra_penises`, `extra_testicles`, `extra_pussies`, `extra_clitorises`, `extra_anus` |
 
 「今は NSFW 生成じゃない」「猫耳/獣耳キャラなので Head & Face は外す」のようにノード単位で一括 on/off できる（不要なノードはワークフローから外すか出力を繋がない）。意図的なキャラ設計（`extra_ears`, `extra_tails`, `extra_horns` 等）と当たるタグは個別に off にする。
 
 ### タグ系ノード共通: `preset` combo
 
-Danbooru Bad / Composition / Hair / Hands / Feet / Breasts / Body / Clothing 系の全タグノードは共通で `preset` combo を持つ。
+Bad / Composition / Hair / Hands / Feet / Breasts / Body / Clothing 系の全タグノードは共通で `preset` combo を持つ。
 
 | 値 | 挙動 |
 | --- | --- |

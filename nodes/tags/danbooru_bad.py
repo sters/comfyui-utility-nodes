@@ -73,43 +73,43 @@ _NSFW: tuple[str, ...] = (
 )
 
 
-class DanbooruBadGeneral(TagNodeBase):
+class BadGeneral(TagNodeBase):
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _GENERAL
 
 
-class DanbooruBadHeadFace(TagNodeBase):
+class BadHeadFace(TagNodeBase):
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _HEAD_FACE
 
 
-class DanbooruBadBody(TagNodeBase):
+class BadBody(TagNodeBase):
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _BODY
 
 
-class DanbooruBadLimbs(TagNodeBase):
+class BadLimbs(TagNodeBase):
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _LIMBS
 
 
-class DanbooruBadNSFW(TagNodeBase):
+class BadNSFW(TagNodeBase):
     DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _NSFW
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "DanbooruBadGeneral": DanbooruBadGeneral,
-    "DanbooruBadHeadFace": DanbooruBadHeadFace,
-    "DanbooruBadBody": DanbooruBadBody,
-    "DanbooruBadLimbs": DanbooruBadLimbs,
-    "DanbooruBadNSFW": DanbooruBadNSFW,
+    "BadGeneral": BadGeneral,
+    "BadHeadFace": BadHeadFace,
+    "BadBody": BadBody,
+    "BadLimbs": BadLimbs,
+    "BadNSFW": BadNSFW,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "DanbooruBadGeneral": "Danbooru Bad: General",
-    "DanbooruBadHeadFace": "Danbooru Bad: Head & Face",
-    "DanbooruBadBody": "Danbooru Bad: Body",
-    "DanbooruBadLimbs": "Danbooru Bad: Limbs",
-    "DanbooruBadNSFW": "Danbooru Bad: NSFW",
+    "BadGeneral": "Bad: General",
+    "BadHeadFace": "Bad: Head & Face",
+    "BadBody": "Bad: Body",
+    "BadLimbs": "Bad: Limbs",
+    "BadNSFW": "Bad: NSFW",
 }
