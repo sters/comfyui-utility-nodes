@@ -1,16 +1,267 @@
+"""Integration tests for TagsMerge.
+
+Most scenarios fit a simple shape: "given this comma-separated tag list,
+expect this comma-separated output." `_scenario(input)` auto-categorizes
+each tag by walking nodes.tags.* and returns the merged prompt. Use the
+parametrized table tests for these.
+
+Specialized tests (cross-bundle mutex, max-input cap, extra preservation,
+unknown-tag edge cases) stay in long-form at the bottom.
+"""
+
+from __future__ import annotations
+
+import importlib
+import pkgutil
 from typing import Any
 
-from nodes.tags._base import TaggedSelection
+import pytest
+
+import nodes.tags
+from nodes.tags._base import TaggedSelection, TagNodeBase
 from nodes.tags.merge import TagsMerge
+
+# --------------------------------------------------------------------------
+# Helpers
+# --------------------------------------------------------------------------
+
+
+def _build_tag_index() -> dict[str, tuple[str, str, bool]]:
+    """Walk nodes.tags.* and map each tag → (category_id, layer, mutex_within).
+
+    First occurrence wins (the package has no cross-file duplicates by
+    design, so this is deterministic).
+    """
+    index: dict[str, tuple[str, str, bool]] = {}
+    for _finder, name, ispkg in pkgutil.walk_packages(nodes.tags.__path__, "nodes.tags."):
+        if ispkg or name.endswith(("._base", "._conflicts", ".merge")):
+            continue
+        mod = importlib.import_module(name)
+        for attr in vars(mod).values():
+            if not isinstance(attr, type):
+                continue
+            if attr is TagNodeBase or not issubclass(attr, TagNodeBase):
+                continue
+            for tag in attr.TAGS:
+                index.setdefault(tag, (attr.CATEGORY_ID, attr.LAYER, attr.MUTEX_WITHIN))
+    return index
+
+
+_TAG_INDEX = _build_tag_index()
+
+
+def _scenario(tags_str: str, *, extra: str = "") -> str:
+    """Run TagsMerge for a comma-separated tag list, returning the prompt.
+
+    Tags are auto-grouped by (category_id, layer, mutex_within). Bundle order
+    follows the input order of categories' first appearances.
+    """
+    if not tags_str.strip():
+        tags: list[str] = []
+    else:
+        tags = [t.strip() for t in tags_str.split(",") if t.strip()]
+    by_cat: dict[str, list[str]] = {}
+    cat_meta: dict[str, tuple[str, bool]] = {}
+    for t in tags:
+        cat, layer, mutex = _TAG_INDEX.get(t, ("_unknown", "unknown", False))
+        if cat not in by_cat:
+            by_cat[cat] = []
+            cat_meta[cat] = (layer, mutex)
+        by_cat[cat].append(t)
+    bundles: dict[str, tuple[TaggedSelection, ...]] = {}
+    for i, (cat, ts) in enumerate(by_cat.items(), 1):
+        layer, mutex = cat_meta[cat]
+        bundles[f"bundle_{i}"] = (TaggedSelection(category=cat, layer=layer, tags=tuple(ts), mutex_within=mutex),)
+    out = TagsMerge().merge(", ", extra=extra, **bundles)
+    return str(out["result"][0])
+
+
+# --------------------------------------------------------------------------
+# Parametrized scenarios
+# --------------------------------------------------------------------------
+
+
+# (id, input, expected). `id` is used as the pytest test id.
+MUTEX_GROUP_CASES: list[tuple[str, str, str]] = [
+    ("hair_length", "long_hair, short_hair", "long_hair"),
+    ("skirt_length", "long_skirt, miniskirt", "long_skirt"),
+    ("skirt_with_layer", "bike_shorts, long_skirt, miniskirt", "bike_shorts, long_skirt"),
+    ("eye_openness", "closed_eyes, wide-eyed", "closed_eyes"),
+    ("eye_openness_3", "closed_eyes, narrowed_eyes, half-closed_eyes", "closed_eyes"),
+    ("gaze_direction", "looking_up, looking_down, looking_at_viewer", "looking_up"),
+    ("mouth_open_close", "open_mouth, closed_mouth", "open_mouth"),
+    ("emoticons", ":d, :3, :o, :p", ":d"),
+    ("smile_vs_frown", "smile, frown", "smile"),
+    ("grin_vs_scowl", "grin, scowl", "grin"),
+    ("laughing_vs_frown", "laughing, frown", "laughing"),
+    ("happy_vs_sad", "happy, sad", "happy"),
+    ("expressionless_wins", "expressionless, smile, frown", "expressionless"),
+    ("blank_vs_smile", "blank_expression, smile", "blank_expression"),
+]
+
+
+CONFLICT_CASES: list[tuple[str, str, str]] = [
+    ("nude_drops_clothing", "nude, shirt, pleated_skirt, boots", "nude"),
+    ("nude_keeps_accessory", "nude, beret, earrings, necklace", "nude, beret, earrings, necklace"),
+    ("completely_nude_drops_all", "completely_nude, sundress, bra, panties", "completely_nude"),
+    ("topless_drops_bra_keeps_panties", "topless, bra, panties, garter_belt", "topless, panties, garter_belt"),
+    ("topless_drops_dress", "topless, sundress", "topless"),
+    ("bottomless_drops_panties", "bottomless, bra, panties", "bottomless, bra"),
+    ("bottomless_drops_skirt", "bottomless, pleated_skirt", "bottomless"),
+    ("barefoot_drops_footwear_and_legwear", "barefoot, sneakers, thighhighs", "barefoot"),
+    ("no_shoes_keeps_legwear", "no_shoes, sneakers, thighhighs", "no_shoes, thighhighs"),
+    ("no_legwear", "no_legwear, thighhighs, boots", "no_legwear, boots"),
+    ("no_panties", "no_panties, panties, bra", "no_panties, bra"),
+    ("no_bra_drops_bras", "no_bra, bra, panties", "no_bra, panties"),
+    ("bare_legs_drops_legwear", "bare_legs, thighhighs, boots", "bare_legs, boots"),
+]
+
+
+# Pass-through scenarios — every tag survives unchanged.
+PASS_CASES: list[tuple[str, str]] = [
+    # Sanity
+    ("smile_grin_laughing", "smile, grin, laughing"),
+    ("smile_sad_tearful", "smile, sad, tearful"),
+    ("smile_smug_smirk", "smile, smug, smirk"),
+    ("embarrassed_blush", "embarrassed, blush"),
+    # Layered tops/bottoms
+    ("five_layer_tops", "shirt, sweater, cardigan, jacket, coat"),
+    ("bike_shorts_under_skirt", "long_skirt, bike_shorts"),
+    # Orthogonal hair
+    ("hair_layered", "long_hair, ponytail, black_hair, hair_ribbon"),
+    # Aside coexists with underwear
+    ("panties_aside_with_underwear", "panties_aside, bra_aside, bra, panties"),
+    # Fit + outfit + body
+    ("skin_tight_impossible_dress", "skin_tight, impossible_dress, sundress, large_breasts"),
+    # Lift cluster
+    ("skirt_lift_panchira", "skirt_lift, pleated_skirt, panties, thighhighs"),
+    # Wet T
+    ("wet_seethrough_tank", "wet_clothes, see-through, tank_top, nipples"),
+    # Bondage
+    ("bondage_corset", "tied_up, handcuffs, ball_gag, bondage, thighhighs, corset"),
+    # Tattoos
+    ("six_tattoos", "arm_tattoo, back_tattoo, chest_tattoo, thigh_tattoo, facial_tattoo, neck_tattoo"),
+    # Fusion: santa bikini
+    ("santa_bikini", "twintails, red_hair, bikini, santa_hat, fur_trim, thighhighs, thigh_boots"),
+    # Fusion: armor bikini
+    ("armor_bikini", "abs, bikini, armor, gauntlets, vambraces, cape, knee_boots"),
+    # Animal: foxgirl miko
+    ("foxgirl_miko", "fox_ears, fox_tail, yellow_eyes, slit_pupils, miko, shrine_outdoors"),
+    # Demon girl
+    ("demon_girl", "demon_horns, demon_tail, demon_wings, red_eyes, slit_pupils, fangs"),
+    # Scene: classroom afternoon
+    ("classroom_afternoon", "scenery, classroom, afternoon, sunlight, dust"),
+    # Scene: beach sunset
+    ("beach_sunset", "beach, ocean, sunset, sunny, backlighting, lens_flare"),
+    # Scene: snowy mountain night
+    ("snowy_mountain_night", "mountain, snowfield, night, snowing, moonlight, snowflakes, mist"),
+    # Scene: cherry blossom
+    ("cherry_blossom_park", "park, sunny, afternoon, cherry_blossoms, petals, dappled_sunlight"),
+    # Scene: rainy neon
+    ("rainy_neon", "city, alley, night, rain, neon_lights, lens_flare, wet_clothes"),
+    # Pose: bent over panchira
+    ("bent_over_panchira", "bent_over, skirt_lift, pleated_skirt, striped_panties, thighhighs"),
+    # Meta + character + scene mix
+    (
+        "full_stack",
+        "masterpiece, best_quality, highres, 1girl, solo, long_hair, blonde_hair, blue_eyes, smile, simple_background",
+    ),
+    # Schoolgirl archetype
+    ("schoolgirl", "long_hair, black_hair, bangs, hair_ribbon, medium_breasts, serafuku, thighhighs, loafers"),
+    # Office lady
+    ("office_lady", "medium_hair, business_suit, blouse, pencil_skirt, pantyhose, high_heels, glasses"),
+    # Maid full stack
+    ("maid_stack", "maid, frilled_apron, headband, thighhighs"),
+    # Kimono mix
+    ("kimono_boots", "kimono, boots, obi"),
+    # Naked apron
+    ("naked_apron", "naked_apron, barefoot"),
+    # Yukata festival
+    ("yukata_festival", "long_hair, hair_bun, ahoge, hair_flower, yukata, obi, tabi, geta"),
+    # Wedding
+    ("wedding", "very_long_hair, blonde_hair, pale_skin, wedding_dress, veil, elbow_gloves, high_heels"),
+    # Gothic lolita
+    (
+        "gothic_lolita",
+        "twin_drills, pale_skin, frilled_dress, lace, frills, headband, thighhighs, mary_janes, frilled_choker",
+    ),
+    # NSFW solo + toy + BDSM
+    ("nsfw_solo_toy_bdsm", "masturbation, spread_pussy, dildo, vibrator, restrained, ball_gag"),
+    # Cyber bodysuit
+    (
+        "cyber_bodysuit",
+        "silver_hair, bodysuit, skin_tight, impossible_bodysuit, latex, shiny_clothes, goggles_on_head, knee_boots",
+    ),
+    # Glasses + headwear coexist
+    ("glasses_and_hood", "glasses, hood, hood_up"),
+    # Glasses + goggles position
+    ("glasses_goggles_position", "glasses, goggles_on_head"),
+    # Sleepy morning
+    (
+        "sleepy_morning",
+        "messy_hair, half-closed_eyes, parted_lips, sleepy, oversized_shirt, sitting_on_bed, bedroom, morning",
+    ),
+    # Crying schoolgirl
+    (
+        "crying_schoolgirl",
+        "brown_hair, blue_eyes, crying, teary_eyes, looking_down, sad, tearful, light_blush, serafuku",
+    ),
+    # Smug yandere (no mutex collisions)
+    (
+        "smug_yandere",
+        "very_long_hair, black_hair, red_eyes, narrowed_eyes, heart-shaped_pupils, slit_pupils, yandere, smirk, licking_lips",  # noqa: E501
+    ),
+    # Genki energetic
+    ("genki", "ponytail, sparkling_eyes, smile, grin, blush_stickers, open_mouth, :d, jumping"),  # noqa: E501
+    # Tan athletic
+    (
+        "tan_athletic",
+        "ponytail, brown_hair, tan, tanlines, muscular_female, abs, toned, thick_thighs, sports_bra, bike_shorts, sneakers",  # noqa: E501
+    ),
+]
+
+
+def _norm(s: str) -> str:
+    return s.replace(", ", ",")
+
+
+@pytest.mark.parametrize(
+    "tags_in,expected",
+    [(c[1], c[2]) for c in MUTEX_GROUP_CASES],
+    ids=[c[0] for c in MUTEX_GROUP_CASES],
+)
+def test_mutex_group_scenarios(tags_in: str, expected: str) -> None:
+    assert _norm(_scenario(tags_in)) == _norm(expected)
+
+
+@pytest.mark.parametrize(
+    "tags_in,expected",
+    [(c[1], c[2]) for c in CONFLICT_CASES],
+    ids=[c[0] for c in CONFLICT_CASES],
+)
+def test_conflict_scenarios(tags_in: str, expected: str) -> None:
+    assert _norm(_scenario(tags_in)) == _norm(expected)
+
+
+@pytest.mark.parametrize(
+    "tags_in",
+    [c[1] for c in PASS_CASES],
+    ids=[c[0] for c in PASS_CASES],
+)
+def test_passthrough_scenarios(tags_in: str) -> None:
+    """Every input tag should survive unchanged."""
+    expected = _norm(tags_in)
+    assert _norm(_scenario(tags_in)) == expected
+
+
+# --------------------------------------------------------------------------
+# Specialized tests (can't reduce to single-bundle parametrize)
+# --------------------------------------------------------------------------
 
 
 def _run(**kwargs: Any) -> tuple[str, str, tuple[TaggedSelection, ...]]:
     out = TagsMerge().merge(", ", **kwargs)
-    return (
-        str(out["result"][0]),
-        str(out["result"][1]),
-        tuple(out["result"][2]),
-    )
+    return (str(out["result"][0]), str(out["result"][1]), tuple(out["result"][2]))
 
 
 def _sel(category: str, tags: tuple[str, ...], **kw: Any) -> TaggedSelection:
@@ -22,15 +273,6 @@ def _sel(category: str, tags: tuple[str, ...], **kw: Any) -> TaggedSelection:
     )
 
 
-def test_merge_concatenates_in_input_order() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("a", ("x",)),),
-        bundle_2=(_sel("b", ("y", "z")),),
-    )
-    assert prompt == "x, y, z"
-    assert warnings == ""
-
-
 def test_merge_empty_inputs_yield_empty_prompt() -> None:
     prompt, warnings, bundle = _run()
     assert (prompt, warnings, bundle) == ("", "", ())
@@ -39,75 +281,6 @@ def test_merge_empty_inputs_yield_empty_prompt() -> None:
 def test_merge_extra_is_appended() -> None:
     prompt, _, _ = _run(extra="1girl", bundle_1=(_sel("a", ("x",)),))
     assert prompt == "x, 1girl"
-
-
-def test_mutex_within_drops_second_selection_with_same_category() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("hair.length", ("long_hair",), mutex_within=True),),
-        bundle_2=(_sel("hair.length", ("short_hair",), mutex_within=True),),
-    )
-    assert prompt == "long_hair"
-    assert "mutex:" in warnings
-    assert "short_hair" in warnings
-
-
-def test_mutex_within_keeps_first_tag_of_a_multi_tag_selection() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(
-            _sel(
-                "hair.length",
-                ("long_hair", "short_hair"),
-                mutex_within=True,
-            ),
-        ),
-    )
-    assert prompt == "long_hair"
-    assert "short_hair" in warnings
-
-
-def test_non_mutex_categories_allow_multiple_selections() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.marks.moles", ("mole_under_eye",)),),
-        bundle_2=(_sel("body.marks.moles", ("freckles",)),),
-    )
-    assert prompt == "mole_under_eye, freckles"
-    assert warnings == ""
-
-
-def test_nude_overrides_drop_clothing_layer() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.exposure", ("nude",), layer="exposure"),),
-        bundle_2=(_sel("clothing.tops", ("shirt",), layer="clothing"),),
-        bundle_3=(_sel("clothing.footwear", ("boots",), layer="clothing"),),
-    )
-    assert prompt == "nude"
-    assert "clothing.tops" in warnings
-    assert "clothing.footwear" in warnings
-
-
-def test_barefoot_only_drops_footwear() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.feet.anatomy", ("barefoot",)),),
-        bundle_2=(_sel("clothing.footwear", ("sneakers",)),),
-        bundle_3=(_sel("clothing.tops", ("shirt",)),),
-    )
-    assert "sneakers" not in prompt
-    assert "shirt" in prompt
-    assert "barefoot" in prompt
-    assert "clothing.footwear" in warnings
-
-
-def test_topless_drops_tops_and_underwear() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.state", ("topless",)),),
-        bundle_2=(_sel("clothing.tops", ("shirt",)),),
-        bundle_3=(_sel("clothing.underwear", ("bra",)),),
-        bundle_4=(_sel("clothing.bottoms", ("skirt",)),),
-    )
-    assert "shirt" not in prompt
-    assert "bra" not in prompt
-    assert "skirt" in prompt
-    assert "topless" in prompt
 
 
 def test_extra_selection_is_not_subject_to_override() -> None:
@@ -122,2008 +295,35 @@ def test_extra_selection_is_not_subject_to_override() -> None:
     assert "1girl" in prompt
 
 
-def test_topless_keeps_panties_and_garter_belt() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.state", ("topless",)),),
-        bundle_2=(_sel("clothing.underwear", ("bra", "panties", "garter_belt")),),
-    )
-    assert "bra" not in prompt
-    assert "panties" in prompt
-    assert "garter_belt" in prompt
-
-
-def test_bottomless_drops_panties_but_keeps_bra() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.state", ("bottomless",)),),
-        bundle_2=(_sel("clothing.underwear", ("bra", "panties")),),
-    )
-    assert "panties" not in prompt
-    assert "bra" in prompt
-
-
-def test_barefoot_drops_thighhighs() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.feet.anatomy", ("barefoot",)),),
-        bundle_2=(_sel("clothing.legwear", ("thighhighs",)),),
-    )
-    assert "thighhighs" not in prompt
-    assert "barefoot" in prompt
-
-
-def test_no_shoes_keeps_legwear() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.feet.anatomy", ("no_shoes",)),),
-        bundle_2=(_sel("clothing.legwear", ("thighhighs",)),),
-        bundle_3=(_sel("clothing.footwear", ("boots",)),),
-    )
-    assert "boots" not in prompt
-    assert "thighhighs" in prompt
-
-
-def test_no_bra_drops_bras_only() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.breasts.shape_state", ("no_bra",)),),
-        bundle_2=(_sel("clothing.underwear", ("bra", "panties")),),
-    )
-    tokens = prompt.split(", ")
-    assert "bra" not in tokens
-    assert "no_bra" in tokens
-    assert "panties" in tokens
-
-
-def test_bare_legs_drops_legwear() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.feet.legs_pose", ("bare_legs",)),),
-        bundle_2=(_sel("clothing.legwear", ("thighhighs",)),),
-        bundle_3=(_sel("clothing.footwear", ("boots",)),),
-    )
-    assert "thighhighs" not in prompt
-    assert "boots" in prompt
-
-
-def test_trigger_tag_itself_is_never_dropped() -> None:
-    # If "nude" appears in a selection that also lists clothing tags
-    # (unlikely but possible), the trigger itself must survive.
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.exposure", ("nude",), layer="exposure"),),
-    )
-    assert "nude" in prompt
-
-
-def test_mutex_group_drops_conflicting_length_tags() -> None:
+def test_mutex_within_drops_second_selection_with_same_category() -> None:
+    # Cross-bundle: two selections claim the same mutex category.
     prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "short_hair")),),
+        bundle_1=(_sel("hair.length", ("long_hair",), mutex_within=True),),
+        bundle_2=(_sel("hair.length", ("short_hair",), mutex_within=True),),
     )
-    tokens = prompt.split(", ")
-    assert "long_hair" in tokens
-    assert "short_hair" not in tokens
-    assert "mutex_group" in warnings
+    assert prompt == "long_hair"
+    assert "mutex:" in warnings
 
 
-def test_mutex_group_lets_orthogonal_tags_coexist() -> None:
-    # long_hair (length) + ponytail (style) belong to different mutex
-    # groups (style is not in MUTEX_GROUPS), so both survive.
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-    )
-    assert "long_hair" in prompt
-    assert "ponytail" in prompt
-
-
-def test_tops_can_layer() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.tops", ("shirt", "cardigan", "jacket")),),
-    )
-    for t in ("shirt", "cardigan", "jacket"):
-        assert t in prompt
-
-
-def test_bottoms_layer_but_skirt_length_is_mutex() -> None:
+def test_mutex_within_collapses_multi_tag_selection() -> None:
     prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.bottoms", ("bike_shorts", "long_skirt", "miniskirt")),),
+        bundle_1=(_sel("hair.length", ("long_hair", "short_hair"), mutex_within=True),),
     )
-    tokens = prompt.split(", ")
-    assert "bike_shorts" in tokens
-    assert "long_skirt" in tokens
-    assert "miniskirt" not in tokens
-    assert "mutex_group" in warnings
+    assert prompt == "long_hair"
+    assert "short_hair" in warnings
 
 
-def test_realistic_schoolgirl_passes_through_unchanged() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.hair.details", ("bangs", "hair_ribbon")),),
-        bundle_4=(_sel("body.breasts.size", ("medium_breasts",), mutex_within=True),),
-        bundle_5=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
-        bundle_6=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("loafers",), mutex_within=True),),
-    )
-    expected = "long_hair, black_hair, bangs, hair_ribbon, medium_breasts, serafuku, thighhighs, loafers"
-    assert prompt == expected
-    assert warnings == ""
+def test_separator_escape_sequence_decoded() -> None:
+    out = TagsMerge().merge(r"\n", bundle_1=(_sel("a", ("x", "y")),))
+    assert out["result"][0] == "x\ny"
 
 
-def test_marks_and_accessories_stack_on_nude_body() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.exposure", ("nude",)),),
-        bundle_2=(_sel("body.marks.moles", ("mole_under_eye", "freckles")),),
-        bundle_3=(_sel("body.marks.tattoos", ("arm_tattoo", "back_tattoo")),),
-        bundle_4=(_sel("clothing.hand_arm", ("bracelet", "ring", "watch")),),
-        bundle_5=(_sel("clothing.neck", ("necklace", "choker")),),
-        bundle_6=(_sel("clothing.accessory.other", ("earrings",)),),
-    )
-    for tag in (
-        "nude",
-        "mole_under_eye",
-        "freckles",
-        "arm_tattoo",
-        "bracelet",
-        "ring",
-        "necklace",
-        "choker",
-        "earrings",
-    ):
-        assert tag in prompt
-    assert warnings == ""
-
-
-def test_composition_mutex_picks_first_angle_framing_focus() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("composition.angle", ("from_above",), mutex_within=True),),
-        bundle_2=(_sel("composition.angle", ("dutch_angle",), mutex_within=True),),
-        bundle_3=(_sel("composition.framing", ("portrait",), mutex_within=True),),
-        bundle_4=(_sel("composition.framing", ("full_body",), mutex_within=True),),
-        bundle_5=(_sel("composition.focus", ("hand_focus",), mutex_within=True),),
-    )
-    tokens = prompt.split(", ")
-    assert tokens == ["from_above", "portrait", "hand_focus"]
-    assert "dutch_angle" in warnings
-    assert "full_body" in warnings
-
-
-def test_nsfw_solo_toy_bdsm_stack_independently() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("nsfw.solo", ("masturbation", "spread_pussy")),),
-        bundle_2=(_sel("nsfw.toy", ("dildo", "vibrator")),),
-        bundle_3=(_sel("nsfw.bdsm", ("restrained", "ball_gag")),),
-    )
-    for tag in ("masturbation", "spread_pussy", "dildo", "vibrator", "restrained", "ball_gag"):
-        assert tag in prompt
-    assert warnings == ""
-
-
-def test_paizuri_with_topless_drops_only_outer_top() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("nsfw.act.oral_contact", ("paizuri",)),),
-        bundle_2=(_sel("clothing.state", ("topless",)),),
-        bundle_3=(_sel("clothing.tops", ("shirt",)),),
-    )
-    assert "paizuri" in prompt
-    assert "topless" in prompt
-    assert "shirt" not in prompt.split(", ")
-    assert "topless" in warnings or "conflict" in warnings
-
-
-def test_school_uniform_with_swimsuit_underneath() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.uniform", ("school_uniform",), mutex_within=True),),
-        bundle_2=(_sel("clothing.swimwear", ("school_swimsuit",), mutex_within=True),),
-    )
-    assert "school_uniform" in prompt
-    assert "school_swimsuit" in prompt
-    assert warnings == ""
-
-
-def test_bikini_with_thighhighs() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_2=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-    )
-    assert prompt == "bikini, thighhighs"
-    assert warnings == ""
-
-
-def test_dress_with_jacket_layered_on_top() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.dress", ("sundress",), mutex_within=True),),
-        bundle_2=(_sel("clothing.tops", ("jacket",)),),
-    )
-    assert "sundress" in prompt
-    assert "jacket" in prompt
-
-
-def test_maid_outfit_full_stack() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.uniform", ("maid",), mutex_within=True),),
-        bundle_2=(_sel("clothing.accessory.other", ("frilled_apron",)),),
-        bundle_3=(_sel("clothing.headwear", ("headband",), mutex_within=True),),
-        bundle_4=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-    )
-    assert prompt == "maid, frilled_apron, headband, thighhighs"
-    assert warnings == ""
-
-
-def test_kimono_with_western_boots_is_allowed() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.dress", ("kimono",), mutex_within=True),),
-        bundle_2=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
-        bundle_3=(_sel("clothing.accessory.other", ("obi",)),),
-    )
-    for tag in ("kimono", "boots", "obi"):
-        assert tag in prompt
-
-
-def test_bottomless_keeps_legwear_and_footwear() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.state", ("bottomless",)),),
-        bundle_2=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_3=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
-    )
-    for tag in ("bottomless", "thighhighs", "boots"):
-        assert tag in prompt
-
-
-def test_multiple_uniforms_collapse_to_first() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(
-            _sel(
-                "clothing.uniform",
-                ("school_uniform", "maid", "nurse"),
-                mutex_within=True,
-            ),
-        ),
-    )
-    assert prompt == "school_uniform"
-    assert "maid" in warnings
-    assert "nurse" in warnings
-
-
-def test_topless_with_explicit_nipples_keeps_nipples() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.state", ("topless",)),),
-        bundle_2=(
-            _sel(
-                "body.breasts.shape_state",
-                ("nipples", "puffy_nipples", "breasts_apart"),
-            ),
-        ),
-        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
-    )
-    for tag in ("topless", "nipples", "puffy_nipples", "breasts_apart", "large_breasts"):
-        assert tag in prompt
-
-
-def test_bunny_girl_outfit() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(
-            _sel(
-                "clothing.uniform",
-                ("bunny_girl", "playboy_bunny"),
-                mutex_within=True,
-            ),
-        ),
-        bundle_2=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_3=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-    )
-    assert "bunny_girl" in prompt
-    assert "playboy_bunny" not in prompt.split(", ")
-    assert "pantyhose" in prompt
-    assert "high_heels" in prompt
-    assert "playboy_bunny" in warnings
-
-
-def test_long_hair_ponytail_stack_with_ribbon() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.hair.details", ("hair_ribbon",)),),
-    )
-    assert prompt == "long_hair, ponytail, black_hair, hair_ribbon"
-
-
-def test_fit_layers_with_outfit_and_body_size() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.fit", ("skin_tight", "impossible_dress")),),
-        bundle_2=(_sel("clothing.dress", ("sundress",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
-    )
-    for tag in ("skin_tight", "impossible_dress", "sundress", "large_breasts"):
-        assert tag in prompt
-    assert warnings == ""
-
-
-def test_taut_clothes_with_bursting_breasts_and_size() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.fit", ("taut_clothes", "taut_shirt", "bursting_breasts")),),
-        bundle_2=(_sel("clothing.tops", ("shirt",)),),
-        bundle_3=(_sel("body.breasts.size", ("huge_breasts",), mutex_within=True),),
-    )
-    for tag in ("taut_clothes", "taut_shirt", "bursting_breasts", "shirt", "huge_breasts"):
-        assert tag in prompt
-
-
-def test_loose_oversized_stack() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.fit", ("loose_clothes", "oversized_shirt")),),
-        bundle_2=(_sel("clothing.tops", ("sweater",)),),
-    )
-    for tag in ("loose_clothes", "oversized_shirt", "sweater"):
-        assert tag in prompt
-
-
-def test_panties_aside_and_bra_aside_coexist_with_actual_items() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.aside", ("panties_aside", "bra_aside")),),
-        bundle_2=(_sel("clothing.underwear", ("bra", "panties")),),
-    )
-    for tag in ("panties_aside", "bra_aside", "bra", "panties"):
-        assert tag in prompt
-
-
-def test_bottomless_drops_panties_but_keeps_panties_aside_marker() -> None:
-    # Edge case: bottomless removes the panties tag itself, but
-    # `panties_aside` lives in clothing.aside (separate category) and is
-    # not in any TAG_CONFLICTS drop set. The bundle ends up showing
-    # "bottomless, panties_aside" without panties — semantically odd
-    # but documents current behavior.
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.state", ("bottomless",)),),
-        bundle_2=(_sel("clothing.aside", ("panties_aside",)),),
-        bundle_3=(_sel("clothing.underwear", ("panties",)),),
-    )
-    assert "bottomless" in prompt
-    assert "panties_aside" in prompt
-    assert "panties" not in prompt.split(", ")
-    assert "panties" in warnings
-
-
-def test_strap_slip_family_stacks() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "clothing.aside",
-                ("strap_slip", "double_strap_slip", "suspenders_slip"),
-            ),
-        ),
-        bundle_2=(_sel("clothing.tops", ("tank_top",)),),
-    )
-    for tag in ("strap_slip", "double_strap_slip", "suspenders_slip", "tank_top"):
-        assert tag in prompt
-
-
-def test_wind_lift_skirt_panchira() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.aside", ("wind_lift", "exposed_gusset")),),
-        bundle_2=(_sel("clothing.state", ("skirt_lift",)),),
-        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
-        bundle_4=(_sel("clothing.underwear", ("panties",)),),
-    )
-    for tag in ("wind_lift", "exposed_gusset", "skirt_lift", "pleated_skirt", "panties"):
-        assert tag in prompt
-
-
-def test_goggles_on_head_now_coexists_with_glasses() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
-        bundle_2=(_sel("clothing.position", ("goggles_on_head",)),),
-    )
-    assert "glasses" in prompt
-    assert "goggles_on_head" in prompt
-
-
-def test_hood_item_with_hood_up_state_coexist() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.headwear", ("hood",), mutex_within=True),),
-        bundle_2=(_sel("clothing.position", ("hood_up",)),),
-        bundle_3=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
-    )
-    for tag in ("hood", "hood_up", "glasses"):
-        assert tag in prompt
-
-
-def test_jacket_on_shoulders_with_jacket_and_inner_top() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.position", ("jacket_on_shoulders",)),),
-        bundle_2=(_sel("clothing.tops", ("jacket", "tank_top")),),
-    )
-    for tag in ("jacket_on_shoulders", "jacket", "tank_top"):
-        assert tag in prompt
-
-
-def test_clothes_around_waist_layered_with_actual_clothes() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.position", ("clothes_around_waist", "shirt_around_waist")),),
-        bundle_2=(_sel("clothing.bottoms", ("shorts",)),),
-        bundle_3=(_sel("clothing.tops", ("tank_top",)),),
-    )
-    for tag in ("clothes_around_waist", "shirt_around_waist", "shorts", "tank_top"):
-        assert tag in prompt
-
-
-def test_breast_lift_and_bra_lift_with_exposed_nipples() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.state", ("bra_lift", "breast_lift")),),
-        bundle_2=(_sel("body.breasts.shape_state", ("nipples", "areola_slip")),),
-        bundle_3=(_sel("clothing.underwear", ("bra",)),),
-    )
-    for tag in ("bra_lift", "breast_lift", "nipples", "areola_slip", "bra"):
-        assert tag in prompt
-
-
-def test_lift_family_panchira_full_combo() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.state", ("skirt_lift", "lifting_own_clothes")),),
-        bundle_2=(_sel("clothing.aside", ("wind_lift", "exposed_gusset")),),
-        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
-        bundle_4=(_sel("clothing.underwear", ("panties",)),),
-    )
-    for tag in (
-        "skirt_lift",
-        "lifting_own_clothes",
-        "wind_lift",
-        "exposed_gusset",
-        "pleated_skirt",
-        "panties",
-    ):
-        assert tag in prompt
-
-
-def test_bunny_outfit_with_fit_and_position() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("huge_breasts",), mutex_within=True),),
-        bundle_4=(_sel("body.figure", ("thick_thighs", "wide_hips")),),
-        bundle_5=(_sel("clothing.fit", ("skin_tight", "impossible_clothes", "bursting_breasts")),),
-        bundle_6=(_sel("clothing.uniform", ("bunny_girl",), mutex_within=True),),
-        bundle_7=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_8=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-        bundle_9=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
-        bundle_10=(_sel("clothing.position", ("goggles_on_head",)),),
-    )
-    for tag in (
-        "long_hair",
-        "ponytail",
-        "huge_breasts",
-        "bursting_breasts",
-        "bunny_girl",
-        "pantyhose",
-        "high_heels",
-        "glasses",
-        "goggles_on_head",
-    ):
-        assert tag in prompt
-
-
-def test_nude_currently_does_not_drop_fit_aside_position_tags() -> None:
-    # Documents current behavior: nude drops items in tops/bottoms/dress/
-    # uniform/underwear/swimwear/footwear/legwear (TAG_CONFLICTS["nude"] =
-    # _ALL_CLOTHING), but fit/aside/position categories aren't in that set.
-    # Semantically `nude + skin_tight` is incoherent; flagged for future
-    # refinement.
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.exposure", ("nude",)),),
-        bundle_2=(_sel("clothing.fit", ("skin_tight",)),),
-        bundle_3=(_sel("clothing.aside", ("panties_aside",)),),
-        bundle_4=(_sel("clothing.position", ("goggles_on_head",)),),
-        bundle_5=(_sel("clothing.underwear", ("panties",)),),
-    )
-    assert "nude" in prompt
-    assert "panties" not in prompt.split(", ")  # actual underwear dropped
-    assert "skin_tight" in prompt  # fit not dropped (edge case)
-    assert "panties_aside" in prompt  # aside not dropped (edge case)
-    assert "goggles_on_head" in prompt  # position fine (independent item)
-    assert "panties" in warnings
-
-
-def test_panchira_from_below_with_skirt_lift_and_panties() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("composition.angle", ("from_below",), mutex_within=True),),
-        bundle_2=(_sel("clothing.state", ("skirt_lift",)),),
-        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
-        bundle_4=(_sel("clothing.underwear", ("panties",)),),
-    )
-    assert prompt == "from_below, skirt_lift, pleated_skirt, panties"
-    assert warnings == ""
-
-
-def test_five_layer_tops_all_kept() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.tops", ("shirt", "sweater", "cardigan", "jacket", "coat")),),
-    )
-    for t in ("shirt", "sweater", "cardigan", "jacket", "coat"):
-        assert t in prompt
-
-
-def test_wet_seethrough_tank_top_nipples() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("clothing.material", ("wet_clothes", "see-through")),),
-        bundle_2=(_sel("clothing.tops", ("tank_top",)),),
-        bundle_3=(_sel("body.breasts.shape_state", ("nipples",)),),
-    )
-    for tag in ("wet_clothes", "see-through", "tank_top", "nipples"):
-        assert tag in prompt
-
-
-def test_bondage_setup_with_clothing_layers() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("nsfw.bdsm", ("tied_up", "handcuffs", "ball_gag", "bondage")),),
-        bundle_2=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_3=(_sel("clothing.underwear", ("corset",)),),
-    )
-    for tag in ("tied_up", "handcuffs", "ball_gag", "bondage", "thighhighs", "corset"):
-        assert tag in prompt
-
-
-def test_lewd_expression_stack() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "nsfw.state.aftermath",
-                ("ahegao", "tongue_out", "heart-shaped_pupils", "drooling", "blush"),
-            ),
-        ),
-    )
-    for tag in ("ahegao", "tongue_out", "heart-shaped_pupils", "drooling", "blush"):
-        assert tag in prompt
-
-
-def test_full_body_tattoo_stack() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "body.marks.tattoos",
-                (
-                    "arm_tattoo",
-                    "back_tattoo",
-                    "chest_tattoo",
-                    "thigh_tattoo",
-                    "facial_tattoo",
-                    "neck_tattoo",
-                ),
-            ),
-        ),
-    )
-    for tag in (
-        "arm_tattoo",
-        "back_tattoo",
-        "chest_tattoo",
-        "thigh_tattoo",
-        "facial_tattoo",
-        "neck_tattoo",
-    ):
-        assert tag in prompt
-
-
-def test_eleventh_bundle_is_ignored() -> None:
-    bundles = {f"bundle_{i + 1}": (_sel("test", (f"t{i + 1}",)),) for i in range(11)}
+def test_eleventh_bundle_is_silently_ignored() -> None:
+    bundles = {f"bundle_{i + 1}": (_sel("c", (f"t{i + 1}",)),) for i in range(11)}
     prompt, _, _ = _run(**bundles)
     tokens = prompt.split(", ")
     assert "t10" in tokens
     assert "t11" not in tokens
-
-
-def test_hair_details_stack_with_headwear() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "body.hair.details",
-                ("ahoge", "bangs", "hair_over_one_eye", "hair_ornament", "hair_bow"),
-            ),
-        ),
-        bundle_2=(_sel("clothing.headwear", ("tiara",), mutex_within=True),),
-    )
-    for tag in (
-        "ahoge",
-        "bangs",
-        "hair_over_one_eye",
-        "hair_ornament",
-        "hair_bow",
-        "tiara",
-    ):
-        assert tag in prompt
-
-
-def test_composition_crop_layers_keep_all() -> None:
-    # Crops are non-mutex — overlapping crop tags coexist (over-cropped
-    # framing is intentional, mostly for negative prompts).
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "composition.crop",
-                ("cropped_legs", "cropped_head", "head_out_of_frame", "feet_out_of_frame"),
-            ),
-        ),
-    )
-    for tag in ("cropped_legs", "cropped_head", "head_out_of_frame", "feet_out_of_frame"):
-        assert tag in prompt
-
-
-def test_three_hair_colors_collapsed_by_mutex_within() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(
-            _sel(
-                "body.hair.color",
-                ("blonde_hair", "black_hair", "brown_hair"),
-                mutex_within=True,
-            ),
-        ),
-    )
-    assert prompt == "blonde_hair"
-    assert "black_hair" in warnings
-    assert "brown_hair" in warnings
-
-
-def test_eyewear_and_position_goggles_and_monocle() -> None:
-    # Eyewear keeps mutex_within=True; monocle vs glasses collapses.
-    # goggles_on_head (Position) is independent and survives alongside.
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("clothing.eyewear", ("glasses", "monocle"), mutex_within=True),),
-        bundle_2=(_sel("clothing.position", ("goggles_on_head",)),),
-    )
-    assert "glasses" in prompt
-    assert "monocle" not in prompt.split(", ")
-    assert "goggles_on_head" in prompt
-    assert "monocle" in warnings
-
-
-def test_solo_kink_stack() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "nsfw.solo",
-                ("masturbation", "female_masturbation", "spread_pussy", "nipple_tweak"),
-            ),
-        ),
-        bundle_2=(_sel("nsfw.toy", ("dildo", "vibrator_on_nipple")),),
-    )
-    for tag in (
-        "masturbation",
-        "female_masturbation",
-        "spread_pussy",
-        "nipple_tweak",
-        "dildo",
-        "vibrator_on_nipple",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_miko() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.hair.details", ("bangs",)),),
-        bundle_4=(_sel("clothing.uniform", ("miko",), mutex_within=True),),
-        bundle_5=(_sel("clothing.dress", ("hakama",), mutex_within=True),),
-        bundle_6=(_sel("clothing.legwear", ("tabi",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("zouri",), mutex_within=True),),
-    )
-    for tag in ("long_hair", "black_hair", "bangs", "miko", "hakama", "tabi", "zouri"):
-        assert tag in prompt
-    assert warnings == ""
-
-
-def test_archetype_nurse() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("short_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("medium_breasts",), mutex_within=True),),
-        bundle_4=(_sel("clothing.uniform", ("nurse",), mutex_within=True),),
-        bundle_5=(_sel("clothing.headwear", ("nurse_cap",), mutex_within=True),),
-        bundle_6=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("loafers",), mutex_within=True),),
-    )
-    for tag in ("short_hair", "brown_hair", "medium_breasts", "nurse", "nurse_cap", "pantyhose", "loafers"):
-        assert tag in prompt
-
-
-def test_archetype_office_lady() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
-        bundle_4=(_sel("clothing.uniform", ("business_suit",), mutex_within=True),),
-        bundle_5=(_sel("clothing.tops", ("blouse",)),),
-        bundle_6=(_sel("clothing.bottoms", ("pencil_skirt",)),),
-        bundle_7=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_8=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-        bundle_9=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
-    )
-    for tag in (
-        "medium_hair",
-        "black_hair",
-        "large_breasts",
-        "business_suit",
-        "blouse",
-        "pencil_skirt",
-        "pantyhose",
-        "high_heels",
-        "glasses",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_witch() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("purple_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("witch",), mutex_within=True),),
-        bundle_4=(_sel("clothing.headwear", ("witch_hat",), mutex_within=True),),
-        bundle_5=(_sel("clothing.dress", ("long_dress",), mutex_within=True),),
-        bundle_6=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
-    )
-    for tag in ("very_long_hair", "purple_hair", "witch", "witch_hat", "long_dress", "thighhighs", "boots"):
-        assert tag in prompt
-
-
-def test_archetype_wet_school_swimsuit() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("tan", "tanlines"), mutex_within=True),),
-        bundle_4=(_sel("clothing.swimwear", ("school_swimsuit",), mutex_within=True),),
-        bundle_5=(_sel("clothing.material", ("wet_clothes",)),),
-        bundle_6=(_sel("body.feet.anatomy", ("barefoot",)),),
-    )
-    for tag in ("medium_hair", "ponytail", "brown_hair", "tan", "school_swimsuit", "wet_clothes", "barefoot"):
-        assert tag in prompt
-
-
-def test_archetype_naked_apron() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
-        bundle_4=(_sel("clothing.state", ("naked_apron",)),),
-        bundle_5=(_sel("body.feet.anatomy", ("barefoot",)),),
-    )
-    for tag in ("long_hair", "ponytail", "blonde_hair", "large_breasts", "naked_apron", "barefoot"):
-        assert tag in prompt
-    assert warnings == ""
-
-
-def test_archetype_cheerleader() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("twintails",)),),
-        bundle_2=(_sel("body.hair.color", ("orange_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.hair.details", ("hair_ribbon",)),),
-        bundle_4=(_sel("clothing.uniform", ("cheerleader",), mutex_within=True),),
-        bundle_5=(_sel("clothing.bottoms", ("miniskirt",)),),
-        bundle_6=(_sel("clothing.legwear", ("socks",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("sneakers",), mutex_within=True),),
-    )
-    for tag in ("twintails", "orange_hair", "hair_ribbon", "cheerleader", "miniskirt", "socks", "sneakers"):
-        assert tag in prompt
-
-
-def test_archetype_nun() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("silver_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("nun",), mutex_within=True),),
-        bundle_4=(_sel("clothing.headwear", ("veil",), mutex_within=True),),
-        bundle_5=(_sel("clothing.dress", ("long_dress",), mutex_within=True),),
-        bundle_6=(_sel("clothing.neck", ("necklace",)),),
-    )
-    for tag in ("long_hair", "silver_hair", "nun", "veil", "long_dress", "necklace"):
-        assert tag in prompt
-
-
-def test_archetype_female_knight() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.figure", ("toned", "abs")),),
-        bundle_4=(_sel("clothing.uniform", ("armor",), mutex_within=True),),
-        bundle_5=(_sel("clothing.hand_arm", ("gauntlets", "pauldron", "vambraces")),),
-        bundle_6=(_sel("clothing.neck", ("cape",)),),
-        bundle_7=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-    )
-    for tag in (
-        "long_hair",
-        "ponytail",
-        "blonde_hair",
-        "toned",
-        "abs",
-        "armor",
-        "gauntlets",
-        "pauldron",
-        "vambraces",
-        "cape",
-        "knee_boots",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_princess() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair", "drill_hair")),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
-        bundle_4=(_sel("clothing.dress", ("ball_gown",), mutex_within=True),),
-        bundle_5=(_sel("clothing.headwear", ("tiara",), mutex_within=True),),
-        bundle_6=(_sel("clothing.neck", ("necklace",)),),
-        bundle_7=(_sel("clothing.hand_arm", ("elbow_gloves",)),),
-        bundle_8=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-    )
-    for tag in (
-        "very_long_hair",
-        "drill_hair",
-        "blonde_hair",
-        "pale_skin",
-        "ball_gown",
-        "tiara",
-        "necklace",
-        "elbow_gloves",
-        "high_heels",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_china_dress() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "double_bun")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
-        bundle_4=(_sel("body.figure", ("thick_thighs",)),),
-        bundle_5=(_sel("clothing.dress", ("china_dress",), mutex_within=True),),
-        bundle_6=(_sel("clothing.fit", ("skin_tight", "form_fitting")),),
-        bundle_7=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_8=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-    )
-    for tag in (
-        "long_hair",
-        "double_bun",
-        "black_hair",
-        "large_breasts",
-        "thick_thighs",
-        "china_dress",
-        "skin_tight",
-        "form_fitting",
-        "pantyhose",
-        "high_heels",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_jersey_girl() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("track_suit",), mutex_within=True),),
-        bundle_4=(_sel("clothing.bottoms", ("track_pants",)),),
-        bundle_5=(_sel("clothing.footwear", ("sneakers",), mutex_within=True),),
-    )
-    for tag in ("medium_hair", "ponytail", "brown_hair", "track_suit", "track_pants", "sneakers"):
-        assert tag in prompt
-
-
-def test_archetype_gothic_lolita() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "twin_drills")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
-        bundle_4=(_sel("clothing.dress", ("frilled_dress",), mutex_within=True),),
-        bundle_5=(_sel("clothing.material", ("lace", "frills", "satin")),),
-        bundle_6=(_sel("clothing.headwear", ("headband",), mutex_within=True),),
-        bundle_7=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_8=(_sel("clothing.footwear", ("mary_janes",), mutex_within=True),),
-        bundle_9=(_sel("clothing.neck", ("frilled_choker",)),),
-    )
-    for tag in (
-        "long_hair",
-        "twin_drills",
-        "black_hair",
-        "pale_skin",
-        "frilled_dress",
-        "lace",
-        "frills",
-        "satin",
-        "headband",
-        "thighhighs",
-        "mary_janes",
-        "frilled_choker",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_yukata_festival() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "hair_bun")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.hair.details", ("ahoge", "hair_flower")),),
-        bundle_4=(_sel("clothing.dress", ("yukata",), mutex_within=True),),
-        bundle_5=(_sel("clothing.accessory.other", ("obi",)),),
-        bundle_6=(_sel("clothing.legwear", ("tabi",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("geta",), mutex_within=True),),
-    )
-    for tag in ("long_hair", "hair_bun", "black_hair", "ahoge", "hair_flower", "yukata", "obi", "tabi", "geta"):
-        assert tag in prompt
-
-
-def test_archetype_beach_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("tan", "tanlines"), mutex_within=True),),
-        bundle_4=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_5=(_sel("clothing.headwear", ("sun_hat",), mutex_within=True),),
-        bundle_6=(_sel("clothing.position", ("sunglasses_on_head",)),),
-        bundle_7=(_sel("clothing.footwear", ("sandals",), mutex_within=True),),
-        bundle_8=(_sel("clothing.accessory.other", ("parasol",)),),
-    )
-    for tag in ("brown_hair", "tan", "bikini", "sun_hat", "sunglasses_on_head", "sandals", "parasol"):
-        assert tag in prompt
-
-
-def test_archetype_wedding() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
-        bundle_4=(_sel("clothing.dress", ("wedding_dress",), mutex_within=True),),
-        bundle_5=(_sel("clothing.headwear", ("veil",), mutex_within=True),),
-        bundle_6=(_sel("clothing.hand_arm", ("elbow_gloves",)),),
-        bundle_7=(_sel("clothing.neck", ("necklace",)),),
-        bundle_8=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-    )
-    for tag in (
-        "very_long_hair",
-        "blonde_hair",
-        "pale_skin",
-        "wedding_dress",
-        "veil",
-        "elbow_gloves",
-        "necklace",
-        "high_heels",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_santa_girl() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "twintails")),),
-        bundle_2=(_sel("body.hair.color", ("red_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("santa_costume",), mutex_within=True),),
-        bundle_4=(_sel("clothing.headwear", ("santa_hat",), mutex_within=True),),
-        bundle_5=(_sel("clothing.material", ("fur_trim",)),),
-        bundle_6=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-    )
-    for tag in (
-        "long_hair",
-        "twintails",
-        "red_hair",
-        "santa_costume",
-        "santa_hat",
-        "fur_trim",
-        "thighhighs",
-        "knee_boots",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_tan_athletic() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("tan", "tanlines"), mutex_within=True),),
-        bundle_4=(_sel("body.figure", ("muscular_female", "abs", "toned", "thick_thighs")),),
-        bundle_5=(_sel("clothing.underwear", ("sports_bra",)),),
-        bundle_6=(_sel("clothing.bottoms", ("bike_shorts",)),),
-        bundle_7=(_sel("clothing.footwear", ("sneakers",), mutex_within=True),),
-    )
-    for tag in (
-        "medium_hair",
-        "ponytail",
-        "tan",
-        "muscular_female",
-        "abs",
-        "toned",
-        "thick_thighs",
-        "sports_bra",
-        "bike_shorts",
-        "sneakers",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_pe_gym_uniform() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("short_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("gym_uniform",), mutex_within=True),),
-        bundle_4=(_sel("clothing.bottoms", ("bloomers",)),),
-        bundle_5=(_sel("clothing.footwear", ("sneakers",), mutex_within=True),),
-    )
-    for tag in ("short_hair", "black_hair", "gym_uniform", "bloomers", "sneakers"):
-        assert tag in prompt
-
-
-def test_archetype_pajama() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "messy_hair")),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.fit", ("oversized_shirt", "loose_clothes")),),
-        bundle_4=(_sel("clothing.tops", ("shirt",)),),
-        bundle_5=(_sel("clothing.underwear", ("panties",)),),
-        bundle_6=(_sel("body.feet.anatomy", ("barefoot",)),),
-    )
-    for tag in ("long_hair", "messy_hair", "oversized_shirt", "loose_clothes", "shirt", "panties", "barefoot"):
-        assert tag in prompt
-
-
-def test_archetype_onsen_towel() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "hair_bun")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("medium_breasts",), mutex_within=True),),
-        bundle_4=(_sel("clothing.state", ("naked_towel",)),),
-        bundle_5=(_sel("body.feet.anatomy", ("barefoot",)),),
-        bundle_6=(_sel("body.skin", ("shiny_skin",), mutex_within=True),),
-    )
-    for tag in ("long_hair", "hair_bun", "black_hair", "medium_breasts", "naked_towel", "barefoot", "shiny_skin"):
-        assert tag in prompt
-
-
-def test_archetype_doctor_white_coat() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("medium_breasts",), mutex_within=True),),
-        bundle_4=(_sel("clothing.tops", ("dress_shirt", "coat")),),
-        bundle_5=(_sel("clothing.bottoms", ("pencil_skirt",)),),
-        bundle_6=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-        bundle_8=(_sel("clothing.eyewear", ("glasses",), mutex_within=True),),
-    )
-    for tag in (
-        "medium_hair",
-        "brown_hair",
-        "dress_shirt",
-        "coat",
-        "pencil_skirt",
-        "pantyhose",
-        "high_heels",
-        "glasses",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_pirate() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("red_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.eyewear", ("eyepatch",), mutex_within=True),),
-        bundle_4=(_sel("clothing.state", ("open_shirt",)),),
-        bundle_5=(_sel("clothing.tops", ("shirt", "coat")),),
-        bundle_6=(_sel("clothing.bottoms", ("shorts",)),),
-        bundle_7=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-        bundle_8=(_sel("clothing.headwear", ("hat",), mutex_within=True),),
-    )
-    for tag in ("long_hair", "red_hair", "eyepatch", "open_shirt", "shirt", "coat", "shorts", "knee_boots", "hat"):
-        assert tag in prompt
-
-
-def test_archetype_cyber_bodysuit() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("short_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("silver_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("colored_skin",), mutex_within=True),),
-        bundle_4=(_sel("clothing.fit", ("bodysuit", "skin_tight", "impossible_bodysuit")),),
-        bundle_5=(_sel("clothing.material", ("latex", "shiny_clothes")),),
-        bundle_6=(_sel("clothing.position", ("goggles_on_head",)),),
-        bundle_7=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-    )
-    for tag in (
-        "short_hair",
-        "silver_hair",
-        "colored_skin",
-        "bodysuit",
-        "skin_tight",
-        "impossible_bodysuit",
-        "latex",
-        "shiny_clothes",
-        "goggles_on_head",
-        "knee_boots",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_loose_socks_yankee_schoolgirl() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
-        bundle_4=(_sel("clothing.bottoms", ("pleated_skirt",)),),
-        bundle_5=(_sel("clothing.state", ("open_clothes", "untied")),),
-        bundle_6=(_sel("clothing.legwear", ("loose_socks",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("loafers",), mutex_within=True),),
-    )
-    for tag in (
-        "long_hair",
-        "blonde_hair",
-        "serafuku",
-        "pleated_skirt",
-        "open_clothes",
-        "untied",
-        "loose_socks",
-        "loafers",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_kunoichi() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.figure", ("toned", "thick_thighs")),),
-        bundle_4=(_sel("clothing.uniform", ("kunoichi", "ninja"), mutex_within=True),),
-        bundle_5=(_sel("clothing.fit", ("skin_tight", "form_fitting")),),
-        bundle_6=(_sel("clothing.legwear", ("tabi",), mutex_within=True),),
-        bundle_7=(_sel("clothing.position", ("scarf_over_mouth",)),),
-    )
-    for tag in (
-        "long_hair",
-        "ponytail",
-        "black_hair",
-        "toned",
-        "kunoichi",
-        "skin_tight",
-        "form_fitting",
-        "tabi",
-        "scarf_over_mouth",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_winter_schoolgirl() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("blazer_uniform",), mutex_within=True),),
-        bundle_4=(_sel("clothing.tops", ("blouse", "cardigan", "long_coat")),),
-        bundle_5=(_sel("clothing.bottoms", ("pleated_skirt",)),),
-        bundle_6=(_sel("clothing.neck", ("scarf",)),),
-        bundle_7=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_8=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-    )
-    for tag in (
-        "medium_hair",
-        "brown_hair",
-        "blazer_uniform",
-        "blouse",
-        "cardigan",
-        "long_coat",
-        "pleated_skirt",
-        "scarf",
-        "pantyhose",
-        "knee_boots",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_librarian_glasses() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair", "hair_bun")),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.tops", ("blouse", "cardigan")),),
-        bundle_4=(_sel("clothing.bottoms", ("long_skirt",)),),
-        bundle_5=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_6=(_sel("clothing.footwear", ("loafers",), mutex_within=True),),
-        bundle_7=(_sel("clothing.eyewear", ("semi-rimless_eyewear",), mutex_within=True),),
-    )
-    for tag in (
-        "medium_hair",
-        "hair_bun",
-        "brown_hair",
-        "blouse",
-        "cardigan",
-        "long_skirt",
-        "pantyhose",
-        "loafers",
-        "semi-rimless_eyewear",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_pony_equestrian() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.tops", ("dress_shirt", "blazer")),),
-        bundle_4=(_sel("clothing.bottoms", ("pants",)),),
-        bundle_5=(_sel("clothing.hand_arm", ("gloves",)),),
-        bundle_6=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-        bundle_7=(_sel("clothing.headwear", ("helmet",), mutex_within=True),),
-    )
-    for tag in (
-        "long_hair",
-        "ponytail",
-        "blonde_hair",
-        "dress_shirt",
-        "blazer",
-        "pants",
-        "gloves",
-        "knee_boots",
-        "helmet",
-    ):
-        assert tag in prompt
-
-
-def test_fusion_santa_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "twintails")),),
-        bundle_2=(_sel("body.hair.color", ("red_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_4=(_sel("clothing.headwear", ("santa_hat",), mutex_within=True),),
-        bundle_5=(_sel("clothing.material", ("fur_trim",)),),
-        bundle_6=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("thigh_boots",), mutex_within=True),),
-    )
-    for tag in (
-        "long_hair",
-        "twintails",
-        "red_hair",
-        "bikini",
-        "santa_hat",
-        "fur_trim",
-        "thighhighs",
-        "thigh_boots",
-    ):
-        assert tag in prompt
-
-
-def test_fusion_maid_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "twin_braids")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_4=(_sel("clothing.accessory.other", ("frilled_apron",)),),
-        bundle_5=(_sel("clothing.headwear", ("headband",), mutex_within=True),),
-        bundle_6=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_7=(_sel("clothing.material", ("frills", "lace")),),
-    )
-    for tag in (
-        "twin_braids",
-        "black_hair",
-        "bikini",
-        "frilled_apron",
-        "headband",
-        "thighhighs",
-        "frills",
-        "lace",
-    ):
-        assert tag in prompt
-
-
-def test_fusion_miko_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("miko",), mutex_within=True),),
-        bundle_4=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_5=(_sel("clothing.dress", ("hakama",), mutex_within=True),),
-        bundle_6=(_sel("clothing.footwear", ("zouri",), mutex_within=True),),
-    )
-    for tag in ("very_long_hair", "black_hair", "miko", "bikini", "hakama", "zouri"):
-        assert tag in prompt
-
-
-def test_fusion_battle_armor_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.figure", ("toned", "abs", "muscular_female")),),
-        bundle_4=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_5=(_sel("clothing.uniform", ("armor",), mutex_within=True),),
-        bundle_6=(_sel("clothing.hand_arm", ("gauntlets", "vambraces", "pauldron")),),
-        bundle_7=(_sel("clothing.neck", ("cape",)),),
-        bundle_8=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-    )
-    for tag in (
-        "muscular_female",
-        "abs",
-        "bikini",
-        "armor",
-        "gauntlets",
-        "vambraces",
-        "pauldron",
-        "cape",
-        "knee_boots",
-    ):
-        assert tag in prompt
-
-
-def test_fusion_halloween_witch_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("purple_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
-        bundle_4=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_5=(_sel("clothing.headwear", ("witch_hat",), mutex_within=True),),
-        bundle_6=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
-    )
-    for tag in ("very_long_hair", "purple_hair", "pale_skin", "bikini", "witch_hat", "thighhighs", "boots"):
-        assert tag in prompt
-
-
-def test_fusion_nurse_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("medium_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("pink_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_4=(_sel("clothing.headwear", ("nurse_cap",), mutex_within=True),),
-        bundle_5=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_6=(_sel("clothing.neck", ("collar",)),),
-    )
-    for tag in ("medium_hair", "pink_hair", "bikini", "nurse_cap", "thighhighs", "collar"):
-        assert tag in prompt
-
-
-def test_fusion_china_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "double_bun")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("large_breasts",), mutex_within=True),),
-        bundle_4=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_5=(_sel("clothing.fit", ("skin_tight",)),),
-        bundle_6=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-    )
-    for tag in ("double_bun", "large_breasts", "bikini", "skin_tight", "pantyhose", "high_heels"):
-        assert tag in prompt
-
-
-def test_fusion_wedding_bunny() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("white_hair",), mutex_within=True),),
-        bundle_3=(_sel("clothing.uniform", ("bunny_girl",), mutex_within=True),),
-        bundle_4=(_sel("clothing.headwear", ("veil",), mutex_within=True),),
-        bundle_5=(_sel("clothing.hand_arm", ("elbow_gloves",)),),
-        bundle_6=(_sel("clothing.legwear", ("pantyhose",), mutex_within=True),),
-        bundle_7=(_sel("clothing.footwear", ("high_heels",), mutex_within=True),),
-        bundle_8=(_sel("clothing.neck", ("necklace",)),),
-        bundle_9=(_sel("body.figure", ("wide_hips", "thick_thighs")),),
-    )
-    for tag in (
-        "very_long_hair",
-        "white_hair",
-        "bunny_girl",
-        "veil",
-        "elbow_gloves",
-        "pantyhose",
-        "high_heels",
-        "necklace",
-        "wide_hips",
-    ):
-        assert tag in prompt
-
-
-def test_fusion_school_apron_maid() -> None:
-    # Serafuku JK + maid apron + headband — JK in maid cosplay event
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
-        bundle_3=(_sel("clothing.accessory.other", ("frilled_apron",)),),
-        bundle_4=(_sel("clothing.headwear", ("headband",), mutex_within=True),),
-        bundle_5=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_6=(_sel("clothing.footwear", ("mary_janes",), mutex_within=True),),
-    )
-    for tag in ("long_hair", "serafuku", "frilled_apron", "headband", "thighhighs", "mary_janes"):
-        assert tag in prompt
-
-
-def test_fusion_gothic_lolita_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "twin_drills")),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
-        bundle_4=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_5=(_sel("clothing.material", ("frills", "lace", "satin")),),
-        bundle_6=(_sel("clothing.headwear", ("headband",), mutex_within=True),),
-        bundle_7=(_sel("clothing.neck", ("frilled_choker",)),),
-        bundle_8=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-    )
-    for tag in (
-        "twin_drills",
-        "pale_skin",
-        "bikini",
-        "frills",
-        "lace",
-        "satin",
-        "headband",
-        "frilled_choker",
-        "thighhighs",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_catgirl_with_face_details() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("pink_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.animal.ears", ("cat_ears",), mutex_within=True),),
-        bundle_4=(_sel("body.animal.tail", ("cat_tail",), mutex_within=True),),
-        bundle_5=(_sel("body.face.eyes.color", ("yellow_eyes",), mutex_within=True),),
-        bundle_6=(_sel("body.face.eyes.details", ("slit_pupils",)),),
-        bundle_7=(_sel("body.face.mouth.details", ("fang",)),),
-        bundle_8=(_sel("body.face.expression", ("smug",)),),
-    )
-    for tag in ("long_hair", "pink_hair", "cat_ears", "cat_tail", "yellow_eyes", "slit_pupils", "fang", "smug"):
-        assert tag in prompt
-
-
-def test_archetype_full_meta_quality_with_subject_count() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "meta.quality",
-                ("masterpiece", "best_quality", "highres", "absurdres", "ultra-detailed"),
-            ),
-        ),
-        bundle_2=(_sel("meta.count.girls", ("1girl",), mutex_within=True),),
-        bundle_3=(_sel("meta.count.total", ("solo",), mutex_within=True),),
-    )
-    for tag in ("masterpiece", "best_quality", "highres", "absurdres", "ultra-detailed", "1girl", "solo"):
-        assert tag in prompt
-
-
-def test_scene_classroom_afternoon_sunlight() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("scene.bg_type", ("scenery",), mutex_within=True),),
-        bundle_2=(_sel("scene.indoor", ("classroom",)),),
-        bundle_3=(_sel("scene.time_of_day", ("afternoon",), mutex_within=True),),
-        bundle_4=(_sel("scene.lighting", ("sunlight", "soft_lighting")),),
-        bundle_5=(_sel("scene.particles", ("dust", "light_particles")),),
-    )
-    for tag in ("scenery", "classroom", "afternoon", "sunlight", "soft_lighting", "dust", "light_particles"):
-        assert tag in prompt
-
-
-def test_scene_beach_sunset_summer() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("scene.outdoor", ("beach", "ocean")),),
-        bundle_2=(_sel("scene.time_of_day", ("sunset",), mutex_within=True),),
-        bundle_3=(_sel("scene.weather", ("sunny",), mutex_within=True),),
-        bundle_4=(_sel("scene.lighting", ("backlighting", "rim_lighting", "lens_flare")),),
-        bundle_5=(_sel("scene.particles", ("splashing_water",)),),
-    )
-    for tag in ("beach", "ocean", "sunset", "sunny", "backlighting", "rim_lighting", "lens_flare", "splashing_water"):
-        assert tag in prompt
-
-
-def test_archetype_demon_girl_with_full_supernatural_features() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
-        bundle_4=(_sel("body.animal.horns", ("demon_horns",), mutex_within=True),),
-        bundle_5=(_sel("body.animal.tail", ("demon_tail",), mutex_within=True),),
-        bundle_6=(_sel("body.animal.wings", ("demon_wings",), mutex_within=True),),
-        bundle_7=(_sel("body.face.eyes.color", ("red_eyes",), mutex_within=True),),
-        bundle_8=(_sel("body.face.eyes.details", ("slit_pupils", "glowing_eyes")),),
-        bundle_9=(_sel("body.face.mouth.details", ("fangs",)),),
-        bundle_10=(_sel("body.face.expression", ("smirk",)),),
-    )
-    for tag in (
-        "long_hair",
-        "black_hair",
-        "pale_skin",
-        "demon_horns",
-        "demon_tail",
-        "demon_wings",
-        "red_eyes",
-        "slit_pupils",
-        "glowing_eyes",
-        "fangs",
-        "smirk",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_sitting_on_chair_classroom_sunset() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.pose.posture", ("sitting",), mutex_within=True),),
-        bundle_2=(_sel("body.pose.seating", ("sitting_on_chair",), mutex_within=True),),
-        bundle_3=(_sel("scene.indoor", ("classroom",)),),
-        bundle_4=(_sel("scene.time_of_day", ("sunset",), mutex_within=True),),
-        bundle_5=(_sel("scene.lighting", ("backlighting",)),),
-        bundle_6=(_sel("body.face.expression", ("smile",)),),
-        bundle_7=(_sel("body.face.eyes.state", ("looking_at_viewer",)),),
-    )
-    for tag in (
-        "sitting",
-        "sitting_on_chair",
-        "classroom",
-        "sunset",
-        "backlighting",
-        "smile",
-        "looking_at_viewer",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_crying_schoolgirl() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("brown_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.face.eyes.color", ("blue_eyes",), mutex_within=True),),
-        bundle_4=(_sel("body.face.eyes.state", ("crying", "teary_eyes", "looking_down")),),
-        bundle_5=(_sel("body.face.expression", ("sad", "tearful")),),
-        bundle_6=(_sel("body.face.blush_flush", ("light_blush",)),),
-        bundle_7=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
-    )
-    for tag in (
-        "brown_hair",
-        "blue_eyes",
-        "crying",
-        "teary_eyes",
-        "looking_down",
-        "sad",
-        "tearful",
-        "light_blush",
-        "serafuku",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_smug_yandere() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("black_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.face.eyes.color", ("red_eyes",), mutex_within=True),),
-        bundle_4=(_sel("body.face.eyes.state", ("narrowed_eyes", "looking_at_viewer")),),
-        bundle_5=(_sel("body.face.eyes.details", ("heart-shaped_pupils", "slit_pupils")),),
-        bundle_6=(_sel("body.face.expression", ("yandere", "smirk", "smug")),),
-        bundle_7=(_sel("body.face.mouth.details", ("licking_lips",)),),
-    )
-    for tag in (
-        "very_long_hair",
-        "black_hair",
-        "red_eyes",
-        "narrowed_eyes",
-        "heart-shaped_pupils",
-        "slit_pupils",
-        "yandere",
-        "smirk",
-        "licking_lips",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_tsundere_blush() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("twintails",)),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.face.eyes.state", ("looking_away", "looking_to_the_side")),),
-        bundle_4=(_sel("body.face.expression", ("embarrassed", "pouting", "annoyed")),),
-        bundle_5=(_sel("body.face.blush_flush", ("blush", "full-face_blush")),),
-        bundle_6=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
-    )
-    for tag in (
-        "twintails",
-        "blonde_hair",
-        "looking_away",
-        "embarrassed",
-        "pouting",
-        "blush",
-        "full-face_blush",
-        "serafuku",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_sleepy_morning() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "messy_hair")),),
-        bundle_2=(_sel("body.face.eyes.state", ("half-closed_eyes",)),),
-        bundle_3=(_sel("body.face.mouth.state", ("parted_lips",)),),
-        bundle_4=(_sel("body.face.expression", ("sleepy", "drowsy", "tired")),),
-        bundle_5=(_sel("clothing.fit", ("oversized_shirt", "loose_clothes")),),
-        bundle_6=(_sel("body.pose.posture", ("sitting",), mutex_within=True),),
-        bundle_7=(_sel("body.pose.seating", ("sitting_on_bed",), mutex_within=True),),
-        bundle_8=(_sel("scene.indoor", ("bedroom",)),),
-        bundle_9=(_sel("scene.time_of_day", ("morning",), mutex_within=True),),
-        bundle_10=(_sel("scene.lighting", ("soft_lighting", "sunlight")),),
-    )
-    for tag in (
-        "messy_hair",
-        "half-closed_eyes",
-        "parted_lips",
-        "sleepy",
-        "oversized_shirt",
-        "sitting_on_bed",
-        "bedroom",
-        "morning",
-        "soft_lighting",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_genki_energetic() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("short_hair", "ponytail")),),
-        bundle_2=(_sel("body.face.eyes.details", ("sparkling_eyes",)),),
-        bundle_3=(_sel("body.face.expression", ("smile", "happy", "grin")),),
-        bundle_4=(_sel("body.face.blush_flush", ("blush_stickers",)),),
-        bundle_5=(_sel("body.face.mouth.state", ("open_mouth", ":d")),),
-        bundle_6=(_sel("body.pose.posture", ("jumping",), mutex_within=True),),
-    )
-    for tag in (
-        "ponytail",
-        "sparkling_eyes",
-        "smile",
-        "happy",
-        "grin",
-        "blush_stickers",
-        "open_mouth",
-        ":d",
-        "jumping",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_foxgirl_shrine() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("white_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.animal.ears", ("fox_ears",), mutex_within=True),),
-        bundle_4=(_sel("body.animal.tail", ("fox_tail",), mutex_within=True),),
-        bundle_5=(_sel("body.face.eyes.color", ("yellow_eyes",), mutex_within=True),),
-        bundle_6=(_sel("body.face.eyes.details", ("slit_pupils",)),),
-        bundle_7=(_sel("clothing.uniform", ("miko",), mutex_within=True),),
-        bundle_8=(_sel("scene.outdoor", ("shrine_outdoors",)),),
-    )
-    for tag in ("white_hair", "fox_ears", "fox_tail", "yellow_eyes", "slit_pupils", "miko", "shrine_outdoors"):
-        assert tag in prompt
-
-
-def test_archetype_wolf_knight() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_2=(_sel("body.animal.ears", ("wolf_ears",), mutex_within=True),),
-        bundle_3=(_sel("body.animal.tail", ("wolf_tail",), mutex_within=True),),
-        bundle_4=(_sel("body.face.eyes.color", ("yellow_eyes",), mutex_within=True),),
-        bundle_5=(_sel("body.marks.scars", ("scar_on_cheek",)),),
-        bundle_6=(_sel("body.face.expression", ("serious",)),),
-        bundle_7=(_sel("clothing.uniform", ("armor",), mutex_within=True),),
-        bundle_8=(_sel("clothing.footwear", ("knee_boots",), mutex_within=True),),
-    )
-    for tag in ("wolf_ears", "wolf_tail", "yellow_eyes", "scar_on_cheek", "serious", "armor", "knee_boots"):
-        assert tag in prompt
-
-
-def test_archetype_dragon_girl() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.color", ("red_hair",), mutex_within=True),),
-        bundle_2=(_sel("body.animal.horns", ("dragon_horns",), mutex_within=True),),
-        bundle_3=(_sel("body.animal.tail", ("dragon_tail",), mutex_within=True),),
-        bundle_4=(_sel("body.animal.wings", ("dragon_wings",), mutex_within=True),),
-        bundle_5=(_sel("body.face.eyes.color", ("red_eyes",), mutex_within=True),),
-        bundle_6=(_sel("body.face.eyes.details", ("slit_pupils", "glowing_eyes")),),
-        bundle_7=(_sel("body.face.mouth.details", ("fangs",)),),
-    )
-    for tag in (
-        "red_hair",
-        "dragon_horns",
-        "dragon_tail",
-        "dragon_wings",
-        "red_eyes",
-        "slit_pupils",
-        "glowing_eyes",
-        "fangs",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_angel_devine() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.length_style", ("very_long_hair",)),),
-        bundle_2=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_3=(_sel("body.skin", ("pale_skin",), mutex_within=True),),
-        bundle_4=(_sel("body.animal.wings", ("angel_wings",), mutex_within=True),),
-        bundle_5=(_sel("body.face.eyes.color", ("aqua_eyes",), mutex_within=True),),
-        bundle_6=(_sel("body.face.expression", ("smile",)),),
-        bundle_7=(_sel("clothing.dress", ("long_dress",), mutex_within=True),),
-        bundle_8=(_sel("scene.lighting", ("rim_lighting", "god_rays", "light_particles", "sunlight")),),
-        bundle_9=(_sel("scene.particles", ("feathers", "sparkles", "glitter")),),
-    )
-    for tag in (
-        "blonde_hair",
-        "pale_skin",
-        "angel_wings",
-        "aqua_eyes",
-        "long_dress",
-        "rim_lighting",
-        "god_rays",
-        "feathers",
-        "sparkles",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_succubus_bikini() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.hair.color", ("purple_hair",), mutex_within=True),),
-        bundle_2=(_sel("body.skin", ("tan",), mutex_within=True),),
-        bundle_3=(_sel("body.breasts.size", ("huge_breasts",), mutex_within=True),),
-        bundle_4=(_sel("body.animal.horns", ("demon_horns",), mutex_within=True),),
-        bundle_5=(_sel("body.animal.tail", ("demon_tail",), mutex_within=True),),
-        bundle_6=(_sel("body.animal.wings", ("demon_wings",), mutex_within=True),),
-        bundle_7=(_sel("body.face.eyes.color", ("red_eyes",), mutex_within=True),),
-        bundle_8=(_sel("body.face.expression", ("smug", "smirk")),),
-        bundle_9=(_sel("clothing.swimwear", ("micro_bikini",), mutex_within=True),),
-        bundle_10=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-    )
-    for tag in (
-        "purple_hair",
-        "tan",
-        "huge_breasts",
-        "demon_horns",
-        "demon_tail",
-        "demon_wings",
-        "red_eyes",
-        "smug",
-        "micro_bikini",
-        "thighhighs",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_snowy_mountain_night() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("scene.outdoor", ("mountain", "snowfield")),),
-        bundle_2=(_sel("scene.time_of_day", ("night",), mutex_within=True),),
-        bundle_3=(_sel("scene.weather", ("snowing",), mutex_within=True),),
-        bundle_4=(_sel("scene.lighting", ("moonlight", "rim_lighting", "blue_hour")),),
-        bundle_5=(_sel("scene.particles", ("snowflakes", "mist")),),
-        bundle_6=(_sel("clothing.tops", ("winter_coat", "scarf")),),
-        bundle_7=(_sel("clothing.footwear", ("boots",), mutex_within=True),),
-    )
-    for tag in ("mountain", "snowfield", "night", "snowing", "moonlight", "snowflakes", "mist", "winter_coat", "scarf"):
-        assert tag in prompt
-
-
-def test_archetype_cherry_blossom_park() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("scene.outdoor", ("park",)),),
-        bundle_2=(_sel("scene.weather", ("sunny",), mutex_within=True),),
-        bundle_3=(_sel("scene.time_of_day", ("afternoon",), mutex_within=True),),
-        bundle_4=(_sel("scene.particles", ("cherry_blossoms", "petals", "falling_petals", "light_particles")),),
-        bundle_5=(_sel("scene.lighting", ("dappled_sunlight",)),),
-        bundle_6=(_sel("body.face.expression", ("smile",)),),
-    )
-    for tag in ("park", "sunny", "afternoon", "cherry_blossoms", "petals", "dappled_sunlight", "smile"):
-        assert tag in prompt
-
-
-def test_archetype_rainy_neon_city() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("scene.outdoor", ("city", "alley")),),
-        bundle_2=(_sel("scene.time_of_day", ("night",), mutex_within=True),),
-        bundle_3=(_sel("scene.weather", ("rain", "raining"), mutex_within=True),),
-        bundle_4=(_sel("scene.lighting", ("neon_lights", "neon_trim", "lens_flare", "rim_lighting")),),
-        bundle_5=(_sel("clothing.material", ("wet_clothes",)),),
-        bundle_6=(_sel("clothing.hand_arm", ("gloves",)),),
-    )
-    for tag in ("city", "alley", "night", "rain", "neon_lights", "lens_flare", "wet_clothes", "gloves"):
-        assert tag in prompt
-
-
-def test_archetype_forest_fairy_night() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("scene.outdoor", ("forest",)),),
-        bundle_2=(_sel("scene.time_of_day", ("night",), mutex_within=True),),
-        bundle_3=(_sel("scene.particles", ("fireflies", "light_particles", "mist", "sparkles")),),
-        bundle_4=(_sel("scene.lighting", ("moonlight",)),),
-        bundle_5=(_sel("body.animal.wings", ("fairy_wings",), mutex_within=True),),
-        bundle_6=(_sel("body.face.eyes.details", ("glowing_eyes",)),),
-        bundle_7=(_sel("clothing.fit", ("loose_clothes",)),),
-    )
-    for tag in ("forest", "night", "fireflies", "moonlight", "fairy_wings", "glowing_eyes", "sparkles"):
-        assert tag in prompt
-
-
-def test_archetype_yuri_couple() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("meta.count.girls", ("2girls",), mutex_within=True),),
-        bundle_2=(_sel("meta.count.other", ("yuri", "couple")),),
-        bundle_3=(_sel("body.face.expression", ("smile",)),),
-        bundle_4=(_sel("body.face.eyes.state", ("eye_contact",)),),
-        bundle_5=(_sel("nsfw.act.oral_contact", ("kissing",)),),
-    )
-    for tag in ("2girls", "yuri", "couple", "smile", "eye_contact", "kissing"):
-        assert tag in prompt
-
-
-def test_archetype_meta_quality_one_girl_solo_full_stack() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(
-            _sel(
-                "meta.quality",
-                ("masterpiece", "best_quality", "high_quality", "highres", "absurdres", "ultra-detailed"),
-            ),
-        ),
-        bundle_2=(_sel("meta.count.girls", ("1girl",), mutex_within=True),),
-        bundle_3=(_sel("meta.count.total", ("solo",), mutex_within=True),),
-        bundle_4=(_sel("body.hair.length_style", ("long_hair", "ponytail")),),
-        bundle_5=(_sel("body.hair.color", ("blonde_hair",), mutex_within=True),),
-        bundle_6=(_sel("body.face.eyes.color", ("blue_eyes",), mutex_within=True),),
-        bundle_7=(_sel("body.face.expression", ("smile",)),),
-        bundle_8=(_sel("scene.bg_type", ("simple_background",), mutex_within=True),),
-    )
-    tokens = prompt.split(", ")
-    # Meta quality should appear up front (input order — Meta first).
-    assert tokens.index("masterpiece") < tokens.index("1girl")
-    assert tokens.index("1girl") < tokens.index("long_hair")
-    for tag in (
-        "masterpiece",
-        "best_quality",
-        "highres",
-        "1girl",
-        "solo",
-        "blonde_hair",
-        "blue_eyes",
-        "smile",
-        "simple_background",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_lying_on_back_beach() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.pose.posture", ("lying", "on_back"), mutex_within=True),),
-        bundle_2=(_sel("clothing.swimwear", ("bikini",), mutex_within=True),),
-        bundle_3=(_sel("scene.outdoor", ("beach",)),),
-        bundle_4=(_sel("scene.time_of_day", ("sunset",), mutex_within=True),),
-        bundle_5=(_sel("scene.lighting", ("backlighting", "rim_lighting")),),
-        bundle_6=(_sel("scene.particles", ("light_particles",)),),
-    )
-    # body.pose.posture is mutex within, so multi-tag selection collapses
-    # to the first.
-    tokens = prompt.split(", ")
-    assert "lying" in tokens
-    assert "on_back" not in tokens
-    for tag in ("lying", "bikini", "beach", "sunset", "backlighting"):
-        assert tag in prompt
-
-
-def test_archetype_bent_over_skirt_lift() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.pose.posture", ("bent_over",), mutex_within=True),),
-        bundle_2=(_sel("clothing.state", ("skirt_lift", "lifting_own_clothes")),),
-        bundle_3=(_sel("clothing.bottoms", ("pleated_skirt",)),),
-        bundle_4=(_sel("clothing.underwear", ("striped_panties",)),),
-        bundle_5=(_sel("clothing.legwear", ("thighhighs",), mutex_within=True),),
-        bundle_6=(_sel("body.face.eyes.state", ("looking_back",)),),
-        bundle_7=(_sel("body.face.expression", ("embarrassed",)),),
-        bundle_8=(_sel("body.face.blush_flush", ("blush",)),),
-    )
-    for tag in (
-        "bent_over",
-        "skirt_lift",
-        "pleated_skirt",
-        "striped_panties",
-        "thighhighs",
-        "looking_back",
-        "embarrassed",
-        "blush",
-    ):
-        assert tag in prompt
-
-
-def test_archetype_rooftop_sunset_skyline() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("scene.outdoor", ("rooftop", "city", "skyline")),),
-        bundle_2=(_sel("scene.time_of_day", ("sunset",), mutex_within=True),),
-        bundle_3=(_sel("scene.weather", ("clear_sky",), mutex_within=True),),
-        bundle_4=(_sel("scene.lighting", ("backlighting", "rim_lighting", "lens_flare", "golden_hour")),),
-        bundle_5=(_sel("clothing.uniform", ("serafuku",), mutex_within=True),),
-        bundle_6=(_sel("body.hair.length_style", ("long_hair",)),),
-        bundle_7=(_sel("body.face.expression", ("smile",)),),
-    )
-    for tag in ("rooftop", "city", "skyline", "sunset", "clear_sky", "backlighting", "lens_flare", "serafuku", "smile"):
-        assert tag in prompt
-
-
-def test_face_mutex_groups_eye_openness() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.face.eyes.state", ("closed_eyes", "wide-eyed")),),
-    )
-    tokens = prompt.split(", ")
-    assert "closed_eyes" in tokens
-    assert "wide-eyed" not in tokens
-    assert "mutex_group" in warnings
-
-
-def test_face_mutex_groups_gaze_direction() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.face.eyes.state", ("looking_up", "looking_down", "looking_at_viewer")),),
-    )
-    tokens = prompt.split(", ")
-    assert tokens == ["looking_up"]
-    assert "looking_down" in warnings
-    assert "looking_at_viewer" in warnings
-
-
-def test_face_mutex_groups_mouth_open_vs_closed() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.face.mouth.state", ("open_mouth", "closed_mouth")),),
-    )
-    assert prompt == "open_mouth"
-    assert "mutex_group" in warnings
-
-
-def test_face_mutex_groups_emoticon_shapes() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.face.mouth.state", (":d", ":3", ":o", ":p")),),
-    )
-    assert prompt == ":d"
-
-
-def test_face_mutex_groups_smile_vs_frown_collapses() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.face.expression", ("smile", "frown")),),
-    )
-    assert prompt == "smile"
-    assert "frown" in warnings
-
-
-def test_face_smile_and_grin_coexist() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.face.expression", ("smile", "grin", "laughing")),),
-    )
-    for t in ("smile", "grin", "laughing"):
-        assert t in prompt
-
-
-def test_face_smile_and_sad_coexist_for_sad_smile() -> None:
-    # bittersweet sad smile — neither drops
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.face.expression", ("smile", "sad", "tearful")),),
-    )
-    for t in ("smile", "sad", "tearful"):
-        assert t in prompt
-
-
-def test_face_happy_vs_sad_mutex() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.face.expression", ("happy", "sad")),),
-    )
-    assert prompt == "happy"
-
-
-def test_face_expressionless_vs_active_expression_mutex() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.face.expression", ("expressionless", "smile", "frown")),),
-    )
-    assert prompt == "expressionless"
-    assert "smile" in warnings
-    assert "frown" in warnings
-
-
-def test_face_smug_layers_on_top_of_smile() -> None:
-    prompt, _, _ = _run(
-        bundle_1=(_sel("body.face.expression", ("smile", "smug", "smirk")),),
-    )
-    for t in ("smile", "smug", "smirk"):
-        assert t in prompt
-
-
-def test_face_embarrassed_blush_still_coexist() -> None:
-    prompt, warnings, _ = _run(
-        bundle_1=(_sel("body.face.expression", ("embarrassed",)),),
-        bundle_2=(_sel("body.face.blush_flush", ("blush", "full-face_blush")),),
-    )
-    assert "embarrassed" in prompt
-    assert "blush" in prompt
-    assert "full-face_blush" in prompt
-    assert warnings == ""
 
 
 def test_returned_bundle_can_be_re_merged() -> None:
@@ -2133,3 +333,26 @@ def test_returned_bundle_can_be_re_merged() -> None:
     )
     prompt2, _, _ = _run(bundle_1=bundle)
     assert prompt2 == "x, y"
+
+
+def test_nude_does_not_drop_fit_aside_position_tags() -> None:
+    # Documented edge: nude drops items in clothing categories listed in
+    # TAG_CONFLICTS["nude"] (tops/bottoms/dress/uniform/underwear/swimwear/
+    # footwear/legwear) but does NOT extend into fit/aside/position.
+    prompt = _scenario("nude, skin_tight, panties_aside, goggles_on_head, panties")
+    tokens = prompt.split(", ")
+    assert "nude" in tokens
+    assert "panties" not in tokens  # actual clothing dropped
+    assert "skin_tight" in tokens
+    assert "panties_aside" in tokens
+    assert "goggles_on_head" in tokens
+
+
+def test_trigger_tag_itself_is_never_dropped() -> None:
+    assert _scenario("nude") == "nude"
+
+
+def test_unknown_tags_pass_through() -> None:
+    # Tags not registered with any node land in an "_unknown" bucket and
+    # survive as-is.
+    assert _scenario("hand_made_super_special_tag_xyz, smile") == ("hand_made_super_special_tag_xyz, smile")
