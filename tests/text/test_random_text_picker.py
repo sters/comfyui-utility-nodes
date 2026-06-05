@@ -1,4 +1,4 @@
-from nodes.random_text_picker import RandomTextPicker
+from nodes.text.random_text_picker import RandomTextPicker
 
 
 def test_pick_basic() -> None:

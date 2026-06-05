@@ -1,6 +1,6 @@
 import pytest
 
-from nodes.prompt_combinator import PromptCombinator
+from nodes.text.prompt_combinator import PromptCombinator
 
 
 def test_expand_basic() -> None:

@@ -1,4 +1,9 @@
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING, ClassVar
+
+if TYPE_CHECKING:
+    from nodes.tags._base import TagNodeBase
+else:
+    from _cuun_tag_node_base import TagNodeBase
 
 _GENERAL: tuple[str, ...] = (
     "artistic_error",
@@ -68,54 +73,28 @@ _NSFW: tuple[str, ...] = (
 )
 
 
-class _BadTagsBase:
-    TAGS: ClassVar[tuple[str, ...]] = ()
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING",)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt",)
-    FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "utility/text"
-    OUTPUT_NODE: ClassVar[bool] = True
-
-    @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
-        required: dict[str, Any] = {
-            "separator": ("STRING", {"multiline": False, "default": ", "}),
-        }
-        for tag in cls.TAGS:
-            required[tag] = ("BOOLEAN", {"default": True})
-        return {
-            "required": required,
-            "optional": {
-                "extra": ("STRING", {"multiline": True, "default": ""}),
-            },
-        }
-
-    def build(self, separator: str, extra: str = "", **tags: bool) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
-        parts: list[str] = [tag for tag in self.TAGS if tags.get(tag, False)]
-        if extra.strip():
-            parts.append(extra.strip())
-        prompt = sep.join(parts)
-        return {"ui": {"text": (prompt,)}, "result": (prompt,)}
-
-
-class DanbooruBadGeneral(_BadTagsBase):
+class DanbooruBadGeneral(TagNodeBase):
+    DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _GENERAL
 
 
-class DanbooruBadHeadFace(_BadTagsBase):
+class DanbooruBadHeadFace(TagNodeBase):
+    DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _HEAD_FACE
 
 
-class DanbooruBadBody(_BadTagsBase):
+class DanbooruBadBody(TagNodeBase):
+    DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _BODY
 
 
-class DanbooruBadLimbs(_BadTagsBase):
+class DanbooruBadLimbs(TagNodeBase):
+    DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _LIMBS
 
 
-class DanbooruBadNSFW(_BadTagsBase):
+class DanbooruBadNSFW(TagNodeBase):
+    DEFAULT_BOOLEAN: ClassVar[bool] = True
     TAGS = _NSFW
 
 

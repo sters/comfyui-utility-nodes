@@ -9,13 +9,34 @@ This repo provides ComfyUI prompt-builder nodes whose only variable input is a l
 
 ## Repo conventions (must follow)
 
-- All tag-group nodes inherit a small base class with:
-  - `RETURN_TYPES = ("STRING",)`, `RETURN_NAMES = ("prompt",)`, `FUNCTION = "build"`, `CATEGORY = "utility/text"`, `OUTPUT_NODE = True`
-  - `INPUT_TYPES` exposes a `separator` STRING widget + one BOOLEAN per tag + optional multiline `extra`
-  - `build` returns `{"ui": {"text": (prompt,)}, "result": (prompt,)}` for in-node preview
+- Directory layout:
+  - `nodes/tags/_base.py` — shared `TagNodeBase`
+  - `nodes/tags/composition.py`, `nodes/tags/danbooru_bad.py` — themes that don't belong to body/clothing
+  - `nodes/tags/body/{hair,hands,feet,breasts,type,exposure,marks}.py` — anatomy themes
+  - `nodes/tags/clothing/{state,outfit,underwear_swimwear,material,legwear_footwear,headwear_eyewear,accessory}.py` — clothing themes
+  - `nodes/text/` — non-tag utilities (prompt_combinator, random_text_picker, list_shuffle, text_concat, pony_prompt_builder)
+  - Place new tag themes under the matching subdir; new utility nodes under `nodes/text/`.
+- All tag-group nodes share `TagNodeBase` from `nodes/tags/_base.py`. Each node file does NOT duplicate the base — it imports via a TYPE_CHECKING shim (mypy sees a normal package import; runtime imports the spec-registered name):
+
+  ```python
+  from typing import TYPE_CHECKING
+
+  if TYPE_CHECKING:
+      from nodes.tags._base import TagNodeBase
+  else:
+      from _cuun_tag_node_base import TagNodeBase
+  ```
+
+  Then just `class FooBar(TagNodeBase): TAGS = _FOO`. For groups whose BOOLEAN default should be `True` (e.g. negative-prompt bad-tag families), override `DEFAULT_BOOLEAN: ClassVar[bool] = True` on the subclass.
+
+- `TagNodeBase` provides: `RETURN_TYPES/RETURN_NAMES/FUNCTION/CATEGORY/OUTPUT_NODE`; `INPUT_TYPES` with `separator` + `preset` combo (`custom`/`all_on`/`all_off`/`invert`, default `custom`) + one BOOLEAN per tag (defaulting from `cls.DEFAULT_BOOLEAN`) + optional `extra`; and `build(self, separator, extra="", **kwargs)` that pops `preset` from kwargs and applies preset logic. The build return shape is `{"ui": {"text": (prompt,)}, "result": (prompt,)}` for in-node preview.
+
+- `__init__.py` MUST load `_tag_node_base.py` FIRST (registers `_cuun_tag_node_base` in `sys.modules`) before any tag-node file. Tests rely on `tests/conftest.py` doing the same pre-registration.
 - Reference implementations:
   - `nodes/danbooru_bad_tags.py` — `_BadTagsBase` + 5 subclasses (default `True`, used as negative prompt)
   - `nodes/composition_tags.py` — `_CompositionBase` + 5 subclasses (default `False`, used positively)
+  - `nodes/hair_tags.py`, `hands_tags.py`, `feet_tags.py`, `breasts_tags.py`, `body_type_tags.py`, `body_exposure_tags.py`, `body_marks_tags.py` — anatomy/body themes (default `False`)
+  - `nodes/clothing_state_tags.py`, `clothing_outfit_tags.py`, `clothing_underwear_swimwear_tags.py`, `clothing_material_tags.py`, `clothing_legwear_footwear_tags.py`, `clothing_headwear_eyewear_tags.py`, `clothing_accessory_tags.py` — clothing families (default `False`)
 - Pick the right default:
   - Default **True** when the whole group is sensibly thrown at the negative prompt (e.g. bad anatomy)
   - Default **False** when the user picks one or a few (angles, framing, focus)
@@ -39,6 +60,8 @@ Order of preference when locating tags:
 - Drop clothing/accessory tags when the user asked for "anatomy" / "body parts" / "パーツ系".
 - Keep tags whose only failure mode is being niche — the user can untoggle. Skip only tags that are wrong-category or actively harmful.
 - When a tag has plausible legitimate uses (e.g. `extra_ears` for catgirls), still include it but mention the caveat in the README note.
+- **Color/pattern composites**: avoid pre-baked color+item tags (`black_thighhighs`, `white_shirt`, `striped_thighhighs`). The convention is to keep the base item (`thighhighs`, `shirt`) and let the user combine with a color via `extra` or `TextConcat`. Pattern words like `striped`/`polka_dot` belong in `clothing_material_tags.py` (Pattern subgroup), not duplicated per item.
+- **Cross-file overlap**: the `test_no_overlap_between_groups` test only checks within a single file. Avoid cross-file duplicates by hand — e.g. `loose_necktie` lives in Clothing: State so don't re-add it under Neck; `mole_on_breast`/`breast_tattoo` live in Body: Marks so don't re-add under Breasts.
 
 ## Decisions to surface (ask the user)
 
@@ -57,15 +80,7 @@ For a new tag group:
 3. Subclass the base class, set `TAGS = _MY_TUPLE`.
 4. Add entries to that file's `NODE_CLASS_MAPPINGS` and `NODE_DISPLAY_NAME_MAPPINGS`.
 5. If you created a new file, add a `_load(...)` entry in the root `__init__.py`.
-6. Write tests in `tests/test_<theme>_tags.py` covering:
-   - all-on order matches tuple order
-   - all-off returns empty
-   - default BOOLEAN value matches the group's convention
-   - `OUTPUT_NODE is True`
-   - extra appended after tags
-   - a hyphenated tag name actually works as kwarg (if any are present)
-   - no overlap with sibling groups (`test_no_overlap_between_groups`)
-   - `test_total_tag_count` exact-count assertion (update when tags change)
+6. **Do NOT write per-theme tests.** The core logic lives in `TagNodeBase` and is covered once by `tests/tags/test_base.py` (synthetic subclasses). New themes are just data (the `TAGS` tuple) — there is nothing per-theme worth asserting. Use `git diff` as the source of truth for tag-list changes, and trust no-overlap by reading the diff.
 7. Update the README table for that theme.
 8. Run `make check`. Fix lint/format/typecheck/test failures before reporting done.
 

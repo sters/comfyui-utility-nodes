@@ -1,4 +1,9 @@
-from typing import Any, ClassVar
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from nodes.tags._base import TagNodeBase
+else:
+    from _cuun_tag_node_base import TagNodeBase
 
 _ANGLE: tuple[str, ...] = (
     "dutch_angle",
@@ -80,54 +85,23 @@ _FOCUS: tuple[str, ...] = (
 )
 
 
-class _CompositionBase:
-    TAGS: ClassVar[tuple[str, ...]] = ()
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING",)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt",)
-    FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "utility/text"
-    OUTPUT_NODE: ClassVar[bool] = True
-
-    @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
-        required: dict[str, Any] = {
-            "separator": ("STRING", {"multiline": False, "default": ", "}),
-        }
-        for tag in cls.TAGS:
-            required[tag] = ("BOOLEAN", {"default": False})
-        return {
-            "required": required,
-            "optional": {
-                "extra": ("STRING", {"multiline": True, "default": ""}),
-            },
-        }
-
-    def build(self, separator: str, extra: str = "", **tags: bool) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
-        parts: list[str] = [tag for tag in self.TAGS if tags.get(tag, False)]
-        if extra.strip():
-            parts.append(extra.strip())
-        prompt = sep.join(parts)
-        return {"ui": {"text": (prompt,)}, "result": (prompt,)}
-
-
-class CompositionAngle(_CompositionBase):
+class CompositionAngle(TagNodeBase):
     TAGS = _ANGLE
 
 
-class CompositionFraming(_CompositionBase):
+class CompositionFraming(TagNodeBase):
     TAGS = _FRAMING
 
 
-class CompositionCrop(_CompositionBase):
+class CompositionCrop(TagNodeBase):
     TAGS = _CROP
 
 
-class CompositionFocus(_CompositionBase):
+class CompositionFocus(TagNodeBase):
     TAGS = _FOCUS
 
 
-class CompositionMultiView(_CompositionBase):
+class CompositionMultiView(TagNodeBase):
     TAGS = _MULTIVIEW
 
 

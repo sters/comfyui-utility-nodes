@@ -1,4 +1,4 @@
-from nodes.text_concat import TextConcat
+from nodes.text.text_concat import TextConcat
 
 
 def test_concat_basic() -> None:

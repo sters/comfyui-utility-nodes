@@ -1,6 +1,6 @@
 from typing import Any
 
-from nodes.pony_prompt_builder import PonyPromptBuilder
+from nodes.text.pony_prompt_builder import PonyPromptBuilder
 
 
 def _all_scores_on() -> dict[str, bool]:

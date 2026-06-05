@@ -1,4 +1,4 @@
-from nodes.list_shuffle import ListShuffle
+from nodes.text.list_shuffle import ListShuffle
 
 
 def test_shuffle_deterministic() -> None:

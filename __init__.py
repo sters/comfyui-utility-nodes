@@ -18,13 +18,28 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {}
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
 
 for _modname, _relpath in [
-    ("_cuun_random_text_picker", "nodes/random_text_picker.py"),
-    ("_cuun_prompt_combinator", "nodes/prompt_combinator.py"),
-    ("_cuun_list_shuffle", "nodes/list_shuffle.py"),
-    ("_cuun_text_concat", "nodes/text_concat.py"),
-    ("_cuun_pony_prompt_builder", "nodes/pony_prompt_builder.py"),
-    ("_cuun_danbooru_bad_tags", "nodes/danbooru_bad_tags.py"),
-    ("_cuun_composition_tags", "nodes/composition_tags.py"),
+    ("_cuun_tag_node_base", "nodes/tags/_base.py"),
+    ("_cuun_random_text_picker", "nodes/text/random_text_picker.py"),
+    ("_cuun_prompt_combinator", "nodes/text/prompt_combinator.py"),
+    ("_cuun_list_shuffle", "nodes/text/list_shuffle.py"),
+    ("_cuun_text_concat", "nodes/text/text_concat.py"),
+    ("_cuun_pony_prompt_builder", "nodes/text/pony_prompt_builder.py"),
+    ("_cuun_danbooru_bad_tags", "nodes/tags/danbooru_bad.py"),
+    ("_cuun_composition_tags", "nodes/tags/composition.py"),
+    ("_cuun_hair_tags", "nodes/tags/body/hair.py"),
+    ("_cuun_hands_tags", "nodes/tags/body/hands.py"),
+    ("_cuun_feet_tags", "nodes/tags/body/feet.py"),
+    ("_cuun_breasts_tags", "nodes/tags/body/breasts.py"),
+    ("_cuun_body_type_tags", "nodes/tags/body/type.py"),
+    ("_cuun_body_exposure_tags", "nodes/tags/body/exposure.py"),
+    ("_cuun_body_marks_tags", "nodes/tags/body/marks.py"),
+    ("_cuun_clothing_state_tags", "nodes/tags/clothing/state.py"),
+    ("_cuun_clothing_outfit_tags", "nodes/tags/clothing/outfit.py"),
+    ("_cuun_clothing_underwear_swimwear_tags", "nodes/tags/clothing/underwear_swimwear.py"),
+    ("_cuun_clothing_material_tags", "nodes/tags/clothing/material.py"),
+    ("_cuun_clothing_legwear_footwear_tags", "nodes/tags/clothing/legwear_footwear.py"),
+    ("_cuun_clothing_headwear_eyewear_tags", "nodes/tags/clothing/headwear_eyewear.py"),
+    ("_cuun_clothing_accessory_tags", "nodes/tags/clothing/accessory.py"),
 ]:
     _mod = _load(_modname, _relpath)
     NODE_CLASS_MAPPINGS.update(_mod.NODE_CLASS_MAPPINGS)  # type: ignore[attr-defined]
