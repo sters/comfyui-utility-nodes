@@ -42,6 +42,7 @@ for _modname, _relpath in [
     ("_cuun_body_action", "nodes/tags/body/action.py"),
     ("_cuun_body_holding", "nodes/tags/body/holding.py"),
     ("_cuun_character_preset", "nodes/tags/preset.py"),
+    ("_cuun_personality_preset", "nodes/tags/personality.py"),
     ("_cuun_meta_quality", "nodes/tags/meta/quality.py"),
     ("_cuun_meta_count", "nodes/tags/meta/count.py"),
     ("_cuun_scene_background", "nodes/tags/scene/background.py"),
