@@ -68,14 +68,20 @@ class TagsMerge:
             post_mutex.append(sel)
 
         # 3. Apply MUTEX_GROUPS: cross-category subsets where only one
-        #    member may survive (e.g. long_hair vs short_hair).
+        #    member may survive (e.g. long_hair vs short_hair). Dedupe
+        #    the per-group hit list first so a tag appearing twice in the
+        #    bundle (e.g. same tag from two presets) isn't mistaken for a
+        #    sibling conflict.
         mutex_drop: set[str] = set()
         ordered_tags = [t for sel in post_mutex if sel.category != _EXTRA_CATEGORY for t in sel.tags]
         for group in MUTEX_GROUPS:
-            present = [t for t in ordered_tags if t in group]
-            if len(present) > 1:
-                group_kept = present[0]
-                group_dropped = present[1:]
+            seen_in_group: list[str] = []
+            for t in ordered_tags:
+                if t in group and t not in seen_in_group:
+                    seen_in_group.append(t)
+            if len(seen_in_group) > 1:
+                group_kept = seen_in_group[0]
+                group_dropped = seen_in_group[1:]
                 mutex_drop.update(group_dropped)
                 warnings.append(f"mutex_group: kept '{group_kept}', dropped {group_dropped}")
 

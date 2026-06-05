@@ -105,7 +105,10 @@ class HairLengthStyle(TagNodeBase):
 class HairColor(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "body.hair.color"
     LAYER: ClassVar[str] = "anatomy"
-    MUTEX_WITHIN: ClassVar[bool] = True
+    # multicolored/two-tone/gradient layer on top of a base color, so
+    # don't lock the category to one tag. Base-color exclusivity is
+    # enforced via MUTEX_GROUPS in _conflicts.py.
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _COLOR
 
 

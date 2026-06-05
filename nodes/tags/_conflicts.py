@@ -68,6 +68,55 @@ MUTEX_GROUPS: tuple[frozenset[str], ...] = (
     frozenset({"long_skirt", "miniskirt"}),
     # Base skin tone — only one tone, but tanlines/shiny_skin can stack on top.
     frozenset({"pale_skin", "white_skin", "fair_skin", "tan", "dark_skin", "very_dark_skin"}),
+    # Hair base color (multicolored/two-tone/gradient/streaked layer on top).
+    frozenset(
+        {
+            "blonde_hair",
+            "black_hair",
+            "brown_hair",
+            "blue_hair",
+            "light_blue_hair",
+            "aqua_hair",
+            "pink_hair",
+            "purple_hair",
+            "red_hair",
+            "white_hair",
+            "grey_hair",
+            "silver_hair",
+            "green_hair",
+            "orange_hair",
+        }
+    ),
+    # Eye base color.
+    frozenset(
+        {
+            "blue_eyes",
+            "red_eyes",
+            "brown_eyes",
+            "green_eyes",
+            "purple_eyes",
+            "violet_eyes",
+            "yellow_eyes",
+            "gold_eyes",
+            "orange_eyes",
+            "pink_eyes",
+            "black_eyes",
+            "grey_eyes",
+            "aqua_eyes",
+            "white_eyes",
+        }
+    ),
+    # Breast size.
+    frozenset(
+        {
+            "flat_chest",
+            "small_breasts",
+            "medium_breasts",
+            "large_breasts",
+            "huge_breasts",
+            "gigantic_breasts",
+        }
+    ),
     # Eye openness — physically one state at a time.
     frozenset({"closed_eyes", "half-closed_eyes", "wide-eyed", "narrowed_eyes"}),
     # Gaze direction — looking somewhere is positional, not stackable.

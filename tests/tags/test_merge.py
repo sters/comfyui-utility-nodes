@@ -183,6 +183,20 @@ CASES: list[tuple[str, str, object]] = [
         "ponytail, brown_hair, tan, tanlines, muscular_female, abs, toned, thick_thighs, sports_bra, bike_shorts, sneakers",  # noqa: E501
         PASS,
     ),
+    # --- Action + Holding ---
+    ("action_eating_food", "eating, holding_food, holding_chopsticks, smile", PASS),
+    ("action_reading_book", "reading, holding_book, glasses, sitting, library", PASS),
+    ("action_phone_selfie", "selfie, holding_phone, smile, looking_at_viewer", PASS),
+    ("action_sleeping_bedroom", "sleeping, lying, bedroom, night, closed_eyes, oversized_shirt", PASS),
+    ("action_singing_mic", "singing, holding_microphone, open_mouth, stage, spotlight", PASS),
+    ("action_mutex", "eating, drinking, sleeping", "eating"),
+    ("knight_with_sword", "armor, gauntlets, cape, holding_sword, holding_shield, determined", PASS),
+    ("witch_with_staff", "witch_hat, long_dress, holding_staff, magic_circle_unknown", PASS),
+    # --- cross-source mutex now caught ---
+    ("two_hair_colors", "blonde_hair, black_hair", "blonde_hair"),
+    ("two_eye_colors", "blue_eyes, red_eyes", "blue_eyes"),
+    ("two_breast_sizes", "small_breasts, large_breasts", "small_breasts"),
+    ("hair_color_with_multicolored", "blonde_hair, multicolored_hair, gradient_hair", PASS),
     # --- additional mutex/conflict for the new families ---
     ("emoticons_3", ":t, :p, :>", ":t"),
     ("emoticons_paired", ":3, :p", ":3"),
@@ -202,7 +216,7 @@ CASES: list[tuple[str, str, object]] = [
     ("weather_mutex", "sunny, cloudy, snowing", "sunny"),
     ("meta_count_girls_mutex", "1girl, 2girls, multiple_girls", "1girl"),
     ("meta_count_total_mutex", "solo, duo, group", "solo"),
-    ("eyes_color_mutex", "blue_eyes, red_eyes, heterochromia", "blue_eyes"),
+    ("eyes_color_mutex", "blue_eyes, red_eyes, heterochromia", "blue_eyes, heterochromia"),
     # --- new pass-through coverage for the new families ---
     ("vampire", "pointy_ears, fangs, red_eyes, pale_skin, cape, long_hair", PASS),
     (

@@ -78,7 +78,9 @@ _DETAILS: tuple[str, ...] = (
 class FaceEyesColor(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "body.face.eyes.color"
     LAYER: ClassVar[str] = "anatomy"
-    MUTEX_WITHIN: ClassVar[bool] = True
+    # heterochromia / multicolored / gradient layer on top of a base
+    # eye color; base-color mutex lives in MUTEX_GROUPS.
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _COLOR
 
 
