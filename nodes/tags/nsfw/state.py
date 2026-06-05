@@ -30,7 +30,6 @@ _FLUIDS: tuple[str, ...] = (
     "pussy_juice_trail",
     "saliva",
     "saliva_trail",
-    "drooling",
     "tears",
     "sweat",
 )
@@ -45,21 +44,11 @@ _AFTERMATH_EXPRESSION: tuple[str, ...] = (
     "female_orgasm",
     "male_orgasm",
     "simultaneous_orgasm",
-    "ahegao",
-    "fucked_silly",
-    "heart-shaped_pupils",
-    "rolling_eyes",
-    "tongue_out",
-    "uvula",
-    "trembling",
     "convulsing",
     "moaning",
-    "open_mouth",
     "x-ray",
     "internal_cumshot",
     "cross-section",
-    "blush",
-    "heavy_breathing",
 )
 
 

@@ -317,6 +317,68 @@ Crop 系（`cropped_*`, `*_out_of_frame`）は「見切れ」なので negative 
 | NSFW: Toy | `sex_toy`, `dildo`, `vibrator`, `anal_beads`, `butt_plug`, `anal_tail`, `huge_dildo`, `vibrator_in_thighhighs`, `vibrator_on_nipple`, `vibrator_under_clothes`, `onahole`, `fleshlight`, `condom`, `used_condom`, `egg_vibrator`, `wand_vibrator` |
 | NSFW: BDSM | `bdsm`, `bondage`, `restrained`, `arms_behind_back`, `tied_up`, `rope`, `shibari`, `suspension_bondage`, `handcuffs`, `shackles`, `chained`, `leash`, `ball_gag`, `ring_gag`, `gag`, `tape_gag`, `spanking`, `hair_pull`, `choking`, `torture`, `humiliation`, `slave` |
 
+### Face Tags (7ノード)
+
+顔まわりは ComfyUI のキャラ精度に直結する。瞳/口/表情を分離。
+
+| ノード | 主なタグ |
+| --- | --- |
+| Face / Eyes: Color | `blue_eyes`, `red_eyes`, `brown_eyes`, `green_eyes`, `purple_eyes`, `gold_eyes`, `heterochromia`, `gradient_eyes`, etc. (mutex) |
+| Face / Eyes: State & Gaze | `closed_eyes`, `looking_at_viewer`, `looking_away`, `narrowed_eyes`, `glaring`, `rolling_eyes`, `crying`, `teary_eyes`, etc. |
+| Face / Eyes: Pupils & Details | `heart-shaped_pupils`, `star-shaped_pupils`, `slit_pupils`, `glowing_eyes`, `long_eyelashes`, `thick_eyebrows`, `tsurime`, `tareme`, `eyeshadow`, etc. |
+| Face / Mouth: State | `open_mouth`, `closed_mouth`, `parted_lips`, `:3`, `:d`, `smile`-adjacent emoticons, etc. |
+| Face / Mouth: Details | `tongue`, `tongue_out`, `licking_lips`, `fang`, `fangs`, `sharp_teeth`, `lipstick`, `drooling`, etc. |
+| Face: Expression | `smile`, `grin`, `smirk`, `angry`, `sad`, `surprised`, `embarrassed`, `serious`, `ahegao`, `fucked_silly`, `yandere`, etc. |
+| Face: Blush & Flush | `blush`, `light_blush`, `full-face_blush`, `nose_blush`, `blush_stickers`, `heavy_breathing`, `panting`, `trembling`, etc. |
+
+これに伴い、NSFW: Aftermath & Expression から汎用顔タグ (`heart-shaped_pupils`, `rolling_eyes`, `tongue_out`, `open_mouth`, `blush`, `heavy_breathing`, `trembling`, `ahegao`, `fucked_silly` 等) は Face/* ノード側に移行済み。
+
+### Body: Animal Features (4ノード)
+
+獣耳/尻尾/翼/角。それぞれ1種だけ (mutex)。
+
+| ノード | 主なタグ |
+| --- | --- |
+| Body: Animal Ears | `cat_ears`, `fox_ears`, `wolf_ears`, `rabbit_ears`, `dog_ears`, `elf_ears`, `pointy_ears`, etc. |
+| Body: Animal Tail | `cat_tail`, `fox_tail`, `wolf_tail`, `rabbit_tail`, `demon_tail`, `multiple_tails`, etc. |
+| Body: Wings | `angel_wings`, `demon_wings`, `fairy_wings`, `bat_wings`, `butterfly_wings`, `dragon_wings`, etc. |
+| Body: Horns | `horns`, `demon_horns`, `oni_horns`, `dragon_horns`, `ram_horns`, `antlers`, etc. |
+
+### Body: Whole Pose (2ノード)
+
+全身ポーズ。1つだけ (mutex)。
+
+| ノード | 主なタグ |
+| --- | --- |
+| Body: Posture | `standing`, `sitting`, `lying`, `on_back`, `on_side`, `on_stomach`, `all_fours`, `leaning_forward`, `arched_back`, `bent_over`, `jumping`, `running`, `contrapposto`, etc. |
+| Body: Seating Style | `sitting_on_floor/chair/bed/table/rock/lap/object`, `yokozuwari` (`wariza`/`seiza`/`indian_style` は Feet: Legs & Pose にあり) |
+
+### Meta (5ノード)
+
+人数指定とクオリティブースター。
+
+| ノード | 主なタグ |
+| --- | --- |
+| Meta: Quality | `masterpiece`, `best_quality`, `high_quality`, `highres`, `absurdres`, `ultra-detailed`, `8k`, `4k`, `photorealistic`, etc. **デフォルト全 True** — preset 不要でそのまま使う |
+| Meta: Subject Count (total) | `solo`, `solo_focus`, `duo`, `trio`, `group`, `pov` (mutex) |
+| Meta: Subject Count (girls) | `1girl`, `2girls`, ..., `6+girls`, `multiple_girls` (mutex) |
+| Meta: Subject Count (boys) | `1boy`, `2boys`, ..., `6+boys`, `multiple_boys` (mutex) |
+| Meta: Subject Count (other) | `1other`, `multiple_others`, `couple`, `yuri`, `yaoi` |
+
+### Scene (6ノード)
+
+背景・照明・天気・粒子エフェクト。
+
+| ノード | 主なタグ |
+| --- | --- |
+| Scene: Background Type | `simple_background`, `white_background`, `gradient_background`, `blurry_background`, `transparent_background`, `scenery`, `checkered_background`, etc. (mutex) |
+| Scene: Indoor Location | `indoors`, `classroom`, `kitchen`, `bedroom`, `bathroom`, `library`, `hospital`, `office`, `gym`, `cafe`, `shrine`, etc. |
+| Scene: Outdoor Location | `outdoors`, `beach`, `ocean`, `forest`, `mountain`, `garden`, `street`, `city`, `rooftop`, `schoolyard`, `desert`, etc. |
+| Scene: Lighting | `backlighting`, `rim_lighting`, `dramatic_lighting`, `cinematic_lighting`, `volumetric_lighting`, `sunlight`, `moonlight`, `lens_flare`, `god_rays`, `silhouette`, etc. |
+| Scene: Time of Day | `morning`, `noon`, `evening`, `sunset`, `sunrise`, `night`, `midnight`, `golden_hour`, `blue_hour`, etc. (mutex) |
+| Scene: Weather | `sunny`, `cloudy`, `foggy`, `rain`, `snow`, `storm`, `thunderstorm`, `windy`, `clear_sky`, etc. (mutex) |
+| Scene: Particles & Atmosphere | `petals`, `cherry_blossoms`, `falling_leaves`, `snowflakes`, `sparkles`, `light_particles`, `smoke`, `steam`, `mist`, `bubbles`, `feathers`, etc. |
+
 ### Random Text Picker
 
 `utility/text` カテゴリ。入力テキストを区切り文字で分割し、指定数だけランダムに抽出する。プロンプトのランダム選択用途。
