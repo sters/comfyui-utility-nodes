@@ -123,6 +123,8 @@ Negative prompt 用に、Danbooru の [bad_anatomy](https://danbooru.donmai.us/w
    - `no_shoes` → footwear のみ (`thighhighs` は残る)
    - `no_legwear` → legwear のみ
    - `no_panties` → panties 全種だけ (bras/corset は残る)
+   - `no_bra` → bras 全種だけ
+   - `bare_legs` → legwear のみ (legwear は脚を覆うので)
 
 選択全体ではなくタグ単位で削るので、例えば `topless` + Underwear ノードに `bra, panties, garter_belt` ON だと `bra` だけ消えて `panties, garter_belt` は残る。`extra` で入れた自由テキストは drop 対象外。
 

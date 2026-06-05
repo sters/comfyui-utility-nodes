@@ -64,4 +64,6 @@ TAG_CONFLICTS: dict[str, frozenset[str]] = {
     "no_shoes": frozenset(_FOOTWEAR),
     "no_legwear": frozenset(_LEGWEAR),
     "no_panties": _PANTIES,
+    "no_bra": _BRAS,
+    "bare_legs": frozenset(_LEGWEAR),
 }

@@ -160,6 +160,27 @@ def test_no_shoes_keeps_legwear() -> None:
     assert "thighhighs" in prompt
 
 
+def test_no_bra_drops_bras_only() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.breasts.shape_state", ("no_bra",)),),
+        bundle_2=(_sel("clothing.underwear", ("bra", "panties")),),
+    )
+    tokens = prompt.split(", ")
+    assert "bra" not in tokens
+    assert "no_bra" in tokens
+    assert "panties" in tokens
+
+
+def test_bare_legs_drops_legwear() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.feet.legs_pose", ("bare_legs",)),),
+        bundle_2=(_sel("clothing.legwear", ("thighhighs",)),),
+        bundle_3=(_sel("clothing.footwear", ("boots",)),),
+    )
+    assert "thighhighs" not in prompt
+    assert "boots" in prompt
+
+
 def test_trigger_tag_itself_is_never_dropped() -> None:
     # If "nude" appears in a selection that also lists clothing tags
     # (unlikely but possible), the trigger itself must survive.
