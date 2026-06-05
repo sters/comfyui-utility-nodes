@@ -11,7 +11,7 @@ This repo provides ComfyUI prompt-builder nodes whose only variable input is a l
 
 - Directory layout:
   - `nodes/tags/_base.py` — shared `TagNodeBase`
-  - `nodes/tags/composition.py`, `nodes/tags/danbooru_bad.py` — themes that don't belong to body/clothing
+  - `nodes/tags/composition.py`, `nodes/tags/bad.py` — themes that don't belong to body/clothing
   - `nodes/tags/body/{hair,hands,feet,breasts,type,exposure,marks}.py` — anatomy themes
   - `nodes/tags/clothing/{state,outfit,underwear_swimwear,material,legwear_footwear,headwear_eyewear,accessory}.py` — clothing themes
   - `nodes/text/` — non-tag utilities (prompt_combinator, random_text_picker, list_shuffle, text_concat, pony_prompt_builder)
@@ -32,15 +32,13 @@ This repo provides ComfyUI prompt-builder nodes whose only variable input is a l
 - `TagNodeBase` provides: `RETURN_TYPES/RETURN_NAMES/FUNCTION/CATEGORY/OUTPUT_NODE`; `INPUT_TYPES` with `separator` + `preset` combo (`custom`/`all_on`/`all_off`/`invert`, default `custom`) + one BOOLEAN per tag (defaulting from `cls.DEFAULT_BOOLEAN`) + optional `extra`; and `build(self, separator, extra="", **kwargs)` that pops `preset` from kwargs and applies preset logic. The build return shape is `{"ui": {"text": (prompt,)}, "result": (prompt,)}` for in-node preview.
 
 - `__init__.py` MUST load `_tag_node_base.py` FIRST (registers `_cuun_tag_node_base` in `sys.modules`) before any tag-node file. Tests rely on `tests/conftest.py` doing the same pre-registration.
-- Reference implementations:
-  - `nodes/danbooru_bad_tags.py` — `_BadTagsBase` + 5 subclasses (default `True`, used as negative prompt)
-  - `nodes/composition_tags.py` — `_CompositionBase` + 5 subclasses (default `False`, used positively)
-  - `nodes/hair_tags.py`, `hands_tags.py`, `feet_tags.py`, `breasts_tags.py`, `body_type_tags.py`, `body_exposure_tags.py`, `body_marks_tags.py` — anatomy/body themes (default `False`)
-  - `nodes/clothing_state_tags.py`, `clothing_outfit_tags.py`, `clothing_underwear_swimwear_tags.py`, `clothing_material_tags.py`, `clothing_legwear_footwear_tags.py`, `clothing_headwear_eyewear_tags.py`, `clothing_accessory_tags.py` — clothing families (default `False`)
+- Reference implementations (see the directory layout above):
+  - `nodes/tags/bad.py` — 5 subclasses overriding `DEFAULT_BOOLEAN = True` (used as negative prompt)
+  - `nodes/tags/composition.py`, `nodes/tags/body/*.py`, `nodes/tags/clothing/*.py` — default `False` (user picks one or a few positively)
 - Pick the right default:
   - Default **True** when the whole group is sensibly thrown at the negative prompt (e.g. bad anatomy)
   - Default **False** when the user picks one or a few (angles, framing, focus)
-- Single source file per theme. Multiple subclasses share one `_FooBase` in that file. Register all in `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS` and load from the root `__init__.py`.
+- Single source file per theme. All subclasses extend the shared `TagNodeBase` (no per-file base anymore). Register all in `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS` and load from the root `__init__.py`.
 - Tags preserve declaration order in the output; user-visible widget order matches the tuple order, so group related tags together.
 - Hyphenated tag names (`close-up`, `three-quarter_view`) are valid — they pass through `**kwargs`.
 
@@ -60,8 +58,8 @@ Order of preference when locating tags:
 - Drop clothing/accessory tags when the user asked for "anatomy" / "body parts" / "パーツ系".
 - Keep tags whose only failure mode is being niche — the user can untoggle. Skip only tags that are wrong-category or actively harmful.
 - When a tag has plausible legitimate uses (e.g. `extra_ears` for catgirls), still include it but mention the caveat in the README note.
-- **Color/pattern composites**: avoid pre-baked color+item tags (`black_thighhighs`, `white_shirt`, `striped_thighhighs`). The convention is to keep the base item (`thighhighs`, `shirt`) and let the user combine with a color via `extra` or `TextConcat`. Pattern words like `striped`/`polka_dot` belong in `clothing_material_tags.py` (Pattern subgroup), not duplicated per item.
-- **Cross-file overlap**: the `test_no_overlap_between_groups` test only checks within a single file. Avoid cross-file duplicates by hand — e.g. `loose_necktie` lives in Clothing: State so don't re-add it under Neck; `mole_on_breast`/`breast_tattoo` live in Body: Marks so don't re-add under Breasts.
+- **Color/pattern composites**: avoid pre-baked color+item tags (`black_thighhighs`, `white_shirt`, `striped_thighhighs`). Keep the base item (`thighhighs`, `shirt`) and let the user combine with a color via `extra` or `TextConcat`. Pattern words like `striped`/`polka_dot` belong in `nodes/tags/clothing/material.py` (Pattern subgroup), not duplicated per item.
+- **Cross-file overlap**: nothing tests for it — check by grep when adding tags. Examples: `loose_necktie` lives in `clothing/state.py` so don't re-add it under `clothing/accessory.py` Neck; `mole_on_breast`/`breast_tattoo` live in `body/marks.py` so don't re-add under `body/breasts.py`.
 
 ## Decisions to surface (ask the user)
 
@@ -75,9 +73,9 @@ Before writing code, get explicit answers for:
 
 For a new tag group:
 
-1. Choose the target file: extend an existing `*_tags.py` if it's the same theme, otherwise create `nodes/<theme>_tags.py`.
+1. Choose the target file under the matching subdir (`nodes/tags/body/<theme>.py` or `nodes/tags/clothing/<theme>.py`, or `nodes/tags/<theme>.py` if neither fits). Extend an existing file if it's the same theme.
 2. Define the tag tuple(s) at module top in display order.
-3. Subclass the base class, set `TAGS = _MY_TUPLE`.
+3. Add the TYPE_CHECKING shim for `TagNodeBase`, then `class FooBar(TagNodeBase): TAGS = _MY_TUPLE`.
 4. Add entries to that file's `NODE_CLASS_MAPPINGS` and `NODE_DISPLAY_NAME_MAPPINGS`.
 5. If you created a new file, add a `_load(...)` entry in the root `__init__.py`.
 6. **Do NOT write per-theme tests.** The core logic lives in `TagNodeBase` and is covered once by `tests/tags/test_base.py` (synthetic subclasses). New themes are just data (the `TAGS` tuple) — there is nothing per-theme worth asserting. Use `git diff` as the source of truth for tag-list changes, and trust no-overlap by reading the diff.
@@ -86,7 +84,7 @@ For a new tag group:
 
 ## Don'ts
 
-- Don't import across `nodes/*.py` files — each is loaded via `spec_from_file_location` with a private name; duplicate the small base class within the file instead.
+- Don't import across sibling theme files (e.g. `from nodes.tags.body.hair import ...` in another tag file) — each is loaded via `spec_from_file_location` with a private name and can't see other tag-node modules. Only `TagNodeBase` (loaded first into `sys.modules` as `_cuun_tag_node_base`) is shareable.
 - Don't write a separate JS extension for preview — the existing `ui.text` return is enough.
 - Don't forget to add the `_load(...)` line in the root `__init__.py` when introducing a new theme file. Tests will pass without it but the node won't appear in ComfyUI.
 - Don't paste 50+ tags without checking page 2/3 of the Danbooru count-ordered search — comprehensive coverage is the whole point of this skill.

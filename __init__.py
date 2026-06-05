@@ -24,7 +24,7 @@ for _modname, _relpath in [
     ("_cuun_list_shuffle", "nodes/text/list_shuffle.py"),
     ("_cuun_text_concat", "nodes/text/text_concat.py"),
     ("_cuun_pony_prompt_builder", "nodes/text/pony_prompt_builder.py"),
-    ("_cuun_danbooru_bad_tags", "nodes/tags/danbooru_bad.py"),
+    ("_cuun_bad_tags", "nodes/tags/bad.py"),
     ("_cuun_composition_tags", "nodes/tags/composition.py"),
     ("_cuun_hair_tags", "nodes/tags/body/hair.py"),
     ("_cuun_hands_tags", "nodes/tags/body/hands.py"),
