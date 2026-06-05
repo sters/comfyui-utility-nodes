@@ -115,14 +115,16 @@ Negative prompt 用に、Danbooru の [bad_anatomy](https://danbooru.donmai.us/w
 
 挙動:
 1. **mutex_within**: 同 `category` に複数の選択があれば最初だけ残す。例: HairColor (mutex) を 2 つ繋いだら片方を drop。同一ノード内で `all_on` した時も最初の 1 タグだけ残す
-2. **TAG_OVERRIDES**: 特定タグがあるとレイヤー横断で drop:
-   - `nude` / `completely_nude` → `clothing.*` を全 drop
-   - `topless` → `clothing.tops` + `clothing.underwear` を drop
-   - `bottomless` → `clothing.bottoms` を drop
-   - `barefoot` / `no_shoes` → `clothing.footwear` を drop
-   - `no_legwear` → `clothing.legwear` を drop
+2. **TAG_CONFLICTS** (タグ単位の矛盾解決): あるトリガータグが入っていると、それと矛盾する**個別タグ**を drop する。`nodes/tags/_conflicts.py` で定義。代表例:
+   - `nude` / `completely_nude` → 全 clothing タグ
+   - `topless` → tops 全般 + bras + corset/bustier 等 + 全身 underwear + dress (パンティ/ガーターベルトは残る)
+   - `bottomless` → bottoms 全般 + panties 全種 + 全身 underwear + dress (bra は残る)
+   - `barefoot` → footwear + legwear (thighhighs/socks も足を覆うので drop)
+   - `no_shoes` → footwear のみ (`thighhighs` は残る)
+   - `no_legwear` → legwear のみ
+   - `no_panties` → panties 全種だけ (bras/corset は残る)
 
-`extra` で入れた自由テキストは drop 対象外。
+選択全体ではなくタグ単位で削るので、例えば `topless` + Underwear ノードに `bra, panties, garter_belt` ON だと `bra` だけ消えて `panties, garter_belt` は残る。`extra` で入れた自由テキストは drop 対象外。
 
 ### タグ系ノード共通: `preset` combo
 

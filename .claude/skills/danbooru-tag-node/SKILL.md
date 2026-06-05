@@ -34,7 +34,7 @@ This repo provides ComfyUI prompt-builder nodes whose only variable input is a l
   - `CATEGORY_ID` — dotted path used by `TagsMerge` for mutex dedupe. Format `<layer>.<theme>[.<subgroup>]`, e.g. `body.hair.length_style`, `clothing.footwear`, `nsfw.position`.
   - `LAYER` — coarse bucket (`bad`, `composition`, `anatomy`, `exposure`, `clothing`, `nsfw_act`, `nsfw_state`). Used for cross-layer conflict resolution.
   - `MUTEX_WITHIN` — `True` for pick-one groups (hair length/color, body skin tone, position, footwear, etc.). `False` for additive groups (marks, accessories, gesture).
-- If the new theme creates a conflict with an existing layer (e.g. "fully nude clothing override"), edit `nodes/tags/_conflicts.py`'s `TAG_OVERRIDES` map.
+- If the new theme has tag-level conflicts with other themes (e.g. ``barefoot`` should suppress ``thighhighs``), edit ``nodes/tags/_conflicts.py``'s ``TAG_CONFLICTS`` map. Conflict resolution is **per-tag, not per-category** — listing precise tags is the convention. For broad sweeps, build the drop set from sibling tag tuples via ``from nodes.tags.clothing.X import _Y``.
 
 - `__init__.py` MUST load `_tag_node_base.py` FIRST (registers `_cuun_tag_node_base` in `sys.modules`) before any tag-node file. Tests rely on `tests/conftest.py` doing the same pre-registration.
 - Reference implementations (see the directory layout above):

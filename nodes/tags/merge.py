@@ -2,13 +2,14 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 if TYPE_CHECKING:
     from nodes.tags._base import TAGS_TYPE, TaggedSelection
-    from nodes.tags._conflicts import TAG_OVERRIDES, category_matches
+    from nodes.tags._conflicts import TAG_CONFLICTS
 else:
     from _cuun_tag_node_base import TAGS_TYPE, TaggedSelection
-    from _cuun_tags_conflicts import TAG_OVERRIDES, category_matches
+    from _cuun_tags_conflicts import TAG_CONFLICTS
 
 
 _MAX_INPUTS = 10
+_EXTRA_CATEGORY = "extra"
 
 
 class TagsMerge:
@@ -36,7 +37,7 @@ class TagsMerge:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         warnings: list[str] = []
 
-        # 1. Collect all selections in input order.
+        # 1. Collect all incoming selections in input order.
         selections: list[TaggedSelection] = []
         for i in range(1, _MAX_INPUTS + 1):
             bundle = kwargs.get(f"bundle_{i}")
@@ -44,8 +45,7 @@ class TagsMerge:
                 continue
             selections.extend(bundle)
 
-        # 2. Apply mutex_within: per category, keep only the first selection
-        #    that has mutex_within=True (warn if multiple).
+        # 2. Apply mutex_within: per category, keep only the first selection.
         seen_mutex: dict[str, TaggedSelection] = {}
         post_mutex: list[TaggedSelection] = []
         for sel in selections:
@@ -53,8 +53,6 @@ class TagsMerge:
                 if sel.category in seen_mutex:
                     warnings.append(f"mutex: dropped extra '{sel.category}' selection ({', '.join(sel.tags)})")
                     continue
-                # Also if multiple tags within one selection that's mutex,
-                # keep only the first.
                 if len(sel.tags) > 1:
                     warnings.append(
                         f"mutex: '{sel.category}' had {len(sel.tags)} tags; "
@@ -69,22 +67,42 @@ class TagsMerge:
                 seen_mutex[sel.category] = sel
             post_mutex.append(sel)
 
-        # 3. Apply cross-layer overrides: if any tag in TAG_OVERRIDES is
-        #    present, drop selections whose category matches an override prefix.
-        all_tags = {t for sel in post_mutex for t in sel.tags}
-        drop_prefixes: set[str] = set()
-        for tag in all_tags:
-            if tag in TAG_OVERRIDES:
-                drop_prefixes.update(TAG_OVERRIDES[tag])
+        # 3. Per-tag conflict suppression. Build the drop set from triggers
+        #    present in any non-extra selection, then filter each non-extra
+        #    selection's tags. The trigger tags themselves are never dropped.
+        all_tags_present = {t for sel in post_mutex if sel.category != _EXTRA_CATEGORY for t in sel.tags}
+        drop_tags: set[str] = set()
+        triggers: set[str] = set()
+        for tag in all_tags_present:
+            if tag in TAG_CONFLICTS:
+                drop_tags.update(TAG_CONFLICTS[tag])
+                triggers.add(tag)
+        drop_tags -= triggers
 
         final: list[TaggedSelection] = []
         for sel in post_mutex:
-            if sel.category and any(category_matches(sel.category, frozenset({p})) for p in drop_prefixes):
-                warnings.append(f"override: dropped '{sel.category}' ({', '.join(sel.tags)})")
+            if sel.category == _EXTRA_CATEGORY:
+                final.append(sel)
                 continue
+            kept = tuple(t for t in sel.tags if t not in drop_tags)
+            dropped = tuple(t for t in sel.tags if t in drop_tags)
+            if dropped:
+                warnings.append(
+                    f"conflict: dropped {list(dropped)} from '{sel.category}' "
+                    f"(triggered by {sorted(triggers & set(all_tags_present))})"
+                )
+            if not kept:
+                continue
+            if kept != sel.tags:
+                sel = TaggedSelection(
+                    category=sel.category,
+                    layer=sel.layer,
+                    tags=kept,
+                    mutex_within=sel.mutex_within,
+                )
             final.append(sel)
 
-        # 4. Flatten into prompt.
+        # 4. Flatten into prompt + append user-supplied extra.
         parts: list[str] = []
         for sel in final:
             parts.extend(sel.tags)

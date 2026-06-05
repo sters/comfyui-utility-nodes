@@ -122,6 +122,55 @@ def test_extra_selection_is_not_subject_to_override() -> None:
     assert "1girl" in prompt
 
 
+def test_topless_keeps_panties_and_garter_belt() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.state", ("topless",)),),
+        bundle_2=(
+            _sel("clothing.underwear", ("bra", "panties", "garter_belt")),
+        ),
+    )
+    assert "bra" not in prompt
+    assert "panties" in prompt
+    assert "garter_belt" in prompt
+
+
+def test_bottomless_drops_panties_but_keeps_bra() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("clothing.state", ("bottomless",)),),
+        bundle_2=(_sel("clothing.underwear", ("bra", "panties")),),
+    )
+    assert "panties" not in prompt
+    assert "bra" in prompt
+
+
+def test_barefoot_drops_thighhighs() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.feet.anatomy", ("barefoot",)),),
+        bundle_2=(_sel("clothing.legwear", ("thighhighs",)),),
+    )
+    assert "thighhighs" not in prompt
+    assert "barefoot" in prompt
+
+
+def test_no_shoes_keeps_legwear() -> None:
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.feet.anatomy", ("no_shoes",)),),
+        bundle_2=(_sel("clothing.legwear", ("thighhighs",)),),
+        bundle_3=(_sel("clothing.footwear", ("boots",)),),
+    )
+    assert "boots" not in prompt
+    assert "thighhighs" in prompt
+
+
+def test_trigger_tag_itself_is_never_dropped() -> None:
+    # If "nude" appears in a selection that also lists clothing tags
+    # (unlikely but possible), the trigger itself must survive.
+    prompt, _, _ = _run(
+        bundle_1=(_sel("body.exposure", ("nude",), layer="exposure"),),
+    )
+    assert "nude" in prompt
+
+
 def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
         bundle_1=(_sel("a", ("x",)),),
