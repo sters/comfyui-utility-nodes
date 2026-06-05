@@ -52,7 +52,10 @@ class BodyFigure(TagNodeBase):
 class BodySkin(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "body.skin"
     LAYER: ClassVar[str] = "anatomy"
-    MUTEX_WITHIN: ClassVar[bool] = True
+    # Not category-mutex: tone (pale/tan/dark) combined with state
+    # (tanlines/shiny_skin) is the normal pattern. Tone exclusivity
+    # is enforced by a MUTEX_GROUP entry in _conflicts.py.
+    MUTEX_WITHIN: ClassVar[bool] = False
     TAGS = _SKIN
 
 

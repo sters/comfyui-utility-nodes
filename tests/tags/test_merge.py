@@ -18,7 +18,7 @@ from typing import Any
 import pytest
 
 import nodes.tags
-from nodes.tags._base import TaggedSelection, TagNodeBase
+from nodes.tags._base import TaggedSelection
 from nodes.tags.merge import TagsMerge
 
 # --------------------------------------------------------------------------
@@ -30,7 +30,10 @@ def _build_tag_index() -> dict[str, tuple[str, str, bool]]:
     """Walk nodes.tags.* and map each tag → (category_id, layer, mutex_within).
 
     First occurrence wins (the package has no cross-file duplicates by
-    design, so this is deterministic).
+    design, so this is deterministic). Identity-based subclass checks
+    don't work here because each theme module imports TagNodeBase via the
+    spec-registered ``_cuun_tag_node_base`` shim — a different class
+    object from the one this file imports. Use duck typing instead.
     """
     index: dict[str, tuple[str, str, bool]] = {}
     for _finder, name, ispkg in pkgutil.walk_packages(nodes.tags.__path__, "nodes.tags."):
@@ -40,10 +43,14 @@ def _build_tag_index() -> dict[str, tuple[str, str, bool]]:
         for attr in vars(mod).values():
             if not isinstance(attr, type):
                 continue
-            if attr is TagNodeBase or not issubclass(attr, TagNodeBase):
+            cat_id = getattr(attr, "CATEGORY_ID", "")
+            tags = getattr(attr, "TAGS", ())
+            if not cat_id or not tags:
                 continue
-            for tag in attr.TAGS:
-                index.setdefault(tag, (attr.CATEGORY_ID, attr.LAYER, attr.MUTEX_WITHIN))
+            layer = getattr(attr, "LAYER", "")
+            mutex = bool(getattr(attr, "MUTEX_WITHIN", False))
+            for tag in tags:
+                index.setdefault(tag, (cat_id, layer, mutex))
     return index
 
 
@@ -53,26 +60,17 @@ _TAG_INDEX = _build_tag_index()
 def _scenario(tags_str: str, *, extra: str = "") -> str:
     """Run TagsMerge for a comma-separated tag list, returning the prompt.
 
-    Tags are auto-grouped by (category_id, layer, mutex_within). Bundle order
-    follows the input order of categories' first appearances.
+    Each tag becomes its own ``TaggedSelection``, so output preserves
+    input order while same-category mutex / cross-tag conflicts still fire.
     """
     if not tags_str.strip():
-        tags: list[str] = []
-    else:
-        tags = [t.strip() for t in tags_str.split(",") if t.strip()]
-    by_cat: dict[str, list[str]] = {}
-    cat_meta: dict[str, tuple[str, bool]] = {}
+        return str(TagsMerge().merge(", ", extra=extra)["result"][0])
+    tags = [t.strip() for t in tags_str.split(",") if t.strip()]
+    selections: list[TaggedSelection] = []
     for t in tags:
         cat, layer, mutex = _TAG_INDEX.get(t, ("_unknown", "unknown", False))
-        if cat not in by_cat:
-            by_cat[cat] = []
-            cat_meta[cat] = (layer, mutex)
-        by_cat[cat].append(t)
-    bundles: dict[str, tuple[TaggedSelection, ...]] = {}
-    for i, (cat, ts) in enumerate(by_cat.items(), 1):
-        layer, mutex = cat_meta[cat]
-        bundles[f"bundle_{i}"] = (TaggedSelection(category=cat, layer=layer, tags=tuple(ts), mutex_within=mutex),)
-    out = TagsMerge().merge(", ", extra=extra, **bundles)
+        selections.append(TaggedSelection(category=cat, layer=layer, tags=(t,), mutex_within=mutex))
+    out = TagsMerge().merge(", ", extra=extra, bundle_1=tuple(selections))
     return str(out["result"][0])
 
 
@@ -183,6 +181,164 @@ CASES: list[tuple[str, str, object]] = [
     (
         "tan_athletic",
         "ponytail, brown_hair, tan, tanlines, muscular_female, abs, toned, thick_thighs, sports_bra, bike_shorts, sneakers",  # noqa: E501
+        PASS,
+    ),
+    # --- additional mutex/conflict for the new families ---
+    ("emoticons_3", ":t, :p, :>", ":t"),
+    ("emoticons_paired", ":3, :p", ":3"),
+    ("gaze_with_side_glance", "looking_at_viewer, side_glance", "looking_at_viewer"),
+    ("expressionless_vs_happy", "expressionless, happy", "expressionless"),
+    ("nude_keeps_apron", "nude, frilled_apron, apron", PASS),
+    ("nude_keeps_facial_makeup", "nude, lipstick, eyeshadow, eyeliner", PASS),
+    ("nude_keeps_animal_features", "nude, cat_ears, cat_tail, fangs", PASS),
+    ("animal_ears_mutex", "cat_ears, fox_ears", "cat_ears"),
+    ("animal_tail_mutex", "cat_tail, dog_tail, multiple_tails", "cat_tail"),
+    ("wings_mutex", "angel_wings, demon_wings, fairy_wings", "angel_wings"),
+    ("horns_mutex", "demon_horns, dragon_horns, ram_horns", "demon_horns"),
+    ("posture_mutex", "standing, sitting, lying", "standing"),
+    ("seating_mutex", "sitting_on_chair, sitting_on_floor, sitting_on_bed", "sitting_on_chair"),
+    ("bg_type_mutex", "simple_background, white_background, gradient_background", "simple_background"),
+    ("time_of_day_mutex", "morning, sunset, night", "morning"),
+    ("weather_mutex", "sunny, cloudy, snowing", "sunny"),
+    ("meta_count_girls_mutex", "1girl, 2girls, multiple_girls", "1girl"),
+    ("meta_count_total_mutex", "solo, duo, group", "solo"),
+    ("eyes_color_mutex", "blue_eyes, red_eyes, heterochromia", "blue_eyes"),
+    # --- new pass-through coverage for the new families ---
+    ("vampire", "pointy_ears, fangs, red_eyes, pale_skin, cape, long_hair", PASS),
+    (
+        "werewolf",
+        "wolf_ears, wolf_tail, fangs, muscular_female, abs, yellow_eyes, ponytail",
+        PASS,
+    ),
+    (
+        "kitsune_shrine",
+        "fox_ears, fox_tail, yellow_eyes, slit_pupils, miko, white_hair, very_long_hair, shrine_outdoors",
+        PASS,
+    ),
+    (
+        "catgirl_smug",
+        "cat_ears, cat_tail, slit_pupils, fang, yellow_eyes, narrowed_eyes, smug, smirk",
+        PASS,
+    ),
+    (
+        "bedroom_sleepy",
+        "bedroom, lamp_light, night, sitting_on_bed, sleepy, oversized_shirt, messy_hair, half-closed_eyes",
+        PASS,
+    ),
+    (
+        "shrine_visit",
+        "shrine_outdoors, miko, smile, cherry_blossoms, day, sunny, looking_at_viewer",
+        PASS,
+    ),
+    (
+        "library_studying",
+        "library, indoors, glasses, sitting, looking_down, blouse, long_skirt, hair_bun, serious",
+        PASS,
+    ),
+    (
+        "bathroom_steam",
+        "bathroom, shower, steam, wet_clothes, see-through, blush, sweat",
+        PASS,
+    ),
+    (
+        "competition_swimmer",
+        "competition_swimsuit, ponytail, toned, abs, looking_at_viewer, determined, tan",
+        PASS,
+    ),
+    (
+        "punk_pierced",
+        "twin_drills, fishnets, leather, torn_clothes, lip_piercing, tongue_piercing, ear_piercing, multiple_horns",
+        PASS,
+    ),
+    (
+        "magical_girl",
+        "long_hair, twintails, frilled_dress, hair_ribbon, tiara, sparkles, thighhighs, mary_janes, heart-shaped_pupils, blush",  # noqa: E501
+        PASS,
+    ),
+    (
+        "bunny_detective",
+        "bunny_ears, business_suit, glasses, pencil_skirt, pantyhose, high_heels, serious, looking_at_viewer",
+        PASS,
+    ),
+    (
+        "yuri_kiss_pair",
+        "2girls, yuri, couple, kissing, eye_contact, blush, smile",
+        PASS,
+    ),
+    (
+        "boy_girl_couple",
+        "1girl, 1boy, couple, eye_contact, smile",
+        PASS,
+    ),
+    (
+        "crowd_classroom",
+        "multiple_girls, group, classroom, serafuku, indoors, day",
+        PASS,
+    ),
+    (
+        "combat_pose",
+        "dynamic_pose, looking_at_viewer, determined, armor, gauntlets, cape, sword (not in tags)",
+        # Free-text-ish: "sword (not in tags)" lands in _unknown bucket and survives.
+        PASS,
+    ),
+    (
+        "yoga_class",
+        "yoga_pose, leggings, sports_bra, barefoot, gym, indoors",
+        PASS,
+    ),
+    (
+        "ballerina",
+        "leotard, ballet_slippers, ponytail, contrapposto, smile, stage, spotlight",
+        PASS,
+    ),
+    (
+        "maid_serving",
+        "maid, frilled_apron, headband, thighhighs, holding_skirt, smile, looking_at_viewer",
+        PASS,
+    ),
+    (
+        "ahegao_full",
+        "ahegao, fucked_silly, heart-shaped_pupils, tongue_out, drooling, blush, open_mouth, sweat",
+        PASS,
+    ),
+    (
+        "sad_smile_tears",
+        "smile, sad, tearful, teary_eyes, crying, looking_down, light_blush",
+        PASS,
+    ),
+    (
+        "angry_glare",
+        "angry, scowl, glaring, narrowed_eyes, gritted_teeth, clenched_hands",
+        PASS,
+    ),
+    (
+        "surprised_jolt",
+        "surprised, shocked, wide-eyed, open_mouth, :o, sweat",
+        PASS,
+    ),
+    (
+        "expressionless_robot",
+        "expressionless, blank_eyes, dot_pupils, closed_mouth, white_hair, bodysuit",
+        PASS,
+    ),
+    (
+        "forest_fog_atmosphere",
+        "forest, fog, mist, light_particles, sparkles, fairy_wings, fireflies, night, moonlight",
+        PASS,
+    ),
+    (
+        "rooftop_sunset_skyline",
+        "rooftop, city, skyline, sunset, clear_sky, backlighting, lens_flare, looking_at_viewer, smile",
+        PASS,
+    ),
+    (
+        "winter_breath_scarf",
+        "snowfield, snowing, snowflakes, scarf, winter_coat, knee_boots, blush, sad",
+        PASS,
+    ),
+    (
+        "festival_yukata",
+        "festival, yukata, obi, geta, cherry_blossoms, hair_flower, smile, looking_at_viewer, night",
         PASS,
     ),
 ]

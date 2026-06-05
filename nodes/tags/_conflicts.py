@@ -66,6 +66,8 @@ MUTEX_GROUPS: tuple[frozenset[str], ...] = (
     frozenset({"very_long_hair", "long_hair", "medium_hair", "short_hair"}),
     # Skirt length (tops/bottoms otherwise stack: bike_shorts under skirt, etc.)
     frozenset({"long_skirt", "miniskirt"}),
+    # Base skin tone — only one tone, but tanlines/shiny_skin can stack on top.
+    frozenset({"pale_skin", "white_skin", "fair_skin", "tan", "dark_skin", "very_dark_skin"}),
     # Eye openness — physically one state at a time.
     frozenset({"closed_eyes", "half-closed_eyes", "wide-eyed", "narrowed_eyes"}),
     # Gaze direction — looking somewhere is positional, not stackable.
