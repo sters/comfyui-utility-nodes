@@ -81,8 +81,12 @@ def _scenario(tags_str: str, *, extra: str = "") -> str:
 # --------------------------------------------------------------------------
 
 
-# (id, input, expected). `id` is used as the pytest test id.
-MUTEX_GROUP_CASES: list[tuple[str, str, str]] = [
+# `PASS` means "expected output equals the input" (pure pass-through).
+PASS = object()
+
+# (id, input, expected_or_PASS). `id` becomes the pytest test id.
+CASES: list[tuple[str, str, object]] = [
+    # --- mutex groups (physically impossible combos) ---
     ("hair_length", "long_hair, short_hair", "long_hair"),
     ("skirt_length", "long_skirt, miniskirt", "long_skirt"),
     ("skirt_with_layer", "bike_shorts, long_skirt, miniskirt", "bike_shorts, long_skirt"),
@@ -97,12 +101,9 @@ MUTEX_GROUP_CASES: list[tuple[str, str, str]] = [
     ("happy_vs_sad", "happy, sad", "happy"),
     ("expressionless_wins", "expressionless, smile, frown", "expressionless"),
     ("blank_vs_smile", "blank_expression, smile", "blank_expression"),
-]
-
-
-CONFLICT_CASES: list[tuple[str, str, str]] = [
+    # --- tag-level conflicts (cross-category drops) ---
     ("nude_drops_clothing", "nude, shirt, pleated_skirt, boots", "nude"),
-    ("nude_keeps_accessory", "nude, beret, earrings, necklace", "nude, beret, earrings, necklace"),
+    ("nude_keeps_accessory", "nude, beret, earrings, necklace", PASS),
     ("completely_nude_drops_all", "completely_nude, sundress, bra, panties", "completely_nude"),
     ("topless_drops_bra_keeps_panties", "topless, bra, panties, garter_belt", "topless, panties, garter_belt"),
     ("topless_drops_dress", "topless, sundress", "topless"),
@@ -114,109 +115,75 @@ CONFLICT_CASES: list[tuple[str, str, str]] = [
     ("no_panties", "no_panties, panties, bra", "no_panties, bra"),
     ("no_bra_drops_bras", "no_bra, bra, panties", "no_bra, panties"),
     ("bare_legs_drops_legwear", "bare_legs, thighhighs, boots", "bare_legs, boots"),
-]
-
-
-# Pass-through scenarios — every tag survives unchanged.
-PASS_CASES: list[tuple[str, str]] = [
-    # Sanity
-    ("smile_grin_laughing", "smile, grin, laughing"),
-    ("smile_sad_tearful", "smile, sad, tearful"),
-    ("smile_smug_smirk", "smile, smug, smirk"),
-    ("embarrassed_blush", "embarrassed, blush"),
-    # Layered tops/bottoms
-    ("five_layer_tops", "shirt, sweater, cardigan, jacket, coat"),
-    ("bike_shorts_under_skirt", "long_skirt, bike_shorts"),
-    # Orthogonal hair
-    ("hair_layered", "long_hair, ponytail, black_hair, hair_ribbon"),
-    # Aside coexists with underwear
-    ("panties_aside_with_underwear", "panties_aside, bra_aside, bra, panties"),
-    # Fit + outfit + body
-    ("skin_tight_impossible_dress", "skin_tight, impossible_dress, sundress, large_breasts"),
-    # Lift cluster
-    ("skirt_lift_panchira", "skirt_lift, pleated_skirt, panties, thighhighs"),
-    # Wet T
-    ("wet_seethrough_tank", "wet_clothes, see-through, tank_top, nipples"),
-    # Bondage
-    ("bondage_corset", "tied_up, handcuffs, ball_gag, bondage, thighhighs, corset"),
-    # Tattoos
-    ("six_tattoos", "arm_tattoo, back_tattoo, chest_tattoo, thigh_tattoo, facial_tattoo, neck_tattoo"),
-    # Fusion: santa bikini
-    ("santa_bikini", "twintails, red_hair, bikini, santa_hat, fur_trim, thighhighs, thigh_boots"),
-    # Fusion: armor bikini
-    ("armor_bikini", "abs, bikini, armor, gauntlets, vambraces, cape, knee_boots"),
-    # Animal: foxgirl miko
-    ("foxgirl_miko", "fox_ears, fox_tail, yellow_eyes, slit_pupils, miko, shrine_outdoors"),
-    # Demon girl
-    ("demon_girl", "demon_horns, demon_tail, demon_wings, red_eyes, slit_pupils, fangs"),
-    # Scene: classroom afternoon
-    ("classroom_afternoon", "scenery, classroom, afternoon, sunlight, dust"),
-    # Scene: beach sunset
-    ("beach_sunset", "beach, ocean, sunset, sunny, backlighting, lens_flare"),
-    # Scene: snowy mountain night
-    ("snowy_mountain_night", "mountain, snowfield, night, snowing, moonlight, snowflakes, mist"),
-    # Scene: cherry blossom
-    ("cherry_blossom_park", "park, sunny, afternoon, cherry_blossoms, petals, dappled_sunlight"),
-    # Scene: rainy neon
-    ("rainy_neon", "city, alley, night, rain, neon_lights, lens_flare, wet_clothes"),
-    # Pose: bent over panchira
-    ("bent_over_panchira", "bent_over, skirt_lift, pleated_skirt, striped_panties, thighhighs"),
-    # Meta + character + scene mix
+    # --- pass-through: every tag survives ---
+    ("smile_grin_laughing", "smile, grin, laughing", PASS),
+    ("smile_sad_tearful", "smile, sad, tearful", PASS),
+    ("smile_smug_smirk", "smile, smug, smirk", PASS),
+    ("embarrassed_blush", "embarrassed, blush", PASS),
+    ("five_layer_tops", "shirt, sweater, cardigan, jacket, coat", PASS),
+    ("bike_shorts_under_skirt", "long_skirt, bike_shorts", PASS),
+    ("hair_layered", "long_hair, ponytail, black_hair, hair_ribbon", PASS),
+    ("panties_aside_with_underwear", "panties_aside, bra_aside, bra, panties", PASS),
+    ("skin_tight_impossible_dress", "skin_tight, impossible_dress, sundress, large_breasts", PASS),
+    ("skirt_lift_panchira", "skirt_lift, pleated_skirt, panties, thighhighs", PASS),
+    ("wet_seethrough_tank", "wet_clothes, see-through, tank_top, nipples", PASS),
+    ("bondage_corset", "tied_up, handcuffs, ball_gag, bondage, thighhighs, corset", PASS),
+    ("six_tattoos", "arm_tattoo, back_tattoo, chest_tattoo, thigh_tattoo, facial_tattoo, neck_tattoo", PASS),
+    ("santa_bikini", "twintails, red_hair, bikini, santa_hat, fur_trim, thighhighs, thigh_boots", PASS),
+    ("armor_bikini", "abs, bikini, armor, gauntlets, vambraces, cape, knee_boots", PASS),
+    ("foxgirl_miko", "fox_ears, fox_tail, yellow_eyes, slit_pupils, miko, shrine_outdoors", PASS),
+    ("demon_girl", "demon_horns, demon_tail, demon_wings, red_eyes, slit_pupils, fangs", PASS),
+    ("classroom_afternoon", "scenery, classroom, afternoon, sunlight, dust", PASS),
+    ("beach_sunset", "beach, ocean, sunset, sunny, backlighting, lens_flare", PASS),
+    ("snowy_mountain_night", "mountain, snowfield, night, snowing, moonlight, snowflakes, mist", PASS),
+    ("cherry_blossom_park", "park, sunny, afternoon, cherry_blossoms, petals, dappled_sunlight", PASS),
+    ("rainy_neon", "city, alley, night, rain, neon_lights, lens_flare, wet_clothes", PASS),
+    ("bent_over_panchira", "bent_over, skirt_lift, pleated_skirt, striped_panties, thighhighs", PASS),
     (
         "full_stack",
         "masterpiece, best_quality, highres, 1girl, solo, long_hair, blonde_hair, blue_eyes, smile, simple_background",
+        PASS,
     ),
-    # Schoolgirl archetype
-    ("schoolgirl", "long_hair, black_hair, bangs, hair_ribbon, medium_breasts, serafuku, thighhighs, loafers"),
-    # Office lady
-    ("office_lady", "medium_hair, business_suit, blouse, pencil_skirt, pantyhose, high_heels, glasses"),
-    # Maid full stack
-    ("maid_stack", "maid, frilled_apron, headband, thighhighs"),
-    # Kimono mix
-    ("kimono_boots", "kimono, boots, obi"),
-    # Naked apron
-    ("naked_apron", "naked_apron, barefoot"),
-    # Yukata festival
-    ("yukata_festival", "long_hair, hair_bun, ahoge, hair_flower, yukata, obi, tabi, geta"),
-    # Wedding
-    ("wedding", "very_long_hair, blonde_hair, pale_skin, wedding_dress, veil, elbow_gloves, high_heels"),
-    # Gothic lolita
+    ("schoolgirl", "long_hair, black_hair, bangs, hair_ribbon, medium_breasts, serafuku, thighhighs, loafers", PASS),
+    ("office_lady", "medium_hair, business_suit, blouse, pencil_skirt, pantyhose, high_heels, glasses", PASS),
+    ("maid_stack", "maid, frilled_apron, headband, thighhighs", PASS),
+    ("kimono_boots", "kimono, boots, obi", PASS),
+    ("naked_apron", "naked_apron, barefoot", PASS),
+    ("yukata_festival", "long_hair, hair_bun, ahoge, hair_flower, yukata, obi, tabi, geta", PASS),
+    ("wedding", "very_long_hair, blonde_hair, pale_skin, wedding_dress, veil, elbow_gloves, high_heels", PASS),
     (
         "gothic_lolita",
         "twin_drills, pale_skin, frilled_dress, lace, frills, headband, thighhighs, mary_janes, frilled_choker",
+        PASS,
     ),
-    # NSFW solo + toy + BDSM
-    ("nsfw_solo_toy_bdsm", "masturbation, spread_pussy, dildo, vibrator, restrained, ball_gag"),
-    # Cyber bodysuit
+    ("nsfw_solo_toy_bdsm", "masturbation, spread_pussy, dildo, vibrator, restrained, ball_gag", PASS),
     (
         "cyber_bodysuit",
         "silver_hair, bodysuit, skin_tight, impossible_bodysuit, latex, shiny_clothes, goggles_on_head, knee_boots",
+        PASS,
     ),
-    # Glasses + headwear coexist
-    ("glasses_and_hood", "glasses, hood, hood_up"),
-    # Glasses + goggles position
-    ("glasses_goggles_position", "glasses, goggles_on_head"),
-    # Sleepy morning
+    ("glasses_and_hood", "glasses, hood, hood_up", PASS),
+    ("glasses_goggles_position", "glasses, goggles_on_head", PASS),
     (
         "sleepy_morning",
         "messy_hair, half-closed_eyes, parted_lips, sleepy, oversized_shirt, sitting_on_bed, bedroom, morning",
+        PASS,
     ),
-    # Crying schoolgirl
     (
         "crying_schoolgirl",
         "brown_hair, blue_eyes, crying, teary_eyes, looking_down, sad, tearful, light_blush, serafuku",
+        PASS,
     ),
-    # Smug yandere (no mutex collisions)
     (
         "smug_yandere",
         "very_long_hair, black_hair, red_eyes, narrowed_eyes, heart-shaped_pupils, slit_pupils, yandere, smirk, licking_lips",  # noqa: E501
+        PASS,
     ),
-    # Genki energetic
-    ("genki", "ponytail, sparkling_eyes, smile, grin, blush_stickers, open_mouth, :d, jumping"),  # noqa: E501
-    # Tan athletic
+    ("genki", "ponytail, sparkling_eyes, smile, grin, blush_stickers, open_mouth, :d, jumping", PASS),
     (
         "tan_athletic",
         "ponytail, brown_hair, tan, tanlines, muscular_female, abs, toned, thick_thighs, sports_bra, bike_shorts, sneakers",  # noqa: E501
+        PASS,
     ),
 ]
 
@@ -227,31 +194,13 @@ def _norm(s: str) -> str:
 
 @pytest.mark.parametrize(
     "tags_in,expected",
-    [(c[1], c[2]) for c in MUTEX_GROUP_CASES],
-    ids=[c[0] for c in MUTEX_GROUP_CASES],
+    [(c[1], c[2]) for c in CASES],
+    ids=[c[0] for c in CASES],
 )
-def test_mutex_group_scenarios(tags_in: str, expected: str) -> None:
-    assert _norm(_scenario(tags_in)) == _norm(expected)
-
-
-@pytest.mark.parametrize(
-    "tags_in,expected",
-    [(c[1], c[2]) for c in CONFLICT_CASES],
-    ids=[c[0] for c in CONFLICT_CASES],
-)
-def test_conflict_scenarios(tags_in: str, expected: str) -> None:
-    assert _norm(_scenario(tags_in)) == _norm(expected)
-
-
-@pytest.mark.parametrize(
-    "tags_in",
-    [c[1] for c in PASS_CASES],
-    ids=[c[0] for c in PASS_CASES],
-)
-def test_passthrough_scenarios(tags_in: str) -> None:
-    """Every input tag should survive unchanged."""
-    expected = _norm(tags_in)
-    assert _norm(_scenario(tags_in)) == expected
+def test_scenario(tags_in: str, expected: object) -> None:
+    target = tags_in if expected is PASS else expected
+    assert isinstance(target, str)
+    assert _norm(_scenario(tags_in)) == _norm(target)
 
 
 # --------------------------------------------------------------------------
