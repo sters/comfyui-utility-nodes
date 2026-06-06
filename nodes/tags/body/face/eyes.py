@@ -1,9 +1,6 @@
-from typing import TYPE_CHECKING, ClassVar
+from typing import ClassVar
 
-if TYPE_CHECKING:
-    from nodes.tags._base import TagNodeBase
-else:
-    from _cuun_tag_node_base import TagNodeBase
+from ..._base import TagNodeBase
 
 _COLOR: tuple[str, ...] = (
     "blue_eyes",

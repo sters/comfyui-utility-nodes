@@ -1,12 +1,7 @@
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import Any, ClassVar
 
-if TYPE_CHECKING:
-    from nodes.tags._base import TAGS_TYPE, TaggedSelection
-    from nodes.tags._conflicts import MUTEX_GROUPS, TAG_CONFLICTS
-else:
-    from _cuun_tag_node_base import TAGS_TYPE, TaggedSelection
-    from _cuun_tags_conflicts import MUTEX_GROUPS, TAG_CONFLICTS
-
+from ._base import TAGS_TYPE, TaggedSelection
+from ._conflicts import MUTEX_GROUPS, TAG_CONFLICTS
 
 _MAX_INPUTS = 10
 _EXTRA_CATEGORY = "extra"

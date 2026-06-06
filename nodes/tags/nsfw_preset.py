@@ -1,10 +1,6 @@
-from typing import TYPE_CHECKING, Any, ClassVar
+from typing import Any, ClassVar
 
-if TYPE_CHECKING:
-    from nodes.tags._base import TAGS_TYPE, TaggedSelection
-else:
-    from _cuun_tag_node_base import TAGS_TYPE, TaggedSelection
-
+from ._base import TAGS_TYPE, TaggedSelection
 
 # NSFW scene presets — bundle act/position/state/expression/setting tags
 # that frequently appear together. Designed to layer on top of

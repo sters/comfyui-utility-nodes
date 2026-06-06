@@ -30,10 +30,9 @@ def _build_tag_index() -> dict[str, tuple[str, str, bool]]:
     """Walk nodes.tags.* and map each tag → (category_id, layer, mutex_within).
 
     First occurrence wins (the package has no cross-file duplicates by
-    design, so this is deterministic). Identity-based subclass checks
-    don't work here because each theme module imports TagNodeBase via the
-    spec-registered ``_cuun_tag_node_base`` shim — a different class
-    object from the one this file imports. Use duck typing instead.
+    design, so this is deterministic). Uses duck typing on TAGS /
+    CATEGORY_ID rather than ``issubclass(TagNodeBase)`` to stay robust
+    against any unexpected re-import.
     """
     index: dict[str, tuple[str, str, bool]] = {}
     for _finder, name, ispkg in pkgutil.walk_packages(nodes.tags.__path__, "nodes.tags."):
