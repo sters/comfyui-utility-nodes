@@ -253,8 +253,8 @@
     ]
   },
   {
-    "name": "tag_decorate_two_lists_are_zipped",
-    "description": "Documents the empirical ComfyUI behavior: when TagDecorate receives a list on `bundle` (3 tops) and a list on `decoration` (3 colors), ComfyUI **zips** them — yielding 3 prompts, NOT 9 (cross product). For a Cartesian product use TagsCombinator instead.",
+    "name": "tag_decorate_two_lists_cross_product",
+    "description": "TagDecorate sets INPUT_IS_LIST=True and iterates bundle × decoration internally. 3 tops × 3 colors → 9 prompts covering every (top, color) pair (red shirt / blue shirt / green shirt / red blouse / ... / blue hoodie).",
     "workflow": {
       "1": {
         "class_type": "ClothingTops",
@@ -351,7 +351,13 @@
     },
     "expect": [
       ["5", "red shirt"],
+      ["5", "green shirt"],
+      ["5", "blue shirt"],
+      ["5", "red blouse"],
       ["5", "green blouse"],
+      ["5", "blue blouse"],
+      ["5", "red hoodie"],
+      ["5", "green hoodie"],
       ["5", "blue hoodie"]
     ]
   }

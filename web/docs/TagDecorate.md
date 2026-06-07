@@ -9,11 +9,27 @@
 - `bundle` (CUUN_TAGS, optional): the main bundle to decorate. Typically the output of `TagsMerge`.
 - `decoration` (CUUN_TAGS, optional): bundle whose tags are joined with spaces and used as the prefix. Underscores become spaces (`light_blue` → `light blue`).
 
-## Outputs
+Both `bundle` and `decoration` accept a list, and `TagDecorate` takes the **Cartesian product** internally (see "Variant generation" below).
 
-- `prompt` (STRING): flattened result.
-- `warnings` (STRING): logs cases like "no tags matched target_category" or "decoration provided but no category selected".
-- `bundle` (CUUN_TAGS): the decorated bundle, ready to feed into another `TagDecorate` for an additional rule.
+## Outputs (lists, `OUTPUT_IS_LIST=True`)
+
+- `prompt` (STRING list): one flattened prompt per (bundle × decoration) pair.
+- `warnings` (STRING list): per-pair warnings — "no tags matched target_category" or "decoration provided but no category selected".
+- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagDecorate` to multiply variants further.
+
+## Variant generation
+
+`INPUT_IS_LIST=True` wraps scalar inputs in a 1-element list, so both inputs are uniformly treated as axes:
+
+| `bundle` | `decoration` | output count | typical use |
+|---|---|---|---|
+| 1 bundle | 1 decoration | 1 | "fix the skirt to red plaid" |
+| 1 bundle | N decorations (from `TagsExplode`) | N | "vary the skirt colour over N choices" |
+| M bundles | 1 decoration | M | "apply the same red plaid to each top variant" |
+| M bundles | N decorations | M × N | "every top × every colour" |
+
+Chaining two `TagDecorate`s multiplies axes:
+`Decorate(skirt, [red,green,blue])` → 3 bundles → `Decorate(tops, [shirt,blouse,hoodie])` → 3 × 3 = 9 prompts.
 
 ## How decoration is matched
 

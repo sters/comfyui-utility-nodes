@@ -24,16 +24,30 @@ def _populate_registry() -> None:
 _populate_registry()
 
 
-def _result(out: dict[str, object]) -> tuple[str, str, tuple[TaggedSelection, ...]]:
-    return out["result"]  # type: ignore[return-value]
-
-
 def _bundle(*selections: TaggedSelection) -> tuple[TaggedSelection, ...]:
     return tuple(selections)
 
 
+def _call(
+    target: str,
+    bundle: tuple[TaggedSelection, ...] | list[tuple[TaggedSelection, ...]] | None = None,
+    decoration: tuple[TaggedSelection, ...] | list[tuple[TaggedSelection, ...]] | None = None,
+    *,
+    sep: str = ", ",
+) -> tuple[list[str], list[str], list[tuple[TaggedSelection, ...]]]:
+    """Helper mimicking ComfyUI's INPUT_IS_LIST contract: every arg is a list."""
+    b = bundle if isinstance(bundle, list) else ([bundle] if bundle is not None else None)
+    d = decoration if isinstance(decoration, list) else ([decoration] if decoration is not None else None)
+    out = TagDecorate().decorate(
+        separator=[sep],
+        target_category=[target],
+        bundle=b,
+        decoration=d,
+    )
+    return out["result"]  # type: ignore[no-any-return]
+
+
 def test_registry_populated_from_subclasses() -> None:
-    # Spot-check tags from several modules.
     assert TAG_CATEGORY_REGISTRY.get("pleated_skirt") == "clothing.bottoms"
     assert TAG_CATEGORY_REGISTRY.get("plaid") == "clothing.pattern"
     assert TAG_CATEGORY_REGISTRY.get("silk") == "clothing.material"
@@ -52,36 +66,37 @@ def test_prefix_matches_target_category() -> None:
         TaggedSelection(category="decoration.color", layer="decoration", tags=("red", "green")),
         TaggedSelection(category="clothing.pattern", layer="clothing", tags=("plaid",)),
     )
-    prompt, warnings, _ = _result(TagDecorate().decorate(", ", "clothing.bottoms", bundle, decoration))
-    assert "red green plaid pleated skirt" in prompt
-    assert "thighhighs" in prompt
-    assert "long_hair" in prompt
-    assert warnings == ""
+    prompts, warnings, _ = _call("clothing.bottoms", bundle, decoration)
+    assert len(prompts) == 1
+    assert "red green plaid pleated skirt" in prompts[0]
+    assert "thighhighs" in prompts[0]
+    assert "long_hair" in prompts[0]
+    assert warnings[0] == ""
 
 
 def test_no_match_emits_warning_and_leaves_bundle_alone() -> None:
     bundle = _bundle(TaggedSelection(category="preset.character", layer="preset", tags=("long_hair",)))
     decoration = _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("red",)))
-    prompt, warnings, out_bundle = _result(TagDecorate().decorate(", ", "clothing.bottoms", bundle, decoration))
-    assert prompt == "long_hair"
-    assert out_bundle == bundle
-    assert "no tags in bundle matched" in warnings
+    prompts, warnings, out_bundles = _call("clothing.bottoms", bundle, decoration)
+    assert prompts == ["long_hair"]
+    assert out_bundles == [bundle]
+    assert "no tags in bundle matched" in warnings[0]
 
 
 def test_no_decoration_is_passthrough() -> None:
     bundle = _bundle(TaggedSelection(category="clothing.bottoms", layer="clothing", tags=("pleated_skirt",)))
-    prompt, warnings, out_bundle = _result(TagDecorate().decorate(", ", "clothing.bottoms", bundle, ()))
-    assert prompt == "pleated_skirt"
-    assert out_bundle == bundle
-    assert warnings == ""
+    prompts, warnings, out_bundles = _call("clothing.bottoms", bundle, None)
+    assert prompts == ["pleated_skirt"]
+    assert out_bundles == [bundle]
+    assert warnings == [""]
 
 
 def test_none_target_with_decoration_warns_and_passes_through() -> None:
     bundle = _bundle(TaggedSelection(category="clothing.bottoms", layer="clothing", tags=("pleated_skirt",)))
     decoration = _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("red",)))
-    prompt, warnings, _ = _result(TagDecorate().decorate(", ", "(none)", bundle, decoration))
-    assert prompt == "pleated_skirt"
-    assert "no target_category selected" in warnings
+    prompts, warnings, _ = _call("(none)", bundle, decoration)
+    assert prompts == ["pleated_skirt"]
+    assert "no target_category selected" in warnings[0]
 
 
 def test_extra_selection_passes_through_untouched() -> None:
@@ -90,12 +105,11 @@ def test_extra_selection_passes_through_untouched() -> None:
         TaggedSelection(category="extra", layer="extra", tags=("my custom phrase",)),
     )
     decoration = _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("red",)))
-    prompt, _, out_bundle = _result(TagDecorate().decorate(", ", "clothing.bottoms", bundle, decoration))
-    assert "red pleated skirt" in prompt
-    assert "my custom phrase" in prompt
-    # extra selection preserved untouched at its position.
-    assert out_bundle[-1].category == "extra"
-    assert out_bundle[-1].tags == ("my custom phrase",)
+    prompts, _, out_bundles = _call("clothing.bottoms", bundle, decoration)
+    assert "red pleated skirt" in prompts[0]
+    assert "my custom phrase" in prompts[0]
+    assert out_bundles[0][-1].category == "extra"
+    assert out_bundles[0][-1].tags == ("my custom phrase",)
 
 
 def test_chained_decorate_applies_independent_rules() -> None:
@@ -108,17 +122,18 @@ def test_chained_decorate_applies_independent_rules() -> None:
     )
     skirt_deco = _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("red",)))
     leg_deco = _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("white",)))
-    _, _, stage1 = _result(TagDecorate().decorate(", ", "clothing.bottoms", bundle, skirt_deco))
-    prompt, _, _ = _result(TagDecorate().decorate(", ", "clothing.legwear", stage1, leg_deco))
-    assert "red pleated skirt" in prompt
-    assert "white thighhighs" in prompt
+    _, _, stage1 = _call("clothing.bottoms", bundle, skirt_deco)
+    prompts, _, _ = _call("clothing.legwear", stage1, leg_deco)
+    assert len(prompts) == 1
+    assert "red pleated skirt" in prompts[0]
+    assert "white thighhighs" in prompts[0]
 
 
 def test_underscore_in_decoration_becomes_space() -> None:
     bundle = _bundle(TaggedSelection(category="clothing.bottoms", layer="clothing", tags=("pleated_skirt",)))
     decoration = _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("light_blue",)))
-    prompt, _, _ = _result(TagDecorate().decorate(", ", "clothing.bottoms", bundle, decoration))
-    assert "light blue pleated skirt" in prompt
+    prompts, _, _ = _call("clothing.bottoms", bundle, decoration)
+    assert "light blue pleated skirt" in prompts[0]
 
 
 def test_color_palette_emits_decoration_color_selection() -> None:
@@ -130,3 +145,48 @@ def test_color_palette_emits_decoration_color_selection() -> None:
     assert bundle[0].category == "decoration.color"
     assert bundle[0].layer == "decoration"
     assert bundle[0].tags == ("red", "green")
+
+
+# ----------------------------------------------------------------------
+# Cross-product semantics (INPUT_IS_LIST = True)
+# ----------------------------------------------------------------------
+
+
+def test_single_bundle_x_decoration_list_broadcasts() -> None:
+    """`Decorate(Character, skirt, [red, green, blue])` → 3 prompts. The
+    legacy use case — must continue to work when decoration is a list."""
+    bundle = _bundle(TaggedSelection(category="clothing.bottoms", layer="clothing", tags=("pleated_skirt",)))
+    decos = [
+        _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("red",))),
+        _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("green",))),
+        _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("blue",))),
+    ]
+    prompts, _, _ = _call("clothing.bottoms", bundle, decos)
+    assert len(prompts) == 3
+    assert "red pleated skirt" in prompts[0]
+    assert "green pleated skirt" in prompts[1]
+    assert "blue pleated skirt" in prompts[2]
+
+
+def test_bundle_list_x_decoration_list_is_cross_product() -> None:
+    """2 bundles × 3 decorations = 6 prompts in (bundle outer, decoration inner) order."""
+    tops = [
+        _bundle(TaggedSelection(category="clothing.tops", layer="clothing", tags=("shirt",))),
+        _bundle(TaggedSelection(category="clothing.tops", layer="clothing", tags=("blouse",))),
+    ]
+    colors = [
+        _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("red",))),
+        _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("green",))),
+        _bundle(TaggedSelection(category="decoration.color", layer="decoration", tags=("blue",))),
+    ]
+    prompts, _, _ = _call("clothing.tops", tops, colors)
+    assert prompts == ["red shirt", "green shirt", "blue shirt", "red blouse", "green blouse", "blue blouse"]
+
+
+def test_empty_lists_collapse_to_passthrough() -> None:
+    """Unwired (None) decoration shouldn't zero out the cross product —
+    bundles pass through with no decoration applied."""
+    bundle = _bundle(TaggedSelection(category="clothing.bottoms", layer="clothing", tags=("pleated_skirt",)))
+    prompts, warnings, _ = _call("clothing.bottoms", bundle, None)
+    assert prompts == ["pleated_skirt"]
+    assert warnings == [""]

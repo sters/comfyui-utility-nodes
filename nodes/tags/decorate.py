@@ -14,16 +14,24 @@ class TagDecorate:
     """Prefix tags in a bundle that belong to a chosen category with a
     decoration phrase (built from another bundle).
 
-    Wire one tag-toggle node (e.g. `ColorPalette` + `ClothingPattern`
-    merged) into `decoration`, pick the `target_category` you want to
-    decorate (e.g. `clothing.bottoms`), and every tag in the main
-    `bundle` whose original category matches the target is rewritten
-    from `pleated_skirt` to `red green plaid pleated_skirt`. Chain
-    multiple `TagDecorate` nodes for multiple decoration rules.
+    Accepts lists on `bundle` and `decoration` and emits the **Cartesian
+    product** of (bundle × decoration). Single-value inputs are wrapped
+    in a 1-element list by ComfyUI's `INPUT_IS_LIST` semantics, so:
+
+    - 1 bundle × 1 decoration → 1 result
+    - 1 bundle × N decorations → N results (broadcast)
+    - M bundles × N decorations → M × N results (cross product)
+
+    Chain multiple `TagDecorate` nodes for multi-axis decoration (e.g.
+    apply colors to clothing.bottoms in the first stage, then apply a
+    different decoration to clothing.tops in the second — each stage
+    multiplies the variant count).
     """
 
+    INPUT_IS_LIST: ClassVar[bool] = True
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "warnings", "bundle")
+    OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True)
     FUNCTION: ClassVar[str] = "decorate"
     CATEGORY: ClassVar[str] = "utility/text"
     OUTPUT_NODE: ClassVar[bool] = True
@@ -43,31 +51,61 @@ class TagDecorate:
 
     def decorate(
         self,
-        separator: str,
-        target_category: str,
-        bundle: tuple[TaggedSelection, ...] = (),
-        decoration: tuple[TaggedSelection, ...] = (),
+        separator: list[str],
+        target_category: list[str],
+        bundle: list[tuple[TaggedSelection, ...]] | None = None,
+        decoration: list[tuple[TaggedSelection, ...]] | None = None,
     ) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
+        sep_raw = separator[0] if separator else ", "
+        sep = sep_raw.encode("utf-8").decode("unicode_escape") if sep_raw else ", "
+        target = target_category[0] if target_category else _NONE
+
+        # Normalise empty lists to a single-element "empty" axis so that
+        # the cross-product doesn't collapse to zero results when one
+        # side is unwired.
+        bundles: list[tuple[TaggedSelection, ...]] = list(bundle) if bundle else [()]
+        decorations: list[tuple[TaggedSelection, ...]] = list(decoration) if decoration else [()]
+
+        prompts: list[str] = []
+        warnings_out: list[str] = []
+        bundles_out: list[tuple[TaggedSelection, ...]] = []
+
+        for b in bundles:
+            for d in decorations:
+                p, w, ob = self._decorate_one(sep, target, b, d)
+                prompts.append(p)
+                warnings_out.append(w)
+                bundles_out.append(ob)
+
+        return {
+            "ui": {"text": tuple(prompts)},
+            "result": (prompts, warnings_out, bundles_out),
+        }
+
+    @staticmethod
+    def _decorate_one(
+        sep: str,
+        target: str,
+        bundle: tuple[TaggedSelection, ...],
+        decoration: tuple[TaggedSelection, ...],
+    ) -> tuple[str, str, tuple[TaggedSelection, ...]]:
         warnings: list[str] = []
 
         decoration_words: list[str] = []
-        for sel in decoration or ():
+        for sel in decoration:
             if sel.category == _EXTRA_CATEGORY:
                 continue
             for tag in sel.tags:
                 decoration_words.append(tag.replace("_", " "))
         prefix = " ".join(decoration_words).strip()
 
-        bundle = tuple(bundle or ())
-
-        if target_category == _NONE or not target_category:
+        if target == _NONE or not target:
             if prefix:
                 warnings.append(f"decorate: skipped — no target_category selected (prefix='{prefix}')")
-            return self._emit(sep, bundle, warnings)
+            return TagDecorate._flatten(sep, bundle, warnings)
 
         if not prefix:
-            return self._emit(sep, bundle, warnings)
+            return TagDecorate._flatten(sep, bundle, warnings)
 
         matched = 0
         new_bundle: list[TaggedSelection] = []
@@ -78,7 +116,7 @@ class TagDecorate:
             new_tags: list[str] = []
             for tag in sel.tags:
                 tag_cat = TAG_CATEGORY_REGISTRY.get(tag, "")
-                if tag_cat == target_category:
+                if tag_cat == target:
                     new_tags.append(f"{prefix} {tag.replace('_', ' ')}")
                     matched += 1
                 else:
@@ -96,27 +134,20 @@ class TagDecorate:
                 )
 
         if matched == 0:
-            warnings.append(
-                f"decorate: no tags in bundle matched category '{target_category}' (prefix '{prefix}' dropped)"
-            )
+            warnings.append(f"decorate: no tags in bundle matched category '{target}' (prefix '{prefix}' dropped)")
 
-        return self._emit(sep, tuple(new_bundle), warnings)
+        return TagDecorate._flatten(sep, tuple(new_bundle), warnings)
 
     @staticmethod
-    def _emit(
+    def _flatten(
         sep: str,
         bundle: tuple[TaggedSelection, ...],
         warnings: list[str],
-    ) -> dict[str, Any]:
+    ) -> tuple[str, str, tuple[TaggedSelection, ...]]:
         parts: list[str] = []
         for sel in bundle:
             parts.extend(sel.tags)
-        prompt = sep.join(parts)
-        warnings_str = "\n".join(warnings)
-        return {
-            "ui": {"text": (prompt,)},
-            "result": (prompt, warnings_str, bundle),
-        }
+        return sep.join(parts), "\n".join(warnings), bundle
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagDecorate": TagDecorate}
