@@ -251,5 +251,108 @@
       ["4", "green pleated skirt"],
       ["4", "blue pleated skirt"]
     ]
+  },
+  {
+    "name": "tag_decorate_two_lists_are_zipped",
+    "description": "Documents the empirical ComfyUI behavior: when TagDecorate receives a list on `bundle` (3 tops) and a list on `decoration` (3 colors), ComfyUI **zips** them — yielding 3 prompts, NOT 9 (cross product). For a Cartesian product use TagsCombinator instead.",
+    "workflow": {
+      "1": {
+        "class_type": "ClothingTops",
+        "inputs": {
+          "separator": ", ",
+          "preset": "custom",
+          "shirt": true,
+          "t-shirt": false,
+          "dress_shirt": false,
+          "blouse": true,
+          "collared_shirt": false,
+          "polo_shirt": false,
+          "tank_top": false,
+          "camisole": false,
+          "crop_top": false,
+          "tube_top": false,
+          "off-shoulder_shirt": false,
+          "sleeveless_shirt": false,
+          "frilled_shirt": false,
+          "sweater": false,
+          "turtleneck": false,
+          "ribbed_sweater": false,
+          "sweater_vest": false,
+          "hoodie": true,
+          "cardigan": false,
+          "vest": false,
+          "waistcoat": false,
+          "jacket": false,
+          "blazer": false,
+          "coat": false,
+          "trench_coat": false,
+          "long_coat": false,
+          "winter_coat": false,
+          "raincoat": false,
+          "windbreaker": false,
+          "extra": ""
+        }
+      },
+      "2": {
+        "class_type": "TagsExplode",
+        "inputs": {"bundle": ["1", 1]}
+      },
+      "3": {
+        "class_type": "ColorPalette",
+        "inputs": {
+          "separator": ", ",
+          "preset": "custom",
+          "red": true,
+          "pink": false,
+          "orange": false,
+          "yellow": false,
+          "green": true,
+          "blue": true,
+          "light_blue": false,
+          "dark_blue": false,
+          "purple": false,
+          "violet": false,
+          "brown": false,
+          "tan": false,
+          "beige": false,
+          "black": false,
+          "white": false,
+          "gray": false,
+          "silver": false,
+          "gold": false,
+          "navy": false,
+          "teal": false,
+          "cyan": false,
+          "magenta": false,
+          "crimson": false,
+          "maroon": false,
+          "olive": false,
+          "lime": false,
+          "aqua": false,
+          "ivory": false,
+          "pastel": false,
+          "neon": false,
+          "extra": ""
+        }
+      },
+      "4": {
+        "class_type": "TagsExplode",
+        "inputs": {"bundle": ["3", 1]}
+      },
+      "5": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.tops",
+          "bundle": ["2", 0],
+          "decoration": ["4", 0]
+        }
+      }
+    },
+    "expect": [
+      ["5", "red shirt"],
+      ["5", "green blouse"],
+      ["5", "blue hoodie"]
+    ]
   }
 ]
