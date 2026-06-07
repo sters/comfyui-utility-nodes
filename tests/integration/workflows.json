@@ -75,6 +75,29 @@
     ]
   },
   {
+    "name": "three_presets_through_merge",
+    "description": "Mirrors the text portion of example_workflows/character_pipeline.json — three preset bundles fanning into TagsMerge.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko", "separator": ", ", "extra": ""}},
+      "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki", "separator": ", ", "extra": ""}},
+      "3": {"class_type": "SituationPreset", "inputs": {"situation": "shrine_visit", "separator": ", ", "extra": ""}},
+      "4": {
+        "class_type": "TagsMerge",
+        "inputs": {
+          "separator": ", ",
+          "bundle_1": ["1", 1],
+          "bundle_2": ["2", 1],
+          "bundle_3": ["3", 1]
+        }
+      }
+    },
+    "expect": [
+      ["4", "miko"],
+      ["4", "shrine"],
+      ["4", "smile"]
+    ]
+  },
+  {
     "name": "character_preset",
     "description": "Preset combo selector — verifies COMBO with a non-trivial value list resolves to expected tags.",
     "workflow": {

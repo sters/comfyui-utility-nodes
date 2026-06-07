@@ -78,3 +78,7 @@ Preset nodes (`preset.py`, `personality.py`, `nsfw_preset.py`) emit a flat tuple
 3. If the new tags conflict with existing ones, edit `_conflicts.py` — not the node file.
 4. Add tests under `tests/tags/`.
 5. Add an English help page at `web/docs/<ClassName>.md` ([Help Page](https://docs.comfy.org/custom-nodes/help_page)). `__init__.py` already exposes `WEB_DIRECTORY = "./web"`. Filename must match the registered class name. For ordinary tag nodes the existing files are mechanically generated from `TAGS` — keep that shape unless the node has non-trivial behavior to explain.
+
+## Workflow templates
+
+End-to-end ComfyUI workflows live under `example_workflows/` and are surfaced via ComfyUI's [Workflow Templates](https://docs.comfy.org/custom-nodes/workflow_templates) (Workflow → Browse Templates → `comfyui-utility-nodes`). JSON shape follows the [v1 workflow spec](https://docs.comfy.org/specs/workflow_json) — links are objects (`{id, origin_id, origin_slot, target_id, target_slot, type}`), not the legacy positional tuples. When adding a template, mirror its text portion as an API-format case in `tests/integration/workflows.json` so `make integration` catches regressions to the wiring.
