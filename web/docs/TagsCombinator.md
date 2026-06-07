@@ -1,4 +1,4 @@
-# Preset Combinator (axes × bundles)
+# Tags Combinator (axes × bundles)
 
 `utility/text` category. Cartesian product over up to 8 axes of `CUUN_TAGS` bundles. Each axis is a list of bundles; each combination is resolved through `TagsMerge` and emitted as a STRING list, ready for downstream `CLIPTextEncode` / `KSampler` / `SaveImage` to iterate over.
 

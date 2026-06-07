@@ -51,7 +51,7 @@ The `workflow` block is the ComfyUI **API format** (the same shape the
 "Save (API Format)" UI export produces). Each `expect` pair checks that
 `substring` appears in the named node's `outputs.text` from the
 `/history/<prompt_id>` response — which means the asserted node must
-have `OUTPUT_NODE = True`. All tag-toggle nodes, `TagsMerge`, and
-`PonyPromptBuilder` qualify; pure pipe-through text nodes (e.g.
-`TextConcat`, `PromptCombinator`) don't expose preview text, so route
-them through an OUTPUT_NODE terminator if you need to assert on them.
+have `OUTPUT_NODE = True`. All tag-toggle nodes, `TagsMerge`,
+`TagDecorate`, and `PonyPromptBuilder` qualify; pure pipe-through text
+nodes (e.g. `TextConcat`) don't expose preview text, so route them
+through an OUTPUT_NODE terminator if you need to assert on them.

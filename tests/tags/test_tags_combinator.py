@@ -1,7 +1,7 @@
 from nodes.tags._base import TaggedSelection
 from nodes.tags.explode import TagsExplode
 from nodes.tags.preset import CharacterPreset
-from nodes.tags.preset_combinator import PresetCombinator
+from nodes.tags.tags_combinator import TagsCombinator
 
 
 def _sel(category: str, tags: tuple[str, ...], mutex_within: bool = False) -> TaggedSelection:
@@ -41,11 +41,11 @@ def test_explode_skips_extra_category() -> None:
 
 def test_explode_empty_bundle_yields_sentinel() -> None:
     (bundles,) = TagsExplode().explode(())
-    # Single empty bundle keeps PresetCombinator's product math sane.
+    # Single empty bundle keeps TagsCombinator's product math sane.
     assert bundles == [()]
 
 
-# --- PresetCombinator ---------------------------------------------------
+# --- TagsCombinator ---------------------------------------------------
 
 
 def _make_explode_axis(category: str, tags: tuple[str, ...], mutex: bool = False) -> list[tuple[TaggedSelection, ...]]:
@@ -56,7 +56,7 @@ def _make_explode_axis(category: str, tags: tuple[str, ...], mutex: bool = False
 def test_combinator_cartesian_product_count() -> None:
     hair = _make_explode_axis("hair.color", ("red_hair", "blue_hair"))
     figure = _make_explode_axis("body.figure", ("muscular", "slim", "curvy", "plump"))
-    out = PresetCombinator().combine([", "], axis_1=hair, axis_2=figure)
+    out = TagsCombinator().combine([", "], axis_1=hair, axis_2=figure)
     prompts, labels, indices, _ = out
     assert len(prompts) == 2 * 4
     assert len(labels) == 8
@@ -65,7 +65,7 @@ def test_combinator_cartesian_product_count() -> None:
 
 def test_combinator_label_uses_distinguishing_segment() -> None:
     hair = _make_explode_axis("hair.color", ("red_hair", "blue_hair"))
-    out = PresetCombinator().combine([", "], axis_1=hair)
+    out = TagsCombinator().combine([", "], axis_1=hair)
     labels = out[1]
     assert labels == ["red_hair", "blue_hair"]
 
@@ -73,7 +73,7 @@ def test_combinator_label_uses_distinguishing_segment() -> None:
 def test_combinator_preset_axis_uses_category_suffix_for_label() -> None:
     # CharacterPreset emits category like "character.serafuku_schoolgirl"
     _, bundle = CharacterPreset().build("serafuku_schoolgirl", ", ")["result"]
-    out = PresetCombinator().combine([", "], axis_1=[tuple(bundle)])
+    out = TagsCombinator().combine([", "], axis_1=[tuple(bundle)])
     labels = out[1]
     assert labels == ["serafuku_schoolgirl"]
 
@@ -89,7 +89,7 @@ def test_combinator_preset_x_explode_full_example() -> None:
         ("flat_chest", "small_breasts", "medium_breasts", "large_breasts"),
         mutex=True,
     )
-    out = PresetCombinator().combine([", "], axis_1=char_axis, axis_2=hair, axis_3=figure, axis_4=breasts)
+    out = TagsCombinator().combine([", "], axis_1=char_axis, axis_2=hair, axis_3=figure, axis_4=breasts)
     prompts, labels, _, _ = out
     assert len(prompts) == 1 * 4 * 4 * 4
     # Pick one combination, verify it contains the override hair color
@@ -112,13 +112,13 @@ def test_combinator_preset_x_explode_full_example() -> None:
 
 def test_combinator_skips_unwired_axes() -> None:
     hair = _make_explode_axis("hair.color", ("red_hair", "blue_hair"))
-    out = PresetCombinator().combine([", "], axis_1=hair)
+    out = TagsCombinator().combine([", "], axis_1=hair)
     prompts = out[0]
     assert len(prompts) == 2
 
 
 def test_combinator_no_axes_returns_empty_lists() -> None:
-    out = PresetCombinator().combine([", "])
+    out = TagsCombinator().combine([", "])
     prompts, labels, indices, warnings = out
     assert prompts == []
     assert labels == []
@@ -128,7 +128,7 @@ def test_combinator_no_axes_returns_empty_lists() -> None:
 
 def test_combinator_decodes_separator_escape() -> None:
     hair = _make_explode_axis("hair.color", ("red_hair", "blue_hair"))
-    out = PresetCombinator().combine([r"\n"], axis_1=hair)
+    out = TagsCombinator().combine([r"\n"], axis_1=hair)
     # Single-tag axis with newline separator — within a single-axis combo
     # there's only one tag per prompt so the separator doesn't show, but
     # the decoder must not crash on the escape.

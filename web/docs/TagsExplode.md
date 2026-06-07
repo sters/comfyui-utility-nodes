@@ -1,6 +1,6 @@
 # Tags: Explode (per-tag axis)
 
-`utility/text` category. Splits a `CUUN_TAGS` bundle into a **list of single-tag bundles**, one per selected tag. Designed as the adapter that turns a tag-toggle node (e.g. `HairColor` with 4 colors checked) into an axis for `PresetCombinator`.
+`utility/text` category. Splits a `CUUN_TAGS` bundle into a **list of single-tag bundles**, one per selected tag. Designed as the adapter that turns a tag-toggle node (e.g. `HairColor` with 4 colors checked) into an axis for `TagsCombinator`.
 
 ## Inputs
 
@@ -13,12 +13,12 @@
 ## Behavior
 
 - Tags in the `extra` category are dropped (they're free-form text, not axis material).
-- An empty input bundle emits a single empty-bundle sentinel — keeps `PresetCombinator`'s Cartesian-product math sane (the empty axis contributes one "no-op" value rather than zeroing the product).
+- An empty input bundle emits a single empty-bundle sentinel — keeps `TagsCombinator`'s Cartesian-product math sane (the empty axis contributes one "no-op" value rather than zeroing the product).
 
 ## Typical wiring
 
 ```
-HairColor(red, blue, green, black) ─→ TagsExplode ─→ PresetCombinator.axis_2
+HairColor(red, blue, green, black) ─→ TagsExplode ─→ TagsCombinator.axis_2
 ```
 
 For preset axes that should stay as one value, **skip `TagsExplode`** and wire the preset directly into the combinator's axis socket.

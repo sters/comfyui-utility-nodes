@@ -65,7 +65,7 @@ Preset nodes (`preset.py`, `personality.py`, `nsfw_preset.py`) emit a flat tuple
 
 ### Text nodes
 
-`nodes/text/` contains plain prompt utilities (`PromptCombinator`, `ListShuffle`, `TextConcat`, `PonyPromptBuilder`, `RandomTextPicker`). They are independent of the tag-node bundle system.
+`nodes/text/` contains plain prompt utilities (`ListShuffle`, `TextConcat`, `PonyPromptBuilder`, `RandomTextPicker`). They are independent of the tag-node bundle system. Combinatorial expansion happens on the tag side via `TagsCombinator` (`nodes/tags/tags_combinator.py`) — there is no STRING-axis combinator, because every axis worth varying in this pack is already a tag bundle.
 
 ### Test layout
 

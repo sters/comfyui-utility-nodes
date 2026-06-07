@@ -179,5 +179,77 @@
       ["3", "red green pleated skirt"],
       ["3", "thighhighs"]
     ]
+  },
+  {
+    "name": "tag_decorate_auto_broadcast",
+    "description": "TagsExplode fans out 3 single-color bundles into TagDecorate.decoration. ComfyUI's lazy list-fanout should run TagDecorate 3 times and emit 3 prompts, each prefixing pleated_skirt with one color.",
+    "workflow": {
+      "1": {
+        "class_type": "CharacterPreset",
+        "inputs": {
+          "preset": "serafuku_schoolgirl",
+          "separator": ", ",
+          "extra": ""
+        }
+      },
+      "2": {
+        "class_type": "ColorPalette",
+        "inputs": {
+          "separator": ", ",
+          "preset": "custom",
+          "red": true,
+          "pink": false,
+          "orange": false,
+          "yellow": false,
+          "green": true,
+          "blue": true,
+          "light_blue": false,
+          "dark_blue": false,
+          "purple": false,
+          "violet": false,
+          "brown": false,
+          "tan": false,
+          "beige": false,
+          "black": false,
+          "white": false,
+          "gray": false,
+          "silver": false,
+          "gold": false,
+          "navy": false,
+          "teal": false,
+          "cyan": false,
+          "magenta": false,
+          "crimson": false,
+          "maroon": false,
+          "olive": false,
+          "lime": false,
+          "aqua": false,
+          "ivory": false,
+          "pastel": false,
+          "neon": false,
+          "extra": ""
+        }
+      },
+      "3": {
+        "class_type": "TagsExplode",
+        "inputs": {
+          "bundle": ["2", 1]
+        }
+      },
+      "4": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.bottoms",
+          "bundle": ["1", 1],
+          "decoration": ["3", 0]
+        }
+      }
+    },
+    "expect": [
+      ["4", "red pleated skirt"],
+      ["4", "green pleated skirt"],
+      ["4", "blue pleated skirt"]
+    ]
   }
 ]

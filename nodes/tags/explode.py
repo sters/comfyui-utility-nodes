@@ -6,7 +6,7 @@ from ._base import TAGS_TYPE, TaggedSelection
 class TagsExplode:
     """Splits a bundle into a list of single-tag bundles, one per tag.
 
-    Designed to feed `PresetCombinator` — wire a tag-toggle node (e.g.
+    Designed to feed `TagsCombinator` — wire a tag-toggle node (e.g.
     `HairColor` with 4 colors checked) through `TagsExplode` to get 4
     axis values. Each output bundle preserves the original selection's
     category / layer / mutex_within so downstream `TagsMerge` still

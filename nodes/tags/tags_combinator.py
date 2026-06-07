@@ -5,7 +5,7 @@ from ._base import TAGS_TYPE, TaggedSelection
 from .merge import TagsMerge
 
 
-class PresetCombinator:
+class TagsCombinator:
     """Cartesian product over axes of CUUN_TAGS bundles.
 
     Each axis input is a list of bundles (typically produced by
@@ -100,7 +100,7 @@ class PresetCombinator:
         return "__".join(parts)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"PresetCombinator": PresetCombinator}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsCombinator": TagsCombinator}
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "PresetCombinator": "Preset Combinator (axes × bundles)",
+    "TagsCombinator": "Tags Combinator (axes × bundles)",
 }
