@@ -8,7 +8,7 @@ import pkgutil
 import nodes.tags
 from nodes.tags._base import TAG_CATEGORY_REGISTRY, TaggedSelection
 from nodes.tags.decorate import TagDecorate
-from nodes.tags.decoration.color import ColorPalette
+from nodes.tags.sources.decoration.color import ColorPalette
 
 
 def _populate_registry() -> None:

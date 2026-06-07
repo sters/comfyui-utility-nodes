@@ -2,7 +2,7 @@ from typing import Any
 
 from nodes.tags._base import TaggedSelection
 from nodes.tags.merge import TagsMerge
-from nodes.tags.preset import PRESETS, CharacterPreset
+from nodes.tags.sources.preset import PRESETS, CharacterPreset
 
 
 def _build(preset: str, **kw: Any) -> tuple[str, tuple[TaggedSelection, ...]]:

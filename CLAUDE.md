@@ -26,12 +26,29 @@ ComfyUI custom-node docs: https://docs.comfy.org/custom-nodes/walkthrough (and t
 
 `__init__.py` walks `nodes/` with `pkgutil.walk_packages`, imports each module, and merges any `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS` it exposes. Files whose basename starts with `_` (e.g. `_base.py`, `_conflicts.py`) are skipped. **You do not need to register new nodes anywhere** — dropping a file under `nodes/.../foo.py` with the two mappings is enough.
 
-Within node modules, use ordinary relative imports:
+### Layout
+
+Two halves under `nodes/tags/`:
+
+- `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `tags_combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them.
+- `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `meta/`, `nsfw/`, `decoration/`) and the flat-tuple preset nodes (`preset.py`, `personality.py`, `situation_preset.py`, `nsfw_preset.py`, `bad.py`, `composition.py`).
+
+Auto-discovery walks both via `pkgutil.walk_packages`, so dropping a file under either path is enough to register it.
+
+Within node modules, use ordinary relative imports. Depth varies — count carefully:
 
 ```python
-from ._base import TagNodeBase           # sibling
-from .._base import TAGS_TYPE            # parent
-from .._conflicts import MUTEX_GROUPS
+# nodes/tags/sources/preset.py (depth 2 under tags/)
+from .._base import TAGS_TYPE, TaggedSelection
+
+# nodes/tags/sources/clothing/outfit.py (depth 3)
+from ..._base import TagNodeBase
+
+# nodes/tags/sources/body/face/eyes.py (depth 4)
+from ...._base import TagNodeBase
+
+# nodes/tags/_conflicts.py (top-level, reaches into sources)
+from .sources.clothing.outfit import _BOTTOMS
 ```
 
 The repo directory name (`comfyui-utility-nodes`) is invalid as a Python identifier due to the hyphen, but relative imports resolve via `__package__` and don't depend on the top-level name — ComfyUI loads the package via `spec_from_file_location`, which sets `__package__` correctly.
@@ -59,9 +76,9 @@ Key types in `nodes/tags/_base.py`:
 3. **`TAG_CONFLICTS`** — per-tag suppression map: presence of a trigger drops a set of suppressed tags from every non-`extra` selection. Triggers themselves are never dropped.
 4. Flatten surviving tags in input order, append `extra`, join with `separator`. Returns `(prompt, warnings, bundle)`.
 
-`nodes/tags/_conflicts.py` is the **single source of truth for cross-node conflicts**. It pulls subsets (e.g. `_BRAS`, `_PANTIES`, `_LEGWEAR`) from clothing modules and composes them into `MUTEX_GROUPS` and `TAG_CONFLICTS`. When adding a tag that interacts with others across nodes (e.g. a new bottoms tag vs. `bottomless`), wire it through `_conflicts.py` rather than the node module — the merge step is where conflict semantics live.
+`nodes/tags/_conflicts.py` is the **single source of truth for cross-node conflicts**. It pulls subsets (e.g. `_BRAS`, `_PANTIES`, `_LEGWEAR`) from `sources/clothing/` modules and composes them into `MUTEX_GROUPS` and `TAG_CONFLICTS`. When adding a tag that interacts with others across nodes (e.g. a new bottoms tag vs. `bottomless`), wire it through `_conflicts.py` rather than the node module — the merge step is where conflict semantics live.
 
-Preset nodes (`preset.py`, `personality.py`, `nsfw_preset.py`) emit a flat tuple of pre-composed tags as one or more `TaggedSelection`s; the same merge pipeline still resolves layering with regular tag nodes.
+Preset nodes under `nodes/tags/sources/` (`preset.py`, `personality.py`, `nsfw_preset.py`, `situation_preset.py`) emit a flat tuple of pre-composed tags as one or more `TaggedSelection`s; the same merge pipeline still resolves layering with regular tag nodes.
 
 ### Text nodes
 
@@ -73,7 +90,7 @@ Preset nodes (`preset.py`, `personality.py`, `nsfw_preset.py`) emit a flat tuple
 
 ## Adding a new tag node
 
-1. Create `nodes/tags/.../foo.py` with a `TagNodeBase` subclass and a module-level `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS`. Use relative imports (`from .._base import TagNodeBase`).
+1. Create `nodes/tags/sources/.../foo.py` with a `TagNodeBase` subclass and a module-level `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS`. Use relative imports — `from ..._base import TagNodeBase` for files at `sources/<subpkg>/foo.py`, `from .._base import ...` for files directly under `sources/`.
 2. Auto-discovery picks it up — no registration step.
 3. If the new tags conflict with existing ones, edit `_conflicts.py` — not the node file.
 4. Add tests under `tests/tags/`.

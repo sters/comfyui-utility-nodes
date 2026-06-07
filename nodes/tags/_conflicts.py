@@ -13,9 +13,9 @@ Edge cases (intentional, not auto-handled):
   covers feet; if you want "barefoot with thighhighs", remove the rule.
 """
 
-from .clothing.legwear_footwear import _FOOTWEAR, _LEGWEAR
-from .clothing.outfit import _BOTTOMS, _DRESS_ONEPIECE, _TOPS, _UNIFORM
-from .clothing.underwear_swimwear import _SWIMWEAR, _UNDERWEAR
+from .sources.clothing.legwear_footwear import _FOOTWEAR, _LEGWEAR
+from .sources.clothing.outfit import _BOTTOMS, _DRESS_ONEPIECE, _TOPS, _UNIFORM
+from .sources.clothing.underwear_swimwear import _SWIMWEAR, _UNDERWEAR
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {}
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
