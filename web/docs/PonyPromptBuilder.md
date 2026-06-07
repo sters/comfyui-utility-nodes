@@ -13,5 +13,6 @@
 ## Outputs
 
 - `prompt` (STRING): assembled in the order `score → rating → source → extra` (matching the model's recommended template).
+- `bundle` (CUUN_TAGS): the same tags as a single `TaggedSelection` at category `preset.pony`. Wire it into `TagsMerge` alongside `CharacterPreset` / `MetaQuality` / etc. so the standard merge / conflict / decoration pipeline keeps working downstream.
 
 The node has `OUTPUT_NODE = True`, so the assembled result also previews under the node after running Queue Prompt.
