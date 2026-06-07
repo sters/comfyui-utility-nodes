@@ -51,9 +51,9 @@ def test_two_presets_with_conflicts_get_resolved() -> None:
     # long_hair appears in both presets and is kept (duplicates are
     # harmless; mutex_group only drops *different* tags from a group).
     assert "long_hair" in tokens
-    # Hair color mutex: nun has silver_hair, maid has black_hair → first wins
-    assert "silver_hair" in tokens
-    assert "black_hair" not in tokens
+    # Hair color mutex: nun has silver_hair, maid has black_hair → last wins
+    assert "black_hair" in tokens
+    assert "silver_hair" not in tokens
 
 
 def test_preset_layered_with_nude_drops_clothing() -> None:

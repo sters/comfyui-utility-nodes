@@ -44,26 +44,27 @@ def test_character_plus_personality_layers_cleanly() -> None:
 
 
 def test_genki_and_tsundere_conflict_resolves() -> None:
-    # genki has happy + smile + grin, tsundere has frown. The merge
-    # collapses the smile/grin/laughing vs frown mutex pairs.
+    # genki has happy + smile + grin; tsundere has frown. MUTEX_GROUPS is
+    # last-wins, so wiring genki first and tsundere second lets tsundere's
+    # frown override genki's smile/grin.
     genki = _build_personality("genki")
     tsundere = _build_personality("tsundere")
     out = TagsMerge().merge(", ", bundle_1=genki, bundle_2=tsundere)
     tokens = str(out["result"][0]).split(", ")
-    # First bundle wins for mouth-curve mutex
-    assert "smile" in tokens
-    assert "grin" in tokens
-    assert "frown" not in tokens
-    # happy vs sad: tsundere doesn't have sad but happy is unique
+    assert "frown" in tokens
+    assert "smile" not in tokens
+    assert "grin" not in tokens
+    # happy vs sad: tsundere doesn't have sad, so happy survives.
     assert "happy" in tokens
 
 
 def test_kuudere_expressionless_drops_active_expression() -> None:
-    # If user combines kuudere (expressionless) with a smile from extra,
-    # expressionless wins via MUTEX_GROUPS.
+    # MUTEX_GROUPS is last-wins. If kuudere (expressionless) is wired
+    # first and a smile bundle second, smile overrides expressionless.
+    # Put the smile bundle first to keep expressionless.
     kuudere = _build_personality("kuudere")
     smile_bundle = (TaggedSelection("ext", "ext", ("smile",), False),)
-    out = TagsMerge().merge(", ", bundle_1=kuudere, bundle_2=smile_bundle)
+    out = TagsMerge().merge(", ", bundle_1=smile_bundle, bundle_2=kuudere)
     tokens = str(out["result"][0]).split(", ")
     assert "expressionless" in tokens
     assert "smile" not in tokens

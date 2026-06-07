@@ -17,7 +17,7 @@
 ## Resolution order
 
 1. **`mutex_within`**: for selections that declare themselves mutex (e.g. `HairColor`), keep only the first selection per category, and only the first tag inside it. So wiring two `HairColor` nodes drops the second; toggling `all_on` on a mutex node keeps only the leading tag.
-2. **`MUTEX_GROUPS`** (in `nodes/tags/_conflicts.py`): cross-category sets where at most one member may survive. E.g. `long_hair` vs `short_hair` from different nodes — first occurrence in input order wins.
+2. **`MUTEX_GROUPS`** (in `nodes/tags/_conflicts.py`): cross-category sets where at most one member may survive. E.g. `long_hair` vs `short_hair` from different nodes — **last occurrence in input order wins**, so later bundles override earlier ones (preset's `brown_hair` is overwritten by a later explicit `red_hair`).
 3. **`TAG_CONFLICTS`**: trigger → suppressed-tags map. If a trigger tag appears anywhere in the bundle, the listed tags are dropped from every non-`extra` selection. The trigger itself is never dropped. Examples:
    - `nude` / `completely_nude` → all clothing tags
    - `topless` → tops + bras + corset/bustier + full-body underwear + dresses (panties / garter belt are kept)

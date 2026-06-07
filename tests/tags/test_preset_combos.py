@@ -265,7 +265,9 @@ COMBOS: list[tuple[str, str | None, str | None, str | None, list[str], list[str]
         "princess",
         "ojou_sama",
         "lingerie_tease",
-        ["blonde_hair", "tiara", "smug", "looking_down", "lingerie", "bra", "panties", "garter_belt"],
+        # MUTEX_GROUPS is last-wins, so the scene's gaze (looking_at_viewer)
+        # overrides ojou_sama's looking_down.
+        ["blonde_hair", "tiara", "smug", "looking_at_viewer", "lingerie", "bra", "panties", "garter_belt"],
         [],
     ),
     (
