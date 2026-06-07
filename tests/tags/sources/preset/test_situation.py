@@ -1,7 +1,7 @@
 from nodes.tags._base import TaggedSelection
 from nodes.tags.merge import TagsMerge
-from nodes.tags.sources.preset import CharacterPreset
-from nodes.tags.sources.situation_preset import SITUATION_PRESETS, SituationPreset
+from nodes.tags.sources.preset.character import CharacterPreset
+from nodes.tags.sources.preset.situation import SITUATION_PRESETS, SituationPreset
 
 
 def _build_situation(name: str) -> tuple[TaggedSelection, ...]:

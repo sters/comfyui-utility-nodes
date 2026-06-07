@@ -10,9 +10,9 @@ from typing import Any
 import pytest
 
 from nodes.tags.merge import TagsMerge
-from nodes.tags.sources.nsfw_preset import NsfwScenePreset
-from nodes.tags.sources.personality import PersonalityPreset
-from nodes.tags.sources.preset import CharacterPreset
+from nodes.tags.sources.preset.character import CharacterPreset
+from nodes.tags.sources.preset.nsfw_scene import NsfwScenePreset
+from nodes.tags.sources.preset.personality import PersonalityPreset
 
 
 def _bundle(node_cls: type, name: str) -> Any:

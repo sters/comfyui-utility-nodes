@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from .._base import TAGS_TYPE, TaggedSelection
+from ..._base import TAGS_TYPE, TaggedSelection
 
 # Each preset is a flat tuple of tags. The merge node still applies
 # TAG_CONFLICTS / MUTEX_GROUPS to the emitted bundle, so layering two

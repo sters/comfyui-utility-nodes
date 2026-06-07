@@ -1,6 +1,6 @@
 from typing import Any
 
-from nodes.tags.sources.pony_prompt_builder import PonyPromptBuilder
+from nodes.tags.sources.meta.pony import MetaPony
 
 
 def _all_scores_on() -> dict[str, bool]:
@@ -23,7 +23,7 @@ def _bundle(result: dict[str, Any]) -> tuple[Any, ...]:
 
 
 def test_build_recommended() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     out = node.build(", ", "safe", "anime", "1girl, smile", **_all_scores_on())
     assert _prompt(out) == (
         "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_safe, source_anime, 1girl, smile"
@@ -31,7 +31,7 @@ def test_build_recommended() -> None:
 
 
 def test_build_subset_of_scores() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = _all_scores_on()
     scores["score_5_up"] = False
     scores["score_4_up"] = False
@@ -39,13 +39,13 @@ def test_build_subset_of_scores() -> None:
 
 
 def test_build_all_scores_off() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = dict.fromkeys(_all_scores_on(), False)
     assert _prompt(node.build(", ", "none", "none", "", **scores)) == ""
 
 
 def test_build_negative_style() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = dict.fromkeys(_all_scores_on(), False)
     scores["score_4_up"] = True
     scores["score_5_up"] = True
@@ -54,7 +54,7 @@ def test_build_negative_style() -> None:
 
 
 def test_score_order_is_fixed() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = {
         "score_4_up": True,
         "score_9": True,
@@ -67,20 +67,20 @@ def test_score_order_is_fixed() -> None:
 
 
 def test_extra_trimmed() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = dict.fromkeys(_all_scores_on(), False)
     assert _prompt(node.build(", ", "none", "none", "  hello  ", **scores)) == "hello"
 
 
 def test_extra_blank_skipped() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = dict.fromkeys(_all_scores_on(), False)
     scores["score_9"] = True
     assert _prompt(node.build(", ", "none", "none", "   ", **scores)) == "score_9"
 
 
 def test_custom_separator() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = dict.fromkeys(_all_scores_on(), False)
     scores["score_9"] = True
     out = _prompt(node.build(" | ", "safe", "pony", "x", **scores))
@@ -88,15 +88,15 @@ def test_custom_separator() -> None:
 
 
 def test_output_node_flag() -> None:
-    assert PonyPromptBuilder.OUTPUT_NODE is True
+    assert MetaPony.OUTPUT_NODE is True
 
 
-def test_bundle_categorises_tags_under_preset_pony() -> None:
-    node = PonyPromptBuilder()
+def test_bundle_categorises_tags_under_meta_pony() -> None:
+    node = MetaPony()
     out = node.build(", ", "safe", "anime", "1girl", **_all_scores_on())
     bundle = _bundle(out)
-    assert bundle[0].category == "preset.pony"
-    assert bundle[0].layer == "preset"
+    assert bundle[0].category == "meta.pony"
+    assert bundle[0].layer == "meta"
     assert bundle[0].tags == (
         "score_9",
         "score_8_up",
@@ -112,7 +112,7 @@ def test_bundle_categorises_tags_under_preset_pony() -> None:
 
 
 def test_bundle_empty_when_nothing_selected() -> None:
-    node = PonyPromptBuilder()
+    node = MetaPony()
     scores = dict.fromkeys(_all_scores_on(), False)
     out = node.build(", ", "none", "none", "", **scores)
     assert _bundle(out) == ()

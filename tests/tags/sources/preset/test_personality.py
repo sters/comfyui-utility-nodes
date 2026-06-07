@@ -2,8 +2,8 @@ from typing import Any
 
 from nodes.tags._base import TaggedSelection
 from nodes.tags.merge import TagsMerge
-from nodes.tags.sources.personality import PERSONALITY_PRESETS, PersonalityPreset
-from nodes.tags.sources.preset import CharacterPreset
+from nodes.tags.sources.preset.character import CharacterPreset
+from nodes.tags.sources.preset.personality import PERSONALITY_PRESETS, PersonalityPreset
 
 
 def _build_personality(name: str) -> tuple[TaggedSelection, ...]:

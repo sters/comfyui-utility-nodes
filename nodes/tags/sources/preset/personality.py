@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from .._base import TAGS_TYPE, TaggedSelection
+from ..._base import TAGS_TYPE, TaggedSelection
 
 # Each personality preset is a bundle of expression / gaze / mouth / pose
 # tags that together evoke an archetype. Designed to layer on top of

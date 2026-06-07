@@ -14,7 +14,7 @@ This repo provides ComfyUI prompt-builder nodes whose only variable input is a l
   - `nodes/tags/composition.py`, `nodes/tags/bad.py` — themes that don't belong to body/clothing
   - `nodes/tags/body/{hair,hands,feet,breasts,type,exposure,marks}.py` — anatomy themes
   - `nodes/tags/clothing/{state,outfit,underwear_swimwear,material,legwear_footwear,headwear_eyewear,accessory}.py` — clothing themes
-  - `nodes/text/` — non-tag utilities (prompt_combinator, random_text_picker, list_shuffle, text_concat, pony_prompt_builder)
+  - `nodes/text/` — non-tag utilities (prompt_combinator, random_text_picker, list_shuffle, text_concat, pony)
   - Place new tag themes under the matching subdir; new utility nodes under `nodes/text/`.
 - All tag-group nodes share `TagNodeBase` from `nodes/tags/_base.py`. Each node file does NOT duplicate the base — it imports via a TYPE_CHECKING shim (mypy sees a normal package import; runtime imports the spec-registered name):
 

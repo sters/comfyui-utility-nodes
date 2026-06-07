@@ -1,20 +1,20 @@
 from typing import Any, ClassVar
 
-from .._base import TAGS_TYPE, TaggedSelection
+from ..._base import TAGS_TYPE, TaggedSelection
 
 _SCORE_TAGS = ("score_9", "score_8_up", "score_7_up", "score_6_up", "score_5_up", "score_4_up")
 _RATINGS = ("none", "safe", "questionable", "explicit")
 _SOURCES = ("none", "pony", "furry", "cartoon", "anime")
 
 
-class PonyPromptBuilder:
+class MetaPony:
     """Pony-Diffusion quality / rating / source tags as a CUUN_TAGS bundle.
 
-    Emits a single `TaggedSelection` with category `preset.pony` so that
-    it composes naturally with `TagsMerge` and the rest of the bundle
-    pipeline — wire its `bundle` output alongside `CharacterPreset`,
-    `MetaQuality`, etc. into a `TagsMerge` and let conflict rules
-    resolve as usual.
+    A meta / template node (not a character or scene preset): the Pony
+    Diffusion model needs its own score / rating / source prefix on
+    every prompt the same way `MetaQuality` adds generic quality
+    descriptors. Wire its `bundle` output through `TagsMerge` together
+    with the rest of the pipeline.
 
     `rating_*` and `source_*` are synthetic tags built from the COMBO
     selections (`rating="safe"` → `rating_safe`); they aren't in the
@@ -63,8 +63,8 @@ class PonyPromptBuilder:
         if tags:
             bundle.append(
                 TaggedSelection(
-                    category="preset.pony",
-                    layer="preset",
+                    category="meta.pony",
+                    layer="meta",
                     tags=tuple(tags),
                     mutex_within=False,
                 )
@@ -88,9 +88,9 @@ class PonyPromptBuilder:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "PonyPromptBuilder": PonyPromptBuilder,
+    "MetaPony": MetaPony,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "PonyPromptBuilder": "Pony Prompt Builder",
+    "MetaPony": "Meta: Pony",
 }

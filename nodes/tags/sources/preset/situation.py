@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from .._base import TAGS_TYPE, TaggedSelection
+from ..._base import TAGS_TYPE, TaggedSelection
 
 # SFW situation/scene presets. Each bundle combines location + time-of-day +
 # atmosphere + composition + action cues for a coherent scene. Designed to

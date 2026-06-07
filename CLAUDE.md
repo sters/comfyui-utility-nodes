@@ -31,15 +31,18 @@ ComfyUI custom-node docs: https://docs.comfy.org/custom-nodes/walkthrough (and t
 Two halves under `nodes/tags/`:
 
 - `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `tags_combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them.
-- `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `meta/`, `nsfw/`, `decoration/`) and the flat-tuple preset nodes (`preset.py`, `personality.py`, `situation_preset.py`, `nsfw_preset.py`, `bad.py`, `composition.py`).
+- `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `meta/`, `nsfw/`, `decoration/`), the flat-tuple preset nodes under `preset/` (`character.py`, `personality.py`, `situation.py`, `nsfw_scene.py`), and the standalone-style `bad.py` / `composition.py`.
 
 Auto-discovery walks both via `pkgutil.walk_packages`, so dropping a file under either path is enough to register it.
 
 Within node modules, use ordinary relative imports. Depth varies — count carefully:
 
 ```python
-# nodes/tags/sources/preset.py (depth 2 under tags/)
-from .._base import TAGS_TYPE, TaggedSelection
+# nodes/tags/sources/bad.py (depth 2 under tags/)
+from .._base import TagNodeBase
+
+# nodes/tags/sources/preset/character.py (depth 3)
+from ..._base import TAGS_TYPE, TaggedSelection
 
 # nodes/tags/sources/clothing/outfit.py (depth 3)
 from ..._base import TagNodeBase
@@ -78,11 +81,11 @@ Key types in `nodes/tags/_base.py`:
 
 `nodes/tags/_conflicts.py` is the **single source of truth for cross-node conflicts**. It pulls subsets (e.g. `_BRAS`, `_PANTIES`, `_LEGWEAR`) from `sources/clothing/` modules and composes them into `MUTEX_GROUPS` and `TAG_CONFLICTS`. When adding a tag that interacts with others across nodes (e.g. a new bottoms tag vs. `bottomless`), wire it through `_conflicts.py` rather than the node module — the merge step is where conflict semantics live.
 
-Preset nodes under `nodes/tags/sources/` (`preset.py`, `personality.py`, `nsfw_preset.py`, `situation_preset.py`) emit a flat tuple of pre-composed tags as one or more `TaggedSelection`s; the same merge pipeline still resolves layering with regular tag nodes.
+Preset nodes live under `nodes/tags/sources/preset/` (`character.py`, `personality.py`, `situation.py`, `nsfw_scene.py`) and emit a flat tuple of pre-composed tags as one or more `TaggedSelection`s; the same merge pipeline still resolves layering with regular tag nodes.
 
 ### Text nodes
 
-`nodes/text/` contains plain prompt utilities (`ListShuffle`, `TextConcat`, `PonyPromptBuilder`, `RandomTextPicker`). They are independent of the tag-node bundle system. Combinatorial expansion happens on the tag side via `TagsCombinator` (`nodes/tags/tags_combinator.py`) — there is no STRING-axis combinator, because every axis worth varying in this pack is already a tag bundle.
+`nodes/text/` contains plain prompt utilities (`ListShuffle`, `TextConcat`, `RandomTextPicker`). They are independent of the tag-node bundle system. Combinatorial expansion happens on the tag side via `TagsCombinator` (`nodes/tags/tags_combinator.py`) — there is no STRING-axis combinator, because every axis worth varying in this pack is already a tag bundle.
 
 ### Test layout
 

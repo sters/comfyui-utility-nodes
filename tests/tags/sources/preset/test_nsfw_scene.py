@@ -1,8 +1,8 @@
 from nodes.tags._base import TaggedSelection
 from nodes.tags.merge import TagsMerge
-from nodes.tags.sources.nsfw_preset import NSFW_SCENE_PRESETS, NsfwScenePreset
-from nodes.tags.sources.personality import PersonalityPreset
-from nodes.tags.sources.preset import CharacterPreset
+from nodes.tags.sources.preset.character import CharacterPreset
+from nodes.tags.sources.preset.nsfw_scene import NSFW_SCENE_PRESETS, NsfwScenePreset
+from nodes.tags.sources.preset.personality import PersonalityPreset
 
 
 def _build(scene: str) -> tuple[TaggedSelection, ...]:

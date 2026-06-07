@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from .._base import TAGS_TYPE, TaggedSelection
+from ..._base import TAGS_TYPE, TaggedSelection
 
 # NSFW scene presets — bundle act/position/state/expression/setting tags
 # that frequently appear together. Designed to layer on top of

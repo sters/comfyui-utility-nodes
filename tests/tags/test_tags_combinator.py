@@ -1,6 +1,6 @@
 from nodes.tags._base import TaggedSelection
 from nodes.tags.explode import TagsExplode
-from nodes.tags.sources.preset import CharacterPreset
+from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.tags_combinator import TagsCombinator
 
 

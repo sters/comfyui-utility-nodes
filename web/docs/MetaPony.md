@@ -1,6 +1,6 @@
-# Pony Prompt Builder
+# Meta: Pony
 
-`utility/text` category. GUI helper for assembling Pony Diffusion V6 XL prompts with the model-specific score / rating / source tags.
+`utility/text` category. Pony Diffusion V6 XL meta-template — emits the model-specific score / rating / source tags as a CUUN_TAGS bundle. Sibling to `MetaQuality`, which does the generic-quality version of the same job.
 
 ## Inputs
 
@@ -13,6 +13,6 @@
 ## Outputs
 
 - `prompt` (STRING): assembled in the order `score → rating → source → extra` (matching the model's recommended template).
-- `bundle` (CUUN_TAGS): the same tags as a single `TaggedSelection` at category `preset.pony`. Wire it into `TagsMerge` alongside `CharacterPreset` / `MetaQuality` / etc. so the standard merge / conflict / decoration pipeline keeps working downstream.
+- `bundle` (CUUN_TAGS): the same tags as a single `TaggedSelection` at category `meta.pony`, layer `meta`. Wire it into `TagsMerge` alongside `CharacterPreset` / `MetaQuality` / etc. so the standard merge / conflict / decoration pipeline keeps working downstream.
 
 The node has `OUTPUT_NODE = True`, so the assembled result also previews under the node after running Queue Prompt.

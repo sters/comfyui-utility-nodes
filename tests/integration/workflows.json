@@ -31,11 +31,11 @@
     ]
   },
   {
-    "name": "pony_prompt_builder",
-    "description": "Pure-text node — verifies COMBO inputs (rating, source) and BOOLEAN score toggles produce the expected ordering.",
+    "name": "meta_pony",
+    "description": "Pony-specific preset — verifies COMBO inputs (rating, source) and BOOLEAN score toggles produce the expected ordering, and that the node emits a CUUN_TAGS bundle alongside the STRING prompt.",
     "workflow": {
       "1": {
-        "class_type": "PonyPromptBuilder",
+        "class_type": "MetaPony",
         "inputs": {
           "score_9": true,
           "score_8_up": true,
