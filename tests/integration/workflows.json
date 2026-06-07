@@ -401,6 +401,32 @@
     ]
   },
   {
+    "name": "aspect_ratio_preset_landscape",
+    "description": "AspectRatioPreset emits (width, height) INTs and a `WxH` UI preview. Verifies the node loads from the new `nodes/image/` subpackage and surfaces dimensions in the expected format.",
+    "workflow": {
+      "1": {
+        "class_type": "AspectRatioPreset",
+        "inputs": {"preset": "SDXL 16:9 (1344x768)", "swap": false}
+      }
+    },
+    "expect": [
+      ["1", "1344x768"]
+    ]
+  },
+  {
+    "name": "aspect_ratio_preset_swap_to_portrait",
+    "description": "`swap=true` flips a landscape preset to portrait — verifies the swap toggle ends up reflected in the UI preview text (and therefore the INT outputs).",
+    "workflow": {
+      "1": {
+        "class_type": "AspectRatioPreset",
+        "inputs": {"preset": "Hi-res 16:9 (1920x1088)", "swap": true}
+      }
+    },
+    "expect": [
+      ["1", "1088x1920"]
+    ]
+  },
+  {
     "name": "tags_random_pick_deterministic",
     "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output.",
     "workflow": {
