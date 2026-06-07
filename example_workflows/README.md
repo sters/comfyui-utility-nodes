@@ -38,20 +38,32 @@ After loading the template:
 
 ### `decorate_schoolgirl_skirt.json`
 
-Demonstrates `TagDecorate`: a `CharacterPreset(serafuku_schoolgirl)`
-bundle is decorated so that its `pleated_skirt` tag becomes
-`red green plaid pleated skirt` in the final prompt, while the rest of
-the preset (hair, top, footwear) is untouched.
+Demonstrates `TagDecorate`'s **per-variant decoration** with the
+Cartesian-product list semantics. A `CharacterPreset(serafuku_schoolgirl)`
+bundle is decorated with three skirt colors at once → three prompts,
+three KSampler runs, three images in the preview.
 
 ```
 CharacterPreset(serafuku_schoolgirl) ─► TagsMerge ─┐
-                                                   ├─► TagDecorate ─► CLIPTextEncode
-ColorPalette(red, green) ─┐                        │   target: clothing.bottoms
-                          ├─► TagsMerge ───────────┘
-ClothingPattern(plaid)  ──┘
+                                                   │
+                                                   ▼
+                                          TagDecorate ─► CLIPTextEncode ─► KSampler ─► VAEDecode ─► PreviewImage
+                                            ▲   target: clothing.bottoms     (auto-fanout × 3)
+                                            │
+ColorPalette(red, green, blue) ─► TagsExplode ─► 3 single-color bundles (decoration axis)
 ```
 
-Swap the `target_category` on `TagDecorate` (or chain another
-`TagDecorate`) to apply decoration to a different layer such as
-`clothing.legwear` or `clothing.headwear`. The same model-name caveat
-as `character_pipeline.json` applies.
+`TagDecorate` has `INPUT_IS_LIST=True` so the 3 decoration bundles
+become an axis: each `pleated_skirt` in the bundle is rewritten to
+`<color> pleated skirt`, producing 3 prompts. ComfyUI's lazy fanout
+propagates the list through `CLIPTextEncode` / `KSampler` / `VAEDecode`,
+so you get 3 images per run with no extra wiring.
+
+To add another axis (e.g. shirt color), **chain a second
+`TagDecorate`** after this one with `target_category=clothing.tops`
+and a different exploded decoration. Stage 1 emits 3 bundles, stage 2
+multiplies to 3 × N — see the chained-decorate integration test
+(`tag_decorate_chained_multiplies_axes` in `tests/integration/workflows.json`)
+for the canonical wiring.
+
+Same model-name caveat as `character_pipeline.json`.

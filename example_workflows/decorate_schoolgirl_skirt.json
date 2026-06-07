@@ -3,7 +3,7 @@
   "state": {
     "lastNodeId": 12,
     "lastGroupid": 0,
-    "lastLinkId": 12,
+    "lastLinkId": 13,
     "lastRerouteId": 0
   },
   "nodes": [
@@ -46,6 +46,7 @@
     {
       "id": 3,
       "type": "ColorPalette",
+      "title": "Decoration: skirt colors (3 variants)",
       "pos": [40, 200],
       "size": [320, 600],
       "flags": {},
@@ -60,7 +61,7 @@
       "widgets_values": [
         ", ",
         "custom",
-        true,  false, false, false, true,  false, false, false, false, false,
+        true,  false, false, false, true,  true,  false, false, false, false,
         false, false, false, false, false, false, false, false, false, false,
         false, false, false, false, false, false, false, false, false, false,
         ""
@@ -68,55 +69,30 @@
     },
     {
       "id": 4,
-      "type": "ClothingPattern",
-      "pos": [40, 820],
-      "size": [320, 540],
+      "type": "TagsExplode",
+      "title": "Explode colors → 3 axis values",
+      "pos": [400, 220],
+      "size": [320, 80],
       "flags": {},
       "order": 2,
       "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {"name": "prompt", "type": "STRING", "links": null, "slot_index": 0},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": [3], "slot_index": 1}
+      "inputs": [
+        {"name": "bundle", "type": "CUUN_TAGS", "link": 2}
       ],
-      "properties": {"Node name for S&R": "ClothingPattern"},
-      "widgets_values": [
-        ", ",
-        "custom",
-        false, false, false, false, false, false, true,  false, false, false,
-        false, false, false, false, false, false, false, false, false, false,
-        false, false, false, false, false, false,
-        ""
-      ]
+      "outputs": [
+        {"name": "bundles", "type": "CUUN_TAGS", "links": [5], "slot_index": 0}
+      ],
+      "properties": {"Node name for S&R": "TagsExplode"},
+      "widgets_values": []
     },
     {
       "id": 5,
-      "type": "TagsMerge",
-      "title": "Merge: decoration",
-      "pos": [400, 220],
-      "size": [320, 140],
-      "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {"name": "bundle_1", "type": "CUUN_TAGS", "link": 2},
-        {"name": "bundle_2", "type": "CUUN_TAGS", "link": 3}
-      ],
-      "outputs": [
-        {"name": "prompt", "type": "STRING", "links": null, "slot_index": 0},
-        {"name": "warnings", "type": "STRING", "links": null, "slot_index": 1},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": [5], "slot_index": 2}
-      ],
-      "properties": {"Node name for S&R": "TagsMerge"},
-      "widgets_values": [", ", ""]
-    },
-    {
-      "id": 6,
       "type": "TagDecorate",
+      "title": "Decorate clothing.bottoms × 3 colors",
       "pos": [760, 40],
       "size": [400, 140],
       "flags": {},
-      "order": 5,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {"name": "bundle", "type": "CUUN_TAGS", "link": 4},
@@ -131,12 +107,12 @@
       "widgets_values": [", ", "clothing.bottoms"]
     },
     {
-      "id": 7,
+      "id": 6,
       "type": "CheckpointLoaderSimple",
       "pos": [760, 220],
       "size": [400, 100],
       "flags": {},
-      "order": 6,
+      "order": 5,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -148,13 +124,13 @@
       "widgets_values": ["SD1.5/fantexiRealistic_v10.safetensors"]
     },
     {
-      "id": 8,
+      "id": 7,
       "type": "CLIPTextEncode",
-      "title": "Positive (from TagDecorate)",
+      "title": "Positive (3 prompts from TagDecorate)",
       "pos": [760, 360],
       "size": [400, 120],
       "flags": {},
-      "order": 7,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {"name": "clip", "type": "CLIP", "link": 7},
@@ -167,12 +143,12 @@
       "widgets_values": [""]
     },
     {
-      "id": 9,
+      "id": 8,
       "type": "EmptyLatentImage",
       "pos": [760, 520],
       "size": [320, 110],
       "flags": {},
-      "order": 8,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -182,12 +158,12 @@
       "widgets_values": [512, 512, 1]
     },
     {
-      "id": 10,
+      "id": 9,
       "type": "KSampler",
       "pos": [1200, 40],
       "size": [320, 260],
       "flags": {},
-      "order": 9,
+      "order": 8,
       "mode": 0,
       "inputs": [
         {"name": "model", "type": "MODEL", "link": 8},
@@ -201,37 +177,53 @@
       "widgets_values": [42, "fixed", 20, 8, "euler", "normal", 1.0]
     },
     {
-      "id": 11,
+      "id": 10,
       "type": "VAEDecode",
       "pos": [1200, 340],
       "size": [220, 50],
       "flags": {},
-      "order": 10,
+      "order": 9,
       "mode": 0,
       "inputs": [
         {"name": "samples", "type": "LATENT", "link": 12},
         {"name": "vae", "type": "VAE", "link": 10}
       ],
       "outputs": [
-        {"name": "IMAGE", "type": "IMAGE", "links": null, "slot_index": 0}
+        {"name": "IMAGE", "type": "IMAGE", "links": [13], "slot_index": 0}
       ],
       "properties": {"Node name for S&R": "VAEDecode"},
+      "widgets_values": []
+    },
+    {
+      "id": 11,
+      "type": "PreviewImage",
+      "title": "Preview (3 variants)",
+      "pos": [1200, 420],
+      "size": [320, 280],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {"name": "images", "type": "IMAGE", "link": 13}
+      ],
+      "outputs": [],
+      "properties": {"Node name for S&R": "PreviewImage"},
       "widgets_values": []
     }
   ],
   "links": [
     {"id": 1, "origin_id": 1, "origin_slot": 1, "target_id": 2, "target_slot": 0, "type": "CUUN_TAGS"},
-    {"id": 2, "origin_id": 3, "origin_slot": 1, "target_id": 5, "target_slot": 0, "type": "CUUN_TAGS"},
-    {"id": 3, "origin_id": 4, "origin_slot": 1, "target_id": 5, "target_slot": 1, "type": "CUUN_TAGS"},
-    {"id": 4, "origin_id": 2, "origin_slot": 2, "target_id": 6, "target_slot": 0, "type": "CUUN_TAGS"},
-    {"id": 5, "origin_id": 5, "origin_slot": 2, "target_id": 6, "target_slot": 1, "type": "CUUN_TAGS"},
-    {"id": 6, "origin_id": 6, "origin_slot": 0, "target_id": 8, "target_slot": 1, "type": "STRING"},
-    {"id": 7, "origin_id": 7, "origin_slot": 1, "target_id": 8, "target_slot": 0, "type": "CLIP"},
-    {"id": 8, "origin_id": 7, "origin_slot": 0, "target_id": 10, "target_slot": 0, "type": "MODEL"},
-    {"id": 9, "origin_id": 8, "origin_slot": 0, "target_id": 10, "target_slot": 1, "type": "CONDITIONING"},
-    {"id": 10, "origin_id": 7, "origin_slot": 2, "target_id": 11, "target_slot": 1, "type": "VAE"},
-    {"id": 11, "origin_id": 9, "origin_slot": 0, "target_id": 10, "target_slot": 3, "type": "LATENT"},
-    {"id": 12, "origin_id": 10, "origin_slot": 0, "target_id": 11, "target_slot": 0, "type": "LATENT"}
+    {"id": 2, "origin_id": 3, "origin_slot": 1, "target_id": 4, "target_slot": 0, "type": "CUUN_TAGS"},
+    {"id": 4, "origin_id": 2, "origin_slot": 2, "target_id": 5, "target_slot": 0, "type": "CUUN_TAGS"},
+    {"id": 5, "origin_id": 4, "origin_slot": 0, "target_id": 5, "target_slot": 1, "type": "CUUN_TAGS"},
+    {"id": 6, "origin_id": 5, "origin_slot": 0, "target_id": 7, "target_slot": 1, "type": "STRING"},
+    {"id": 7, "origin_id": 6, "origin_slot": 1, "target_id": 7, "target_slot": 0, "type": "CLIP"},
+    {"id": 8, "origin_id": 6, "origin_slot": 0, "target_id": 9, "target_slot": 0, "type": "MODEL"},
+    {"id": 9, "origin_id": 7, "origin_slot": 0, "target_id": 9, "target_slot": 1, "type": "CONDITIONING"},
+    {"id": 10, "origin_id": 6, "origin_slot": 2, "target_id": 10, "target_slot": 1, "type": "VAE"},
+    {"id": 11, "origin_id": 8, "origin_slot": 0, "target_id": 9, "target_slot": 3, "type": "LATENT"},
+    {"id": 12, "origin_id": 9, "origin_slot": 0, "target_id": 10, "target_slot": 0, "type": "LATENT"},
+    {"id": 13, "origin_id": 10, "origin_slot": 0, "target_id": 11, "target_slot": 0, "type": "IMAGE"}
   ],
   "groups": [],
   "config": {},
