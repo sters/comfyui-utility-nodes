@@ -264,6 +264,31 @@
     ]
   },
   {
+    "name": "bundle_inspector_kept_only",
+    "description": "TagsBundleInspector renders a merged bundle grouped by layer/category. With no conflicts, the dropped section is omitted.",
+    "workflow": {
+      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 1]}},
+      "3": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["2", 2], "warnings": ["2", 1]}}
+    },
+    "expect": [
+      ["3", "[exposure]\n  body.exposure : nude"]
+    ]
+  },
+  {
+    "name": "bundle_inspector_with_dropped",
+    "description": "TagsBundleInspector appends a `--- dropped ---` section when TagsMerge.warnings carries conflict info. `nude` triggers TAG_CONFLICTS to drop the `shirt` tag from ClothingTops.",
+    "workflow": {
+      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
+      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 1], "bundle_2": ["2", 1]}},
+      "4": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["3", 2], "warnings": ["3", 1]}}
+    },
+    "expect": [
+      ["4", "[exposure]\n  body.exposure : nude\n\n--- dropped ---\nconflict: dropped ['shirt'] from 'clothing.tops' (triggered by ['nude'])"]
+    ]
+  },
+  {
     "name": "tags_random_pick_deterministic",
     "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output.",
     "workflow": {
