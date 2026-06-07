@@ -197,5 +197,56 @@
       ["9", "plaid shirt, blue pleated skirt"],
       ["9", "checkered shirt, blue pleated skirt"]
     ]
+  },
+  {
+    "name": "tag_decorate_three_axis_chain",
+    "description": "The full-stack sanity check. Base = CharacterPreset(serafuku_schoolgirl). Three TagDecorate stages each pick a different target category and a different decoration source, multiplying to 3 × 2 × 2 = 12 prompts. Verifies (a) chained list propagation across three stages, (b) per-stage category targeting hits ALL tags belonging to that category (the clothing.uniform stage decorates BOTH serafuku and sailor_collar — they share the category — while leaving everything else untouched), (c) underscore-to-space replacement on multi-word decoration tags (polka_dot → polka dot), and (d) the full set of 12 outputs is exactly the Cartesian product in (skirt × top × legwear) iteration order.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
+      "3": {"class_type": "TagsExplode", "inputs": {"bundle": ["2", 1]}},
+      "4": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "target_category": "clothing.bottoms",
+          "bundle": ["1", 1],
+          "decoration": ["3", 0]
+        }
+      },
+      "5": {"class_type": "ColorPalette", "inputs": {"white": true, "navy": true}},
+      "6": {"class_type": "TagsExplode", "inputs": {"bundle": ["5", 1]}},
+      "7": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "target_category": "clothing.uniform",
+          "bundle": ["4", 2],
+          "decoration": ["6", 0]
+        }
+      },
+      "8": {"class_type": "ClothingPattern", "inputs": {"striped": true, "polka_dot": true}},
+      "9": {"class_type": "TagsExplode", "inputs": {"bundle": ["8", 1]}},
+      "10": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "target_category": "clothing.legwear",
+          "bundle": ["7", 2],
+          "decoration": ["9", 0]
+        }
+      }
+    },
+    "expect": [
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, red pleated skirt, striped thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, red pleated skirt, polka dot thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, red pleated skirt, striped thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, red pleated skirt, polka dot thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, green pleated skirt, striped thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, green pleated skirt, polka dot thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, green pleated skirt, striped thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, green pleated skirt, polka dot thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, blue pleated skirt, striped thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, blue pleated skirt, polka dot thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, striped thighhighs, loafers"],
+      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, polka dot thighhighs, loafers"]
+    ]
   }
 ]
