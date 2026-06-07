@@ -38,32 +38,47 @@ After loading the template:
 
 ### `decorate_schoolgirl_skirt.json`
 
-Demonstrates `TagDecorate`'s **per-variant decoration** with the
-Cartesian-product list semantics. A `CharacterPreset(serafuku_schoolgirl)`
-bundle is decorated with three skirt colors at once → three prompts,
-three KSampler runs, three images in the preview.
+Demonstrates **chained `TagDecorate`** for true multi-axis variant
+generation. Two decoration stages multiply axes inside ComfyUI's
+graph, producing a 3 × 3 = 9-prompt sweep with one click.
 
 ```
 CharacterPreset(serafuku_schoolgirl) ─► TagsMerge ─┐
                                                    │
+ColorPalette(red, green, blue) ─► TagsExplode ─────┤   (skirt color axis)
                                                    ▼
-                                          TagDecorate ─► CLIPTextEncode ─► KSampler ─► VAEDecode ─► PreviewImage
-                                            ▲   target: clothing.bottoms     (auto-fanout × 3)
-                                            │
-ColorPalette(red, green, blue) ─► TagsExplode ─► 3 single-color bundles (decoration axis)
+                                          TagDecorate (stage 1)
+                                            target: clothing.bottoms
+                                            output: 3 bundles
+                                                   │
+ColorPalette(black, white, gray) ─► TagsExplode ───┤   (top color axis)
+                                                   ▼
+                                          TagDecorate (stage 2)
+                                            target: clothing.uniform
+                                            output: 3 × 3 = 9 bundles
+                                                   │
+                                                   ▼
+                              CLIPTextEncode ─► KSampler ─► VAEDecode ─► PreviewImage
+                                              (auto-fanout × 9)
 ```
 
-`TagDecorate` has `INPUT_IS_LIST=True` so the 3 decoration bundles
-become an axis: each `pleated_skirt` in the bundle is rewritten to
-`<color> pleated skirt`, producing 3 prompts. ComfyUI's lazy fanout
-propagates the list through `CLIPTextEncode` / `KSampler` / `VAEDecode`,
-so you get 3 images per run with no extra wiring.
+Each `TagDecorate` has `INPUT_IS_LIST=True` and iterates
+`bundle × decoration` internally, so stage 1 (1 base × 3 colors) emits
+3 bundles, and stage 2 takes those 3 bundles × its own 3 colors → 9.
+The preset's `pleated_skirt` becomes `<skirt_color> pleated skirt`;
+its `serafuku` becomes `<top_color> serafuku`. ComfyUI's lazy fanout
+runs `CLIPTextEncode` / `KSampler` / `VAEDecode` once per prompt, so
+the preview lights up with all 9 variants without any extra wiring.
 
-To add another axis (e.g. shirt color), **chain a second
-`TagDecorate`** after this one with `target_category=clothing.tops`
-and a different exploded decoration. Stage 1 emits 3 bundles, stage 2
-multiplies to 3 × N — see the chained-decorate integration test
-(`tag_decorate_chained_multiplies_axes` in `tests/integration/workflows.json`)
-for the canonical wiring.
+To extend further:
 
+- **More variants on an existing axis**: check more boxes on the
+  matching `ColorPalette`. The cross-product scales automatically.
+- **More axes**: chain a third `TagDecorate` for, e.g.,
+  `clothing.legwear` × thighhigh patterns. Each stage multiplies.
+- **Different decoration types**: swap `ColorPalette` for
+  `ClothingPattern` or `ClothingMaterial` on either axis.
+
+The chained pattern is also covered as a regression in
+`tests/integration/workflows.json` → `tag_decorate_chained_multiplies_axes`.
 Same model-name caveat as `character_pipeline.json`.
