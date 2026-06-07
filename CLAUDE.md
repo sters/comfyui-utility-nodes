@@ -76,3 +76,4 @@ Preset nodes (`preset.py`, `personality.py`, `nsfw_preset.py`) emit a flat tuple
 2. Auto-discovery picks it up — no registration step.
 3. If the new tags conflict with existing ones, edit `_conflicts.py` — not the node file.
 4. Add tests under `tests/tags/`.
+5. Add an English help page at `web/docs/<ClassName>.md` ([Help Page](https://docs.comfy.org/custom-nodes/help_page)). `__init__.py` already exposes `WEB_DIRECTORY = "./web"`. Filename must match the registered class name. For ordinary tag nodes the existing files are mechanically generated from `TAGS` — keep that shape unless the node has non-trivial behavior to explain.
