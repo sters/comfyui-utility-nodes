@@ -1,4 +1,4 @@
-.PHONY: help sync lint fmt fmt-check typecheck test check fix clean integration
+.PHONY: help sync lint fmt fmt-check typecheck test check fix clean integration integration-up integration-down integration-logs
 
 help:
 	@echo "Targets:"
@@ -37,8 +37,20 @@ fix:
 	uv run ruff check --fix .
 	uv run ruff format .
 
-integration:
+COMPOSE := docker compose -f tests/integration/docker-compose.yml
+
+integration-up:
+	$(COMPOSE) up -d --build --wait
+
+integration-down:
+	$(COMPOSE) down
+
+integration-logs:
+	$(COMPOSE) logs --tail=200
+
+integration: integration-up
 	uv run python -m tests.integration.run
+	$(COMPOSE) down
 
 clean:
 	rm -rf .ruff_cache .mypy_cache .pytest_cache

@@ -1,0 +1,18 @@
+services:
+  comfyui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: comfyui-utility-nodes-integration:latest
+    ports:
+      - "8188:8188"
+    volumes:
+      # Mount the repo (relative to this compose file) as a custom node.
+      # ComfyUI re-scans custom_nodes/ on startup.
+      - ../..:/opt/comfyui/custom_nodes/comfyui-utility-nodes:ro
+    healthcheck:
+      test: ["CMD", "curl", "-fs", "http://127.0.0.1:8188/queue"]
+      interval: 3s
+      timeout: 3s
+      retries: 40
+      start_period: 30s

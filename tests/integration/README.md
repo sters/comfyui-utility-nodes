@@ -1,6 +1,6 @@
 # Integration check
 
-Posts a few small workflows to a **running ComfyUI instance** and asserts the
+Posts a few small workflows to ComfyUI's `/prompt` endpoint and asserts the
 expected text appears in each node's OUTPUT_NODE preview. Verifies the
 ComfyUI plumbing (node registration, socket types, executor) works
 end-to-end — complementing the offline pytest suite, which only exercises
@@ -9,42 +9,30 @@ the Python objects.
 Scope is **text nodes only** (no KSampler / model loading). Intended to
 run locally on demand, not in CI.
 
-## Setup
-
-1. Install ComfyUI somewhere on the host
-   ([comfy-cli](https://docs.comfy.org/comfy-cli/getting-started) is the
-   easiest path).
-2. Make this repo discoverable as a custom node — symlink or clone into
-   `ComfyUI/custom_nodes/`:
-
-   ```sh
-   ln -s "$PWD" /path/to/ComfyUI/custom_nodes/comfyui-utility-nodes
-   ```
-
-3. Start ComfyUI (CPU is fine, no models needed):
-
-   ```sh
-   cd /path/to/ComfyUI && python main.py --cpu --listen 127.0.0.1
-   ```
-
 ## Run
-
-From the repo root:
 
 ```sh
 make integration
 ```
 
-Or directly:
+This builds a CPU-only ComfyUI Docker image (~1.5 GB on first build,
+cached after), starts it with this repo mounted as a custom node, runs
+the workflow checks, and tears the container down.
+
+Lower-level targets:
+
+- `make integration-up` — bring the container up and wait for healthy
+- `make integration-down` — tear it down
+- `make integration-logs` — tail recent ComfyUI logs
+
+To run the checks against an existing ComfyUI (not the Docker one), skip
+`integration-up` and pass a host:
 
 ```sh
-uv run python -m tests.integration.run
+uv run python -m tests.integration.run --host http://127.0.0.1:8188
 ```
 
-Options:
-
-- `--host http://127.0.0.1:8188` — override the ComfyUI URL.
-- `--workflows path/to/file.json` — point at a different test definition.
+The runner is stdlib-only — no extra Python dependencies.
 
 ## Adding cases
 

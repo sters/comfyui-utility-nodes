@@ -81,7 +81,7 @@
       "1": {
         "class_type": "CharacterPreset",
         "inputs": {
-          "character": "miko",
+          "preset": "miko",
           "separator": ", ",
           "extra": ""
         }
