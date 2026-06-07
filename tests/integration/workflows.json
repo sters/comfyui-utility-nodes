@@ -248,5 +248,33 @@
       ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, striped thighhighs, loafers"],
       ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, polka dot thighhighs, loafers"]
     ]
+  },
+  {
+    "name": "tags_shuffle_deterministic",
+    "description": "TagsShuffle reorders tags within each TaggedSelection deterministically per seed. CharacterPreset(miko) emits one selection of 8 tags; with seed=42 the shuffled order must match Python's random.Random(42).shuffle reference output.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {
+        "class_type": "TagsShuffle",
+        "inputs": {"seed": 42, "bundle": ["1", 1]}
+      }
+    },
+    "expect": [
+      ["2", "miko, hakama, zouri, shrine_outdoors, bangs, tabi, long_hair, black_hair"]
+    ]
+  },
+  {
+    "name": "tags_random_pick_deterministic",
+    "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {
+        "class_type": "TagsRandomPick",
+        "inputs": {"count": 3, "seed": 7, "bundle": ["1", 1]}
+      }
+    },
+    "expect": [
+      ["2", "tabi, black_hair, miko"]
+    ]
   }
 ]
