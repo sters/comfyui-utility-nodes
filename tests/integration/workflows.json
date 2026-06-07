@@ -360,5 +360,102 @@
       ["5", "green hoodie"],
       ["5", "blue hoodie"]
     ]
+  },
+  {
+    "name": "tag_decorate_chained_multiplies_axes",
+    "description": "Two TagDecorate nodes chained back-to-back. Stage 1 decorates clothing.bottoms with 3 colors (1×3 = 3). Stage 2 decorates clothing.tops with 2 patterns (3×2 = 6 total prompts). Verifies that the list output of stage 1 flows correctly into the `bundle` of stage 2 and multiplies.",
+    "workflow": {
+      "1": {
+        "class_type": "ClothingTops",
+        "inputs": {
+          "separator": ", ", "preset": "custom",
+          "shirt": true, "t-shirt": false, "dress_shirt": false, "blouse": false,
+          "collared_shirt": false, "polo_shirt": false, "tank_top": false, "camisole": false,
+          "crop_top": false, "tube_top": false, "off-shoulder_shirt": false, "sleeveless_shirt": false,
+          "frilled_shirt": false, "sweater": false, "turtleneck": false, "ribbed_sweater": false,
+          "sweater_vest": false, "hoodie": false, "cardigan": false, "vest": false,
+          "waistcoat": false, "jacket": false, "blazer": false, "coat": false,
+          "trench_coat": false, "long_coat": false, "winter_coat": false, "raincoat": false,
+          "windbreaker": false, "extra": ""
+        }
+      },
+      "2": {
+        "class_type": "ClothingBottoms",
+        "inputs": {
+          "separator": ", ", "preset": "custom",
+          "skirt": false, "miniskirt": false, "long_skirt": false, "pleated_skirt": true,
+          "high-waist_skirt": false, "frilled_skirt": false, "pencil_skirt": false, "tutu": false,
+          "hakama_skirt": false, "pants": false, "jeans": false, "denim_pants": false,
+          "leggings": false, "harem_pants": false, "wide-leg_pants": false, "cargo_pants": false,
+          "track_pants": false, "shorts": false, "short_shorts": false, "hot_pants": false,
+          "denim_shorts": false, "bike_shorts": false, "bloomers": false, "overalls": false,
+          "suspenders": false, "extra": ""
+        }
+      },
+      "3": {
+        "class_type": "TagsMerge",
+        "inputs": {"separator": ", ", "bundle_1": ["1", 1], "bundle_2": ["2", 1]}
+      },
+      "4": {
+        "class_type": "ColorPalette",
+        "inputs": {
+          "separator": ", ", "preset": "custom",
+          "red": true, "pink": false, "orange": false, "yellow": false, "green": true, "blue": true,
+          "light_blue": false, "dark_blue": false, "purple": false, "violet": false,
+          "brown": false, "tan": false, "beige": false, "black": false, "white": false,
+          "gray": false, "silver": false, "gold": false, "navy": false, "teal": false,
+          "cyan": false, "magenta": false, "crimson": false, "maroon": false, "olive": false,
+          "lime": false, "aqua": false, "ivory": false, "pastel": false, "neon": false,
+          "extra": ""
+        }
+      },
+      "5": {
+        "class_type": "TagsExplode",
+        "inputs": {"bundle": ["4", 1]}
+      },
+      "6": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.bottoms",
+          "bundle": ["3", 2],
+          "decoration": ["5", 0]
+        }
+      },
+      "7": {
+        "class_type": "ClothingPattern",
+        "inputs": {
+          "separator": ", ", "preset": "custom",
+          "striped": false, "vertical_stripes": false, "horizontal_stripes": false,
+          "diagonal_stripes": false, "striped_clothes": false, "polka_dot": false,
+          "plaid": true, "checkered": true, "checkered_clothes": false, "argyle": false,
+          "houndstooth": false, "floral_print": false, "leaf_print": false, "star_print": false,
+          "heart_print": false, "animal_print": false, "leopard_print": false, "zebra_print": false,
+          "camouflage": false, "tie-dye": false, "gradient_clothes": false, "two-tone_clothes": false,
+          "multicolored_clothes": false, "print_shirt": false, "print_dress": false,
+          "print_skirt": false, "extra": ""
+        }
+      },
+      "8": {
+        "class_type": "TagsExplode",
+        "inputs": {"bundle": ["7", 1]}
+      },
+      "9": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.tops",
+          "bundle": ["6", 2],
+          "decoration": ["8", 0]
+        }
+      }
+    },
+    "expect": [
+      ["9", "plaid shirt"],
+      ["9", "checkered shirt"],
+      ["9", "red pleated skirt"],
+      ["9", "green pleated skirt"],
+      ["9", "blue pleated skirt"]
+    ]
   }
 ]
