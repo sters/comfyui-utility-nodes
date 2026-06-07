@@ -1,0 +1,95 @@
+[
+  {
+    "name": "body_exposure_standalone",
+    "description": "Single tag-toggle node — verifies node loads, accepts BOOLEAN inputs, and emits OUTPUT_NODE preview text via /history.",
+    "workflow": {
+      "1": {
+        "class_type": "BodyExposure",
+        "inputs": {
+          "separator": ", ",
+          "preset": "custom",
+          "nude": true,
+          "completely_nude": false,
+          "partially_nude": false,
+          "extra": ""
+        }
+      }
+    },
+    "expect": [
+      ["1", "nude"]
+    ]
+  },
+  {
+    "name": "exposure_through_tags_merge",
+    "description": "Wires a tag bundle into TagsMerge — verifies the CUUN_TAGS socket type and merge resolution work end-to-end.",
+    "workflow": {
+      "1": {
+        "class_type": "BodyExposure",
+        "inputs": {
+          "separator": ", ",
+          "preset": "custom",
+          "nude": true,
+          "completely_nude": false,
+          "partially_nude": false,
+          "extra": ""
+        }
+      },
+      "2": {
+        "class_type": "TagsMerge",
+        "inputs": {
+          "separator": ", ",
+          "bundle_1": ["1", 1]
+        }
+      }
+    },
+    "expect": [
+      ["1", "nude"],
+      ["2", "nude"]
+    ]
+  },
+  {
+    "name": "pony_prompt_builder",
+    "description": "Pure-text node — verifies COMBO inputs (rating, source) and BOOLEAN score toggles produce the expected ordering.",
+    "workflow": {
+      "1": {
+        "class_type": "PonyPromptBuilder",
+        "inputs": {
+          "separator": ", ",
+          "score_9": true,
+          "score_8_up": true,
+          "score_7_up": true,
+          "score_6_up": false,
+          "score_5_up": false,
+          "score_4_up": false,
+          "rating": "safe",
+          "source": "anime",
+          "extra": "1girl"
+        }
+      }
+    },
+    "expect": [
+      ["1", "score_9"],
+      ["1", "rating_safe"],
+      ["1", "source_anime"],
+      ["1", "1girl"]
+    ]
+  },
+  {
+    "name": "character_preset",
+    "description": "Preset combo selector — verifies COMBO with a non-trivial value list resolves to expected tags.",
+    "workflow": {
+      "1": {
+        "class_type": "CharacterPreset",
+        "inputs": {
+          "character": "miko",
+          "separator": ", ",
+          "extra": ""
+        }
+      }
+    },
+    "expect": [
+      ["1", "miko"],
+      ["1", "hakama"]
+    ]
+  }
+]

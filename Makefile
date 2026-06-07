@@ -1,4 +1,4 @@
-.PHONY: help sync lint fmt fmt-check typecheck test check fix clean
+.PHONY: help sync lint fmt fmt-check typecheck test check fix clean integration
 
 help:
 	@echo "Targets:"
@@ -10,6 +10,7 @@ help:
 	@echo "  test       - pytest"
 	@echo "  check      - lint + fmt-check + typecheck + test"
 	@echo "  fix        - ruff check --fix + ruff format"
+	@echo "  integration - run integration check against a running ComfyUI (see tests/integration/README.md)"
 	@echo "  clean      - remove caches"
 
 sync:
@@ -35,6 +36,9 @@ check: lint fmt-check typecheck test
 fix:
 	uv run ruff check --fix .
 	uv run ruff format .
+
+integration:
+	uv run python -m tests.integration.run
 
 clean:
 	rm -rf .ruff_cache .mypy_cache .pytest_cache

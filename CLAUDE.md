@@ -12,6 +12,7 @@ Dependencies are managed by `uv`. All commands go through the Makefile:
 - `make check` — lint + fmt-check + typecheck + test (run before committing)
 - `make fix` — ruff `--fix` + format
 - Run a single test: `uv run pytest tests/tags/test_merge.py::test_name -v`
+- `make integration` — end-to-end check against a running ComfyUI instance. Stdlib-only; reads `tests/integration/workflows.json` and asserts text outputs. See `tests/integration/README.md` for setup. Intentionally not run by `make check` (needs a live ComfyUI).
 
 Target Python is 3.10, mypy is `strict = true`, ruff line length 120.
 
