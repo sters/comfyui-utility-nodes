@@ -43,15 +43,48 @@ Edit `workflows.json`. Each entry is:
   "name": "short_id",
   "description": "what this verifies",
   "workflow": { "<node_id>": { "class_type": "...", "inputs": {...} } },
-  "expect": [["<node_id>", "substring"], ...]
+  "expect": [["<node_id>", "exact text"], ...]
 }
 ```
 
 The `workflow` block is the ComfyUI **API format** (the same shape the
-"Save (API Format)" UI export produces). Each `expect` pair checks that
-`substring` appears in the named node's `outputs.text` from the
-`/history/<prompt_id>` response — which means the asserted node must
-have `OUTPUT_NODE = True`. All tag-toggle nodes, `TagsMerge`,
-`TagDecorate`, and `PonyPromptBuilder` qualify; pure pipe-through text
-nodes (e.g. `TextConcat`) don't expose preview text, so route them
-through an OUTPUT_NODE terminator if you need to assert on them.
+"Save (API Format)" UI export produces). Each `expect` pair requires
+that the exact string equals one of the elements of the named node's
+`outputs.text` from the `/history/<prompt_id>` response — which means
+the asserted node must have `OUTPUT_NODE = True`. All tag-toggle nodes,
+`TagsMerge`, `TagDecorate`, and `PonyPromptBuilder` qualify; pure
+pipe-through text nodes (e.g. `TextConcat`) don't expose preview text,
+so route them through an OUTPUT_NODE terminator if you need to assert
+on them.
+
+### Input defaulting
+
+The runner walks every `TagNodeBase` subclass at startup and pulls each
+input's `default` value out of `INPUT_TYPES`. Any field missing from a
+workflow's `inputs` block is filled in with that default before the
+workflow is submitted. Practical effect: you only have to spell out the
+inputs you actually want to override.
+
+```json
+"1": {
+  "class_type": "ClothingTops",
+  "inputs": {"shirt": true, "blouse": true, "hoodie": true}
+}
+```
+
+Equivalent to writing out every other boolean as `false`, the
+`separator` as `", "`, the `preset` as `"custom"`, etc. — but a lot
+shorter.
+
+### Expectation shape
+
+`expect` uses **exact equality** against each element of the node's
+text list:
+
+- For a single-prompt node, write the full prompt string.
+- For a list-output node (e.g. `TagDecorate` with `INPUT_IS_LIST=True`),
+  one expectation per variant you care about. Each must equal one of
+  the texts in the list verbatim.
+
+If `inputs.separator` is omitted (and the default is `", "`) the
+expectation should also use `, ` as the joiner.

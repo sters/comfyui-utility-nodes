@@ -2,13 +2,20 @@
 
 Reads `workflows.json`, posts each workflow to ComfyUI's `/prompt`
 endpoint, polls `/history/<prompt_id>` until completion, and asserts
-expected substrings appear in the OUTPUT_NODE preview text of named
-nodes.
+that each expected string equals (exactly) one of the OUTPUT_NODE
+preview texts of the named node.
 
 Usage:
     1. Start ComfyUI locally with this repo mounted under custom_nodes/.
        (Default: http://127.0.0.1:8188 — override with --host.)
     2. From repo root: `make integration` (or `python -m tests.integration.run`).
+
+Workflow inputs are auto-normalized: any required/optional field
+declared on a node's INPUT_TYPES that is missing from the workflow JSON
+gets filled with the field's `default` value (when present). Practical
+effect: workflows can omit the dozens of `"foo": false` boolean rows on
+tag-toggle nodes and only spell out the True ones. The runner walks
+`nodes.tags.*` / `nodes.text.*` once to discover NODE_CLASS_MAPPINGS.
 
 Exits non-zero if any workflow fails to execute or any expectation is
 unmet. Intentionally stdlib-only — no extra dependencies.
@@ -17,7 +24,9 @@ unmet. Intentionally stdlib-only — no extra dependencies.
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
+import pkgutil
 import sys
 import time
 import urllib.error
@@ -29,6 +38,69 @@ from typing import Any
 _DEFAULT_HOST = "http://127.0.0.1:8188"
 _POLL_INTERVAL = 0.5
 _TIMEOUT = 60.0
+
+
+def _build_node_registry() -> dict[str, type]:
+    """Walk nodes.tags.* and nodes.text.* and collect NODE_CLASS_MAPPINGS.
+
+    Mirrors what the package's top-level __init__.py does for ComfyUI,
+    but locally — the top-level __init__.py lives in a hyphenated
+    directory and isn't importable as a regular package.
+    """
+    registry: dict[str, type] = {}
+    import nodes
+
+    for _f, name, ispkg in pkgutil.walk_packages(nodes.__path__, nodes.__name__ + "."):
+        if ispkg or name.rsplit(".", 1)[1].startswith("_"):
+            continue
+        try:
+            mod = importlib.import_module(name)
+        except Exception:
+            continue
+        mappings = getattr(mod, "NODE_CLASS_MAPPINGS", {})
+        registry.update(mappings)
+    return registry
+
+
+_NODE_REGISTRY = _build_node_registry()
+
+
+def _input_defaults(class_type: str) -> dict[str, Any]:
+    """Return {input_name: default} for any field on the node's
+    INPUT_TYPES that declares one. Missing inputs in workflow JSON get
+    filled with these so users don't have to spell out every `false`."""
+    cls = _NODE_REGISTRY.get(class_type)
+    if cls is None:
+        return {}
+    input_types = getattr(cls, "INPUT_TYPES", None)
+    if input_types is None:
+        return {}
+    try:
+        spec = input_types()
+    except Exception:
+        return {}
+    out: dict[str, Any] = {}
+    for section in ("required", "optional"):
+        for name, decl in (spec.get(section) or {}).items():
+            # decl is typically (TYPE_NAME, {"default": ...}) or (CHOICES, {...}).
+            if not isinstance(decl, tuple) or len(decl) < 2:
+                continue
+            meta = decl[1]
+            if isinstance(meta, dict) and "default" in meta:
+                out[name] = meta["default"]
+    return out
+
+
+def _normalize_workflow(workflow: dict[str, Any]) -> dict[str, Any]:
+    """Fill missing input keys with each node's declared defaults."""
+    normalised: dict[str, Any] = {}
+    for node_id, node in workflow.items():
+        ct = node.get("class_type", "")
+        inputs = dict(node.get("inputs", {}))
+        for name, default in _input_defaults(ct).items():
+            inputs.setdefault(name, default)
+        normalised[node_id] = {**node, "inputs": inputs}
+    return normalised
 
 
 def _post_json(url: str, payload: dict[str, Any]) -> dict[str, Any]:
@@ -60,7 +132,7 @@ def _wait(host: str, prompt_id: str) -> dict[str, Any]:
 
 def _check_one(host: str, case: dict[str, Any], client_id: str) -> tuple[bool, str]:
     name = case["name"]
-    workflow = case["workflow"]
+    workflow = _normalize_workflow(case["workflow"])
     expectations: list[tuple[str, str]] = [(n, s) for n, s in case["expect"]]
 
     try:
@@ -80,14 +152,13 @@ def _check_one(host: str, case: dict[str, Any], client_id: str) -> tuple[bool, s
         return False, f"{name}: workflow execution error: {status}"
 
     outputs = history.get("outputs", {})
-    for node_id, needle in expectations:
+    for node_id, expected in expectations:
         node_output = outputs.get(node_id)
         if not node_output:
             return False, f"{name}: node {node_id} produced no output (outputs={list(outputs)})"
-        texts = node_output.get("text", [])
-        haystack = " ".join(str(t) for t in texts)
-        if needle not in haystack:
-            return False, f"{name}: node {node_id} missing '{needle}' (got: {haystack!r})"
+        texts = [str(t) for t in node_output.get("text", [])]
+        if expected not in texts:
+            return False, f"{name}: node {node_id} missing exact match for {expected!r} (got: {texts!r})"
 
     return True, name
 

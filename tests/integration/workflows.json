@@ -5,14 +5,7 @@
     "workflow": {
       "1": {
         "class_type": "BodyExposure",
-        "inputs": {
-          "separator": ", ",
-          "preset": "custom",
-          "nude": true,
-          "completely_nude": false,
-          "partially_nude": false,
-          "extra": ""
-        }
+        "inputs": {"nude": true}
       }
     },
     "expect": [
@@ -25,21 +18,11 @@
     "workflow": {
       "1": {
         "class_type": "BodyExposure",
-        "inputs": {
-          "separator": ", ",
-          "preset": "custom",
-          "nude": true,
-          "completely_nude": false,
-          "partially_nude": false,
-          "extra": ""
-        }
+        "inputs": {"nude": true}
       },
       "2": {
         "class_type": "TagsMerge",
-        "inputs": {
-          "separator": ", ",
-          "bundle_1": ["1", 1]
-        }
+        "inputs": {"bundle_1": ["1", 1]}
       }
     },
     "expect": [
@@ -54,13 +37,9 @@
       "1": {
         "class_type": "PonyPromptBuilder",
         "inputs": {
-          "separator": ", ",
           "score_9": true,
           "score_8_up": true,
           "score_7_up": true,
-          "score_6_up": false,
-          "score_5_up": false,
-          "score_4_up": false,
           "rating": "safe",
           "source": "anime",
           "extra": "1girl"
@@ -68,107 +47,44 @@
       }
     },
     "expect": [
-      ["1", "score_9"],
-      ["1", "rating_safe"],
-      ["1", "source_anime"],
-      ["1", "1girl"]
+      ["1", "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_safe, source_anime, 1girl"]
     ]
   },
   {
     "name": "three_presets_through_merge",
     "description": "Mirrors the text portion of example_workflows/character_pipeline.json — three preset bundles fanning into TagsMerge.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko", "separator": ", ", "extra": ""}},
-      "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki", "separator": ", ", "extra": ""}},
-      "3": {"class_type": "SituationPreset", "inputs": {"situation": "shrine_visit", "separator": ", ", "extra": ""}},
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki"}},
+      "3": {"class_type": "SituationPreset", "inputs": {"situation": "shrine_visit"}},
       "4": {
         "class_type": "TagsMerge",
-        "inputs": {
-          "separator": ", ",
-          "bundle_1": ["1", 1],
-          "bundle_2": ["2", 1],
-          "bundle_3": ["3", 1]
-        }
+        "inputs": {"bundle_1": ["1", 1], "bundle_2": ["2", 1], "bundle_3": ["3", 1]}
       }
     },
     "expect": [
-      ["4", "miko"],
-      ["4", "shrine"],
-      ["4", "smile"]
+      ["4", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors, smile, grin, happy, sparkling_eyes, open_mouth, :d, blush_stickers, shrine, outdoors, afternoon, miko, hakama, looking_at_viewer, smile"]
     ]
   },
   {
     "name": "character_preset",
     "description": "Preset combo selector — verifies COMBO with a non-trivial value list resolves to expected tags.",
     "workflow": {
-      "1": {
-        "class_type": "CharacterPreset",
-        "inputs": {
-          "preset": "miko",
-          "separator": ", ",
-          "extra": ""
-        }
-      }
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}}
     },
     "expect": [
-      ["1", "miko"],
-      ["1", "hakama"]
+      ["1", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors"]
     ]
   },
   {
     "name": "tag_decorate_color",
     "description": "TagDecorate prefixes a clothing.bottoms tag from a CharacterPreset bundle with colors emitted by ColorPalette. Verifies the tag-category registry resolves preset-emitted tags and the decoration phrase is correctly composed.",
     "workflow": {
-      "1": {
-        "class_type": "CharacterPreset",
-        "inputs": {
-          "preset": "serafuku_schoolgirl",
-          "separator": ", ",
-          "extra": ""
-        }
-      },
-      "2": {
-        "class_type": "ColorPalette",
-        "inputs": {
-          "separator": ", ",
-          "preset": "custom",
-          "red": true,
-          "pink": false,
-          "orange": false,
-          "yellow": false,
-          "green": true,
-          "blue": false,
-          "light_blue": false,
-          "dark_blue": false,
-          "purple": false,
-          "violet": false,
-          "brown": false,
-          "tan": false,
-          "beige": false,
-          "black": false,
-          "white": false,
-          "gray": false,
-          "silver": false,
-          "gold": false,
-          "navy": false,
-          "teal": false,
-          "cyan": false,
-          "magenta": false,
-          "crimson": false,
-          "maroon": false,
-          "olive": false,
-          "lime": false,
-          "aqua": false,
-          "ivory": false,
-          "pastel": false,
-          "neon": false,
-          "extra": ""
-        }
-      },
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true}},
       "3": {
         "class_type": "TagDecorate",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.bottoms",
           "bundle": ["1", 1],
           "decoration": ["2", 1]
@@ -176,70 +92,19 @@
       }
     },
     "expect": [
-      ["3", "red green pleated skirt"],
-      ["3", "thighhighs"]
+      ["3", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, red green pleated skirt, thighhighs, loafers"]
     ]
   },
   {
     "name": "tag_decorate_auto_broadcast",
-    "description": "TagsExplode fans out 3 single-color bundles into TagDecorate.decoration. ComfyUI's lazy list-fanout should run TagDecorate 3 times and emit 3 prompts, each prefixing pleated_skirt with one color.",
+    "description": "TagsExplode fans out 3 single-color bundles into TagDecorate.decoration. TagDecorate runs once per element (1 bundle × 3 colors = 3) and emits 3 prompts, each prefixing pleated_skirt with one color.",
     "workflow": {
-      "1": {
-        "class_type": "CharacterPreset",
-        "inputs": {
-          "preset": "serafuku_schoolgirl",
-          "separator": ", ",
-          "extra": ""
-        }
-      },
-      "2": {
-        "class_type": "ColorPalette",
-        "inputs": {
-          "separator": ", ",
-          "preset": "custom",
-          "red": true,
-          "pink": false,
-          "orange": false,
-          "yellow": false,
-          "green": true,
-          "blue": true,
-          "light_blue": false,
-          "dark_blue": false,
-          "purple": false,
-          "violet": false,
-          "brown": false,
-          "tan": false,
-          "beige": false,
-          "black": false,
-          "white": false,
-          "gray": false,
-          "silver": false,
-          "gold": false,
-          "navy": false,
-          "teal": false,
-          "cyan": false,
-          "magenta": false,
-          "crimson": false,
-          "maroon": false,
-          "olive": false,
-          "lime": false,
-          "aqua": false,
-          "ivory": false,
-          "pastel": false,
-          "neon": false,
-          "extra": ""
-        }
-      },
-      "3": {
-        "class_type": "TagsExplode",
-        "inputs": {
-          "bundle": ["2", 1]
-        }
-      },
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
+      "3": {"class_type": "TagsExplode", "inputs": {"bundle": ["2", 1]}},
       "4": {
         "class_type": "TagDecorate",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.bottoms",
           "bundle": ["1", 1],
           "decoration": ["3", 0]
@@ -247,9 +112,9 @@
       }
     },
     "expect": [
-      ["4", "red pleated skirt"],
-      ["4", "green pleated skirt"],
-      ["4", "blue pleated skirt"]
+      ["4", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, red pleated skirt, thighhighs, loafers"],
+      ["4", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, green pleated skirt, thighhighs, loafers"],
+      ["4", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, blue pleated skirt, thighhighs, loafers"]
     ]
   },
   {
@@ -258,91 +123,17 @@
     "workflow": {
       "1": {
         "class_type": "ClothingTops",
-        "inputs": {
-          "separator": ", ",
-          "preset": "custom",
-          "shirt": true,
-          "t-shirt": false,
-          "dress_shirt": false,
-          "blouse": true,
-          "collared_shirt": false,
-          "polo_shirt": false,
-          "tank_top": false,
-          "camisole": false,
-          "crop_top": false,
-          "tube_top": false,
-          "off-shoulder_shirt": false,
-          "sleeveless_shirt": false,
-          "frilled_shirt": false,
-          "sweater": false,
-          "turtleneck": false,
-          "ribbed_sweater": false,
-          "sweater_vest": false,
-          "hoodie": true,
-          "cardigan": false,
-          "vest": false,
-          "waistcoat": false,
-          "jacket": false,
-          "blazer": false,
-          "coat": false,
-          "trench_coat": false,
-          "long_coat": false,
-          "winter_coat": false,
-          "raincoat": false,
-          "windbreaker": false,
-          "extra": ""
-        }
+        "inputs": {"shirt": true, "blouse": true, "hoodie": true}
       },
-      "2": {
-        "class_type": "TagsExplode",
-        "inputs": {"bundle": ["1", 1]}
-      },
+      "2": {"class_type": "TagsExplode", "inputs": {"bundle": ["1", 1]}},
       "3": {
         "class_type": "ColorPalette",
-        "inputs": {
-          "separator": ", ",
-          "preset": "custom",
-          "red": true,
-          "pink": false,
-          "orange": false,
-          "yellow": false,
-          "green": true,
-          "blue": true,
-          "light_blue": false,
-          "dark_blue": false,
-          "purple": false,
-          "violet": false,
-          "brown": false,
-          "tan": false,
-          "beige": false,
-          "black": false,
-          "white": false,
-          "gray": false,
-          "silver": false,
-          "gold": false,
-          "navy": false,
-          "teal": false,
-          "cyan": false,
-          "magenta": false,
-          "crimson": false,
-          "maroon": false,
-          "olive": false,
-          "lime": false,
-          "aqua": false,
-          "ivory": false,
-          "pastel": false,
-          "neon": false,
-          "extra": ""
-        }
+        "inputs": {"red": true, "green": true, "blue": true}
       },
-      "4": {
-        "class_type": "TagsExplode",
-        "inputs": {"bundle": ["3", 1]}
-      },
+      "4": {"class_type": "TagsExplode", "inputs": {"bundle": ["3", 1]}},
       "5": {
         "class_type": "TagDecorate",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.tops",
           "bundle": ["2", 0],
           "decoration": ["4", 0]
@@ -365,58 +156,20 @@
     "name": "tag_decorate_chained_multiplies_axes",
     "description": "Two TagDecorate nodes chained back-to-back. Stage 1 decorates clothing.bottoms with 3 colors (1×3 = 3). Stage 2 decorates clothing.tops with 2 patterns (3×2 = 6 total prompts). Verifies that the list output of stage 1 flows correctly into the `bundle` of stage 2 and multiplies.",
     "workflow": {
-      "1": {
-        "class_type": "ClothingTops",
-        "inputs": {
-          "separator": ", ", "preset": "custom",
-          "shirt": true, "t-shirt": false, "dress_shirt": false, "blouse": false,
-          "collared_shirt": false, "polo_shirt": false, "tank_top": false, "camisole": false,
-          "crop_top": false, "tube_top": false, "off-shoulder_shirt": false, "sleeveless_shirt": false,
-          "frilled_shirt": false, "sweater": false, "turtleneck": false, "ribbed_sweater": false,
-          "sweater_vest": false, "hoodie": false, "cardigan": false, "vest": false,
-          "waistcoat": false, "jacket": false, "blazer": false, "coat": false,
-          "trench_coat": false, "long_coat": false, "winter_coat": false, "raincoat": false,
-          "windbreaker": false, "extra": ""
-        }
-      },
-      "2": {
-        "class_type": "ClothingBottoms",
-        "inputs": {
-          "separator": ", ", "preset": "custom",
-          "skirt": false, "miniskirt": false, "long_skirt": false, "pleated_skirt": true,
-          "high-waist_skirt": false, "frilled_skirt": false, "pencil_skirt": false, "tutu": false,
-          "hakama_skirt": false, "pants": false, "jeans": false, "denim_pants": false,
-          "leggings": false, "harem_pants": false, "wide-leg_pants": false, "cargo_pants": false,
-          "track_pants": false, "shorts": false, "short_shorts": false, "hot_pants": false,
-          "denim_shorts": false, "bike_shorts": false, "bloomers": false, "overalls": false,
-          "suspenders": false, "extra": ""
-        }
-      },
+      "1": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
+      "2": {"class_type": "ClothingBottoms", "inputs": {"pleated_skirt": true}},
       "3": {
         "class_type": "TagsMerge",
-        "inputs": {"separator": ", ", "bundle_1": ["1", 1], "bundle_2": ["2", 1]}
+        "inputs": {"bundle_1": ["1", 1], "bundle_2": ["2", 1]}
       },
       "4": {
         "class_type": "ColorPalette",
-        "inputs": {
-          "separator": ", ", "preset": "custom",
-          "red": true, "pink": false, "orange": false, "yellow": false, "green": true, "blue": true,
-          "light_blue": false, "dark_blue": false, "purple": false, "violet": false,
-          "brown": false, "tan": false, "beige": false, "black": false, "white": false,
-          "gray": false, "silver": false, "gold": false, "navy": false, "teal": false,
-          "cyan": false, "magenta": false, "crimson": false, "maroon": false, "olive": false,
-          "lime": false, "aqua": false, "ivory": false, "pastel": false, "neon": false,
-          "extra": ""
-        }
+        "inputs": {"red": true, "green": true, "blue": true}
       },
-      "5": {
-        "class_type": "TagsExplode",
-        "inputs": {"bundle": ["4", 1]}
-      },
+      "5": {"class_type": "TagsExplode", "inputs": {"bundle": ["4", 1]}},
       "6": {
         "class_type": "TagDecorate",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.bottoms",
           "bundle": ["3", 2],
           "decoration": ["5", 0]
@@ -424,26 +177,12 @@
       },
       "7": {
         "class_type": "ClothingPattern",
-        "inputs": {
-          "separator": ", ", "preset": "custom",
-          "striped": false, "vertical_stripes": false, "horizontal_stripes": false,
-          "diagonal_stripes": false, "striped_clothes": false, "polka_dot": false,
-          "plaid": true, "checkered": true, "checkered_clothes": false, "argyle": false,
-          "houndstooth": false, "floral_print": false, "leaf_print": false, "star_print": false,
-          "heart_print": false, "animal_print": false, "leopard_print": false, "zebra_print": false,
-          "camouflage": false, "tie-dye": false, "gradient_clothes": false, "two-tone_clothes": false,
-          "multicolored_clothes": false, "print_shirt": false, "print_dress": false,
-          "print_skirt": false, "extra": ""
-        }
+        "inputs": {"plaid": true, "checkered": true}
       },
-      "8": {
-        "class_type": "TagsExplode",
-        "inputs": {"bundle": ["7", 1]}
-      },
+      "8": {"class_type": "TagsExplode", "inputs": {"bundle": ["7", 1]}},
       "9": {
         "class_type": "TagDecorate",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.tops",
           "bundle": ["6", 2],
           "decoration": ["8", 0]
@@ -451,11 +190,12 @@
       }
     },
     "expect": [
-      ["9", "plaid shirt"],
-      ["9", "checkered shirt"],
-      ["9", "red pleated skirt"],
-      ["9", "green pleated skirt"],
-      ["9", "blue pleated skirt"]
+      ["9", "plaid shirt, red pleated skirt"],
+      ["9", "checkered shirt, red pleated skirt"],
+      ["9", "plaid shirt, green pleated skirt"],
+      ["9", "checkered shirt, green pleated skirt"],
+      ["9", "plaid shirt, blue pleated skirt"],
+      ["9", "checkered shirt, blue pleated skirt"]
     ]
   }
 ]
