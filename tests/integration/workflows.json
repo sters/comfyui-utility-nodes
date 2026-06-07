@@ -114,5 +114,70 @@
       ["1", "miko"],
       ["1", "hakama"]
     ]
+  },
+  {
+    "name": "tag_decorate_color",
+    "description": "TagDecorate prefixes a clothing.bottoms tag from a CharacterPreset bundle with colors emitted by ColorPalette. Verifies the tag-category registry resolves preset-emitted tags and the decoration phrase is correctly composed.",
+    "workflow": {
+      "1": {
+        "class_type": "CharacterPreset",
+        "inputs": {
+          "preset": "serafuku_schoolgirl",
+          "separator": ", ",
+          "extra": ""
+        }
+      },
+      "2": {
+        "class_type": "ColorPalette",
+        "inputs": {
+          "separator": ", ",
+          "preset": "custom",
+          "red": true,
+          "pink": false,
+          "orange": false,
+          "yellow": false,
+          "green": true,
+          "blue": false,
+          "light_blue": false,
+          "dark_blue": false,
+          "purple": false,
+          "violet": false,
+          "brown": false,
+          "tan": false,
+          "beige": false,
+          "black": false,
+          "white": false,
+          "gray": false,
+          "silver": false,
+          "gold": false,
+          "navy": false,
+          "teal": false,
+          "cyan": false,
+          "magenta": false,
+          "crimson": false,
+          "maroon": false,
+          "olive": false,
+          "lime": false,
+          "aqua": false,
+          "ivory": false,
+          "pastel": false,
+          "neon": false,
+          "extra": ""
+        }
+      },
+      "3": {
+        "class_type": "TagDecorate",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.bottoms",
+          "bundle": ["1", 1],
+          "decoration": ["2", 1]
+        }
+      }
+    },
+    "expect": [
+      ["3", "red green pleated skirt"],
+      ["3", "thighhighs"]
+    ]
   }
 ]

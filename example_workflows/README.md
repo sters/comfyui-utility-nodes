@@ -35,3 +35,23 @@ After loading the template:
 - KSampler defaults: seed=42, steps=20, cfg=8, sampler=euler,
   scheduler=normal, denoise=1.0 (also borrowed from the FaceDetailer
   reference).
+
+### `decorate_schoolgirl_skirt.json`
+
+Demonstrates `TagDecorate`: a `CharacterPreset(serafuku_schoolgirl)`
+bundle is decorated so that its `pleated_skirt` tag becomes
+`red green plaid pleated skirt` in the final prompt, while the rest of
+the preset (hair, top, footwear) is untouched.
+
+```
+CharacterPreset(serafuku_schoolgirl) ─► TagsMerge ─┐
+                                                   ├─► TagDecorate ─► CLIPTextEncode
+ColorPalette(red, green) ─┐                        │   target: clothing.bottoms
+                          ├─► TagsMerge ───────────┘
+ClothingPattern(plaid)  ──┘
+```
+
+Swap the `target_category` on `TagDecorate` (or chain another
+`TagDecorate`) to apply decoration to a different layer such as
+`clothing.legwear` or `clothing.headwear`. The same model-name caveat
+as `character_pipeline.json` applies.

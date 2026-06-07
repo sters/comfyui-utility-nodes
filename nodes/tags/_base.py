@@ -6,6 +6,12 @@ NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
 
 TAGS_TYPE = "CUUN_TAGS"
 
+# tag string -> CATEGORY_ID of the TagNodeBase subclass that declares it.
+# Populated by TagNodeBase.__init_subclass__ at import time. A tag declared by
+# multiple subclasses sticks with the first registration (stable across runs
+# because module import order is deterministic under pkgutil.walk_packages).
+TAG_CATEGORY_REGISTRY: dict[str, str] = {}
+
 
 @dataclass(frozen=True)
 class TaggedSelection:
@@ -32,6 +38,13 @@ class TagNodeBase:
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "utility/text"
     OUTPUT_NODE: ClassVar[bool] = True
+
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        super().__init_subclass__(**kwargs)
+        if not cls.CATEGORY_ID:
+            return
+        for tag in cls.TAGS:
+            TAG_CATEGORY_REGISTRY.setdefault(tag, cls.CATEGORY_ID)
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
