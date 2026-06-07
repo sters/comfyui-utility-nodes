@@ -31,16 +31,13 @@ ComfyUI custom-node docs: https://docs.comfy.org/custom-nodes/walkthrough (and t
 Two halves under `nodes/tags/`:
 
 - `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `tags_combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them.
-- `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `meta/`, `nsfw/`, `decoration/`), the flat-tuple preset nodes under `preset/` (`character.py`, `personality.py`, `situation.py`, `nsfw_scene.py`), and the standalone-style `bad.py` / `composition.py`.
+- `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `composition/`, `meta/` [including `bad.py` negative-quality and `pony.py` model template], `nsfw/`, `decoration/`) and the flat-tuple preset nodes under `preset/` (`character.py`, `personality.py`, `situation.py`, `nsfw_scene.py`).
 
 Auto-discovery walks both via `pkgutil.walk_packages`, so dropping a file under either path is enough to register it.
 
 Within node modules, use ordinary relative imports. Depth varies — count carefully:
 
 ```python
-# nodes/tags/sources/bad.py (depth 2 under tags/)
-from .._base import TagNodeBase
-
 # nodes/tags/sources/preset/character.py (depth 3)
 from ..._base import TAGS_TYPE, TaggedSelection
 

@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from .._base import TagNodeBase
+from ..._base import TagNodeBase
 
 _GENERAL: tuple[str, ...] = (
     "artistic_error",
