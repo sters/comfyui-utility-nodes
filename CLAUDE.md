@@ -86,14 +86,25 @@ Preset nodes under `nodes/tags/sources/` (`preset.py`, `personality.py`, `nsfw_p
 
 ### Test layout
 
-`tests/tags/test_preset_combos.py` exercises preset × preset × scene combinations through `TagsMerge` end-to-end — the canonical place to add a regression when a conflict rule changes. Per-module tests live alongside (`test_preset.py`, `test_personality.py`, `test_merge.py`, etc.).
+`tests/` mirrors `nodes/` 1:1 — every node module has exactly one test file, and they live at the corresponding path:
+
+```
+nodes/tags/X.py             ←→  tests/tags/test_X.py
+nodes/tags/sources/X.py     ←→  tests/tags/sources/test_X.py
+nodes/tags/sources/sub/X.py ←→  tests/tags/sources/sub/test_X.py
+nodes/text/X.py             ←→  tests/text/test_X.py
+```
+
+**Keep this invariant when adding nodes or moving things around.** If you split a source file, split its test file the same way; if you move a source into a subpackage, move its test there too. The auto-discovery system is forgiving — pytest will find tests anywhere — but the 1:1 path mapping is what lets a reader jump from a node to its tests (and vice versa) without grepping.
+
+`tests/tags/sources/test_preset_combos.py` is the one cross-cutting fixture: it exercises preset × preset × scene combinations through `TagsMerge` end-to-end and is the canonical place to add a regression when a conflict rule changes.
 
 ## Adding a new tag node
 
 1. Create `nodes/tags/sources/.../foo.py` with a `TagNodeBase` subclass and a module-level `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS`. Use relative imports — `from ..._base import TagNodeBase` for files at `sources/<subpkg>/foo.py`, `from .._base import ...` for files directly under `sources/`.
 2. Auto-discovery picks it up — no registration step.
 3. If the new tags conflict with existing ones, edit `_conflicts.py` — not the node file.
-4. Add tests under `tests/tags/`.
+4. Add tests at the mirror path — `tests/tags/sources/.../test_foo.py` for a `nodes/tags/sources/.../foo.py` source, or `tests/tags/test_foo.py` for a `nodes/tags/foo.py` operation. One source/op file = one test file.
 5. Add an English help page at `web/docs/<ClassName>.md` ([Help Page](https://docs.comfy.org/custom-nodes/help_page)). `__init__.py` already exposes `WEB_DIRECTORY = "./web"`. Filename must match the registered class name. For ordinary tag nodes the existing files are mechanically generated from `TAGS` — keep that shape unless the node has non-trivial behavior to explain.
 
 ## Workflow templates
