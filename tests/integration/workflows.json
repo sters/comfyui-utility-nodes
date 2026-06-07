@@ -289,6 +289,74 @@
     ]
   },
   {
+    "name": "text_concat_break_attribute_binding",
+    "description": "Color/attribute binding pattern: each tag source's STRING prompt is fed into TextConcat with separator=' BREAK ', isolating attention chunks so e.g. tops/bottoms colors don't bleed across attributes. Demonstrates that the existing TextConcat node already covers the BREAK-grouping use case — no dedicated node needed.",
+    "workflow": {
+      "1": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
+      "2": {"class_type": "ClothingBottoms", "inputs": {"pleated_skirt": true}},
+      "3": {"class_type": "ClothingPattern", "inputs": {"plaid": true}},
+      "4": {
+        "class_type": "TextConcat",
+        "inputs": {
+          "separator": " BREAK ",
+          "text_1": ["1", 0],
+          "text_2": ["2", 0],
+          "text_3": ["3", 0]
+        }
+      }
+    },
+    "expect": [
+      ["4", "shirt BREAK pleated_skirt BREAK plaid"]
+    ]
+  },
+  {
+    "name": "text_concat_break_two_characters",
+    "description": "Multi-character pattern: each CharacterPreset's prompt STRING is concatenated through TextConcat with separator=' BREAK ', producing one BREAK-separated chunk per subject. Demonstrates that 2-character workflows (color/outfit bleed isolation between subjects) are covered by the existing TextConcat node. Spatial positioning is still the encoder/sampler's job (smZ / Regional Prompter / Attention Couple) — this only handles the prompt-builder side.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {
+        "class_type": "TextConcat",
+        "inputs": {
+          "separator": " BREAK ",
+          "text_1": ["1", 0],
+          "text_2": ["2", 0]
+        }
+      }
+    },
+    "expect": [
+      ["3", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors BREAK long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers"]
+    ]
+  },
+  {
+    "name": "text_concat_break_grouped_with_per_group_merge",
+    "description": "Multi-source-per-group pattern: each BREAK group is pre-composed by its own TagsMerge (so mutex/conflicts resolve within the group), then the per-group prompt STRINGs are joined with TextConcat / ' BREAK '. Verifies that the standard pipeline composes correctly when groups need internal conflict resolution before isolation.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki"}},
+      "3": {
+        "class_type": "TagsMerge",
+        "inputs": {"bundle_1": ["1", 1], "bundle_2": ["2", 1]}
+      },
+      "4": {"class_type": "SituationPreset", "inputs": {"situation": "shrine_visit"}},
+      "5": {
+        "class_type": "TagsMerge",
+        "inputs": {"bundle_1": ["4", 1]}
+      },
+      "6": {
+        "class_type": "TextConcat",
+        "inputs": {
+          "separator": " BREAK ",
+          "text_1": ["3", 0],
+          "text_2": ["5", 0]
+        }
+      }
+    },
+    "expect": [
+      ["6", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors, smile, grin, happy, sparkling_eyes, open_mouth, :d, blush_stickers BREAK shrine, outdoors, afternoon, miko, hakama, looking_at_viewer, smile"]
+    ]
+  },
+  {
     "name": "tags_random_pick_deterministic",
     "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output.",
     "workflow": {
