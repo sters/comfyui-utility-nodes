@@ -250,6 +250,50 @@
     ]
   },
   {
+    "name": "tags_filter_drops_registry_category",
+    "description": "TagsFilter targets clothing.legwear and drops the `thighhighs` tag from inside CharacterPreset(serafuku_schoolgirl)'s preset.X selection. Verifies registry-based per-tag filtering on a preset bundle (not selection-category-based), and that the surrounding tags survive.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {
+        "class_type": "TagsFilter",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.legwear",
+          "bundle": ["1", 1]
+        }
+      }
+    },
+    "expect": [
+      ["2", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, loafers"]
+    ]
+  },
+  {
+    "name": "tags_filter_chain_drops_multiple_categories",
+    "description": "Two TagsFilter nodes in series drop two different registry categories (legwear, then footwear) from the same preset. Verifies the documented multi-category pattern (chain nodes rather than multi-select UI).",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {
+        "class_type": "TagsFilter",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.legwear",
+          "bundle": ["1", 1]
+        }
+      },
+      "3": {
+        "class_type": "TagsFilter",
+        "inputs": {
+          "separator": ", ",
+          "target_category": "clothing.footwear",
+          "bundle": ["2", 1]
+        }
+      }
+    },
+    "expect": [
+      ["3", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt"]
+    ]
+  },
+  {
     "name": "tags_shuffle_deterministic",
     "description": "TagsShuffle reorders tags within each TaggedSelection deterministically per seed. CharacterPreset(miko) emits one selection of 8 tags; with seed=42 the shuffled order must match Python's random.Random(42).shuffle reference output.",
     "workflow": {
