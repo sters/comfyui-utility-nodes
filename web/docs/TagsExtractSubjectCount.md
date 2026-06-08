@@ -1,6 +1,6 @@
 # Extract Subject Count
 
-`UtilityNodes/TagMaster` menu tree. Parses Danbooru-style subject-count
+`UtilityNodes/TagMaster` menu tree. Parses subject-count
 tags back **out of an assembled prompt STRING** and reports a person count.
 The motivating use case (issue #19) is feeding a count into a downstream
 detector / segmenter such as SAM3: wire `TagsMerge.prompt` → this node →

@@ -1,7 +1,7 @@
 import re
 from typing import Any, ClassVar
 
-# Pull Danbooru-style subject-count tags back out of an already-assembled
+# Pull subject-count tags back out of an already-assembled
 # prompt STRING (e.g. the output of TagsMerge). The motivating use case is
 # feeding a person count into a downstream detector/segmenter such as SAM3
 # (issue #19): wire TagsMerge.prompt -> this node -> `total` (INT).

@@ -65,7 +65,7 @@ The repo directory name (`comfyui-utility-nodes`) is invalid as a Python identif
 
 ### Tag-node pipeline (the core abstraction)
 
-The bulk of the repo is "tag nodes" — boolean-checkbox UIs that emit Danbooru-style tag tuples. Data flows:
+The bulk of the repo is "tag nodes" — boolean-checkbox UIs that emit tag tuples. Data flows:
 
 ```
 TagNodeBase subclass  ──►  bundle: tuple[TaggedSelection, ...]  ──►  TagsMerge  ──►  prompt

@@ -15,7 +15,7 @@
 
 ## Why a separate node
 
-`HairColor` / `EyesColor` etc. emit fully-formed Danbooru tags like `red_hair` — useful as standalone tags but unwanted as a prefix on something like `pleated_skirt`. `ColorPalette` exists to provide the bare color names that read cleanly when prefixed to another tag.
+`HairColor` / `EyesColor` etc. emit fully-formed tags like `red_hair` — useful as standalone tags but unwanted as a prefix on something like `pleated_skirt`. `ColorPalette` exists to provide the bare color names that read cleanly when prefixed to another tag.
 
 ## Example wiring
 

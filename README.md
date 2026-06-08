@@ -1,6 +1,6 @@
 # comfyui-utility-nodes
 
-A pack of utility custom nodes for [ComfyUI](https://github.com/comfyanonymous/ComfyUI), focused on **prompt construction for Danbooru-style (booru) tag models**. It gives you checkbox-driven tag-group nodes, cross-node conflict resolution, one-click character/scene presets, and a handful of general text/image helpers.
+A pack of utility custom nodes for [ComfyUI](https://github.com/comfyanonymous/ComfyUI), focused on **prompt construction for tag-based models**. It gives you checkbox-driven tag-group nodes, cross-node conflict resolution, one-click character/scene presets, and a handful of general text/image helpers.
 
 ## Installation
 
@@ -21,7 +21,7 @@ Ready-made example graphs are bundled as ComfyUI [Workflow Templates](https://do
 
 ## How the tag pipeline works
 
-The core idea: instead of hand-typing booru tags, you toggle them on dedicated nodes, then merge everything through a single node that resolves conflicts and emits the final prompt string.
+The core idea: instead of hand-typing tags, you toggle them on dedicated nodes, then merge everything through a single node that resolves conflicts and emits the final prompt string.
 
 ```
 Tag-source nodes  ──►  bundle (CUUN_TAGS)  ──►  Tags: Merge & Validate  ──►  prompt (STRING)
@@ -80,7 +80,7 @@ Checkbox tag-group nodes, organized by what they describe:
 | **Composition** | `Angle`, `Framing`, `Crop`, `Focus`, `Multi-View` |
 | **Color** | `Color Palette` |
 | **Meta** | `Quality` (`MetaQuality`), `Pony` (`MetaPony`, Pony Diffusion template), `Subject Count: Total / Girls / Boys / Other` |
-| **Bad / negative** | `Bad: General`, `Bad: Head & Face`, `Bad: Body`, `Bad: Limbs`, `Bad: Quality`, `Bad: NSFW` — Danbooru `bad_*` / `extra_*` families split by body part for negative prompts |
+| **Bad / negative** | `Bad: General`, `Bad: Head & Face`, `Bad: Body`, `Bad: Limbs`, `Bad: Quality`, `Bad: NSFW` — `bad_*` / `extra_*` families split by body part for negative prompts |
 | **NSFW** | `Solo`, `Position`, `Act: Oral & Contact`, `Act: Penetrative`, `State: Fluids`, `State: Aftermath & Expression`, `BDSM`, `Toy` |
 
 ### Text — `UtilityNodes/Text`
