@@ -24,6 +24,7 @@ class MetaPony:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Meta"
+    SEARCH_ALIASES: ClassVar[list[str]] = [*_SCORE_TAGS, *_RATING_TAGS, *_SOURCE_TAGS]
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:

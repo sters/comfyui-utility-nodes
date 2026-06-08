@@ -79,6 +79,7 @@ class TagNodeBase:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = ROOT_CATEGORY
+    SEARCH_ALIASES: ClassVar[list[str]] = []
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
@@ -87,6 +88,8 @@ class TagNodeBase:
         # spelled out its own CATEGORY.
         if cls.CATEGORY == TagNodeBase.CATEGORY:
             cls.CATEGORY = category_for_module(cls.__module__)
+        if "SEARCH_ALIASES" not in cls.__dict__:
+            cls.SEARCH_ALIASES = list(cls.TAGS)
         if not cls.CATEGORY_ID:
             return
         for tag in cls.TAGS:

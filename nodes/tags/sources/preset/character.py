@@ -218,6 +218,7 @@ class CharacterPreset:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
+    SEARCH_ALIASES: ClassVar[list[str]] = sorted({*PRESETS, *(t for v in PRESETS.values() for t in v)})
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:

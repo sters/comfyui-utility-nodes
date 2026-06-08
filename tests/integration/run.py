@@ -204,6 +204,34 @@ def _check_categories(host: str) -> tuple[bool, str]:
     return True, f"categories: {len(_NODE_REGISTRY)} nodes match"
 
 
+def _check_search_aliases(host: str) -> tuple[bool, str]:
+    """Assert each source node's live `/object_info` search_aliases match the
+    locally declared SEARCH_ALIASES (issue #22)."""
+    try:
+        info = _get_json(f"{host}/object_info")
+    except (urllib.error.URLError, ConnectionError) as e:
+        return False, f"search_aliases: cannot reach ComfyUI at {host}: {e}"
+
+    mismatches: list[str] = []
+    checked = 0
+    for class_type, cls in sorted(_NODE_REGISTRY.items()):
+        expected = list(getattr(cls, "SEARCH_ALIASES", []) or [])
+        if not expected:
+            continue
+        checked += 1
+        node_info = info.get(class_type)
+        if node_info is None:
+            mismatches.append(f"{class_type}: not registered on ComfyUI")
+            continue
+        actual = node_info.get("search_aliases") or []
+        if actual != expected:
+            mismatches.append(f"{class_type}: search_aliases mismatch (len {len(actual)} != {len(expected)})")
+
+    if mismatches:
+        return False, "search_aliases: " + "; ".join(mismatches)
+    return True, f"search_aliases: {checked} source nodes match"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default=_DEFAULT_HOST, help=f"ComfyUI base URL (default {_DEFAULT_HOST})")
@@ -221,13 +249,14 @@ def main() -> int:
     passed = 0
     failed: list[str] = []
 
-    ok, msg = _check_categories(args.host)
-    if ok:
-        print(f"PASS  {msg}")
-        passed += 1
-    else:
-        print(f"FAIL  {msg}")
-        failed.append(msg)
+    for check in (_check_categories, _check_search_aliases):
+        ok, msg = check(args.host)
+        if ok:
+            print(f"PASS  {msg}")
+            passed += 1
+        else:
+            print(f"FAIL  {msg}")
+            failed.append(msg)
 
     for case in cases:
         ok, msg = _check_one(args.host, case, client_id)
@@ -238,7 +267,7 @@ def main() -> int:
             print(f"FAIL  {msg}")
             failed.append(msg)
 
-    total = len(cases) + 1
+    total = len(cases) + 2
     print(f"\n{passed}/{total} checks passed")
     return 0 if not failed else 1
 

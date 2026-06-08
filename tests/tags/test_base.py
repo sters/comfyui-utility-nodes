@@ -67,6 +67,12 @@ def test_subclass_inherits_module_derived_category() -> None:
     assert _SampleNode.CATEGORY == "UtilityNodes"
 
 
+def test_search_aliases_derived_from_tags() -> None:
+    assert list(_SampleNode.TAGS) == _SampleNode.SEARCH_ALIASES
+    assert _MutexNode.SEARCH_ALIASES == ["a", "b", "c"]
+    assert TagNodeBase.SEARCH_ALIASES == []
+
+
 def test_input_types_has_invert_and_no_separator() -> None:
     spec = _SampleNode.INPUT_TYPES()
     assert "separator" not in spec["required"]

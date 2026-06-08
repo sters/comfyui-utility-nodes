@@ -193,6 +193,9 @@ class SituationPreset:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
+    SEARCH_ALIASES: ClassVar[list[str]] = sorted(
+        {*SITUATION_PRESETS, *(t for v in SITUATION_PRESETS.values() for t in v)}
+    )
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
