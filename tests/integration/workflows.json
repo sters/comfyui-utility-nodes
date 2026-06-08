@@ -47,7 +47,7 @@
       }
     },
     "expect": [
-      ["1", "score_9, score_8_up, score_7_up, score_6_up, score_5_up, score_4_up, rating_safe, source_anime, 1girl"]
+      ["1", "score_9, score_8_up, score_7_up, rating_safe, source_anime, 1girl"]
     ]
   },
   {

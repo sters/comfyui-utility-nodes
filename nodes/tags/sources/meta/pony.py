@@ -31,8 +31,11 @@ class MetaPony:
         required: dict[str, Any] = {
             "separator": ("STRING", {"multiline": False, "default": ", "}),
         }
+        # All toggles default off (like MetaQuality): the user opts into the
+        # score / rating / source tags they want per workflow rather than
+        # getting the full score_9..score_4_up stack baked into every prompt.
         for tag in _SCORE_TAGS:
-            required[tag] = ("BOOLEAN", {"default": True})
+            required[tag] = ("BOOLEAN", {"default": False})
         for tag in _RATING_TAGS:
             required[tag] = ("BOOLEAN", {"default": False})
         for tag in _SOURCE_TAGS:

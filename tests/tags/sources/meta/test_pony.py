@@ -125,9 +125,15 @@ def test_input_types_has_all_toggles() -> None:
         assert kind == "BOOLEAN", f"{tag} should be BOOLEAN"
 
 
-def test_rating_and_source_default_off_score_default_on() -> None:
+def test_all_toggles_default_off() -> None:
     spec = MetaPony.INPUT_TYPES()
-    for tag in ("score_9", "score_4_up"):
-        assert spec["required"][tag][1]["default"] is True, f"{tag} should default True"
-    for tag in ("rating_safe", "rating_questionable", "rating_explicit", "source_pony", "source_anime"):
+    for tag in (
+        "score_9",
+        "score_4_up",
+        "rating_safe",
+        "rating_questionable",
+        "rating_explicit",
+        "source_pony",
+        "source_anime",
+    ):
         assert spec["required"][tag][1]["default"] is False, f"{tag} should default False"
