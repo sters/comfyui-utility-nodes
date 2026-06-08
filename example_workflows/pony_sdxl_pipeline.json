@@ -1,7 +1,7 @@
 {
   "version": 1,
   "state": {
-    "lastNodeId": 15,
+    "lastNodeId": 16,
     "lastGroupid": 0,
     "lastLinkId": 18,
     "lastRerouteId": 0
@@ -9,13 +9,13 @@
   "nodes": [
     {
       "id": 1,
-      "type": "CharacterPreset",
+      "type": "CheckpointLoaderSimple",
       "pos": [
         40,
         40
       ],
       "size": [
-        320,
+        330,
         100
       ],
       "flags": {},
@@ -24,61 +24,25 @@
       "inputs": [],
       "outputs": [
         {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
+          "name": "MODEL",
+          "type": "MODEL",
           "links": [
             1
           ],
           "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "CharacterPreset"
-      },
-      "widgets_values": [
-        "serafuku_schoolgirl",
-        ", ",
-        ""
-      ]
-    },
-    {
-      "id": 2,
-      "type": "TagsMerge",
-      "title": "Merge: main",
-      "pos": [
-        400,
-        40
-      ],
-      "size": [
-        320,
-        140
-      ],
-      "flags": {},
-      "order": 5,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "bundle_1",
-          "type": "CUUN_TAGS",
-          "link": 1
-        }
-      ],
-      "outputs": [
-        {
-          "name": "prompt",
-          "type": "STRING",
-          "links": null,
-          "slot_index": 0
         },
         {
-          "name": "warnings",
-          "type": "STRING",
-          "links": null,
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            2,
+            3
+          ],
           "slot_index": 1
         },
         {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
+          "name": "VAE",
+          "type": "VAE",
           "links": [
             4
           ],
@@ -86,24 +50,22 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "CheckpointLoaderSimple"
       },
       "widgets_values": [
-        ", ",
-        ""
+        "autismmixSDXL_autismmixPony.safetensors"
       ]
     },
     {
-      "id": 3,
-      "type": "ColorPalette",
-      "title": "Skirt colors (3)",
+      "id": 2,
+      "type": "MetaPony",
       "pos": [
         40,
-        200
+        180
       ],
       "size": [
-        320,
-        600
+        330,
+        360
       ],
       "flags": {},
       "order": 1,
@@ -114,149 +76,43 @@
           "name": "bundle",
           "type": "CUUN_TAGS",
           "links": [
-            2
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "ColorPalette"
-      },
-      "widgets_values": [
-        ", ",
-        false,
-        true,
-        false,
-        false,
-        false,
-        true,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        ""
-      ]
-    },
-    {
-      "id": 4,
-      "type": "TagsExplode",
-      "title": "Explode skirt colors",
-      "pos": [
-        400,
-        220
-      ],
-      "size": [
-        320,
-        80
-      ],
-      "flags": {},
-      "order": 3,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
-          "link": 2
-        }
-      ],
-      "outputs": [
-        {
-          "name": "bundles",
-          "type": "CUUN_TAGS",
-          "links": [
             5
           ],
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsExplode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 5,
-      "type": "TagDecorate",
-      "title": "Stage 1: skirt \u00d7 color (\u00d7 3)",
-      "pos": [
-        760,
-        40
-      ],
-      "size": [
-        400,
-        140
-      ],
-      "flags": {},
-      "order": 6,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
-          "link": 4
-        },
-        {
-          "name": "decoration",
-          "type": "CUUN_TAGS",
-          "link": 5
-        }
-      ],
-      "outputs": [
-        {
-          "name": "warnings",
-          "type": "STRING",
-          "links": null,
-          "slot_index": 0
-        },
-        {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
-          "links": [
-            13
-          ],
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "TagDecorate"
+        "Node name for S&R": "MetaPony"
       },
       "widgets_values": [
         ", ",
-        "clothing.bottoms"
-      ]
+        true,
+        true,
+        true,
+        false,
+        false,
+        false,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
+        "1girl, solo"
+      ],
+      "title": "Pony prefix (score/rating/source + extra)"
     },
     {
-      "id": 6,
-      "type": "ColorPalette",
-      "title": "Top colors (3)",
+      "id": 3,
+      "type": "CharacterPreset",
       "pos": [
         40,
-        820
+        560
       ],
       "size": [
-        320,
-        600
+        330,
+        110
       ],
       "flags": {},
       "order": 2,
@@ -267,220 +123,107 @@
           "name": "bundle",
           "type": "CUUN_TAGS",
           "links": [
-            14
+            6
           ],
           "slot_index": 0
         }
       ],
       "properties": {
-        "Node name for S&R": "ColorPalette"
+        "Node name for S&R": "CharacterPreset"
       },
       "widgets_values": [
+        "witch",
         ", ",
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        true,
-        true,
-        true,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
         ""
       ]
     },
     {
-      "id": 7,
-      "type": "TagsExplode",
-      "title": "Explode top colors",
+      "id": 4,
+      "type": "PersonalityPreset",
       "pos": [
-        400,
-        820
+        40,
+        700
       ],
       "size": [
-        320,
-        80
+        330,
+        110
       ],
       "flags": {},
-      "order": 4,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
-          "link": 14
-        }
-      ],
-      "outputs": [
-        {
-          "name": "bundles",
-          "type": "CUUN_TAGS",
-          "links": [
-            15
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "TagsExplode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 8,
-      "type": "TagDecorate",
-      "title": "Stage 2: serafuku \u00d7 color (3 \u00d7 3 = 9)",
-      "pos": [
-        1200,
-        40
-      ],
-      "size": [
-        400,
-        140
-      ],
-      "flags": {},
-      "order": 7,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
-          "link": 13
-        },
-        {
-          "name": "decoration",
-          "type": "CUUN_TAGS",
-          "link": 15
-        }
-      ],
-      "outputs": [
-        {
-          "name": "warnings",
-          "type": "STRING",
-          "links": null,
-          "slot_index": 0
-        },
-        {
-          "name": "bundle",
-          "type": "CUUN_TAGS",
-          "links": [
-            17
-          ],
-          "slot_index": 1
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "TagDecorate"
-      },
-      "widgets_values": [
-        ", ",
-        "clothing.uniform"
-      ]
-    },
-    {
-      "id": 9,
-      "type": "CheckpointLoaderSimple",
-      "pos": [
-        1200,
-        220
-      ],
-      "size": [
-        400,
-        100
-      ],
-      "flags": {},
-      "order": 8,
+      "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [
         {
-          "name": "MODEL",
-          "type": "MODEL",
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "PersonalityPreset"
+      },
+      "widgets_values": [
+        "confident",
+        ", ",
+        ""
+      ]
+    },
+    {
+      "id": 5,
+      "type": "SituationPreset",
+      "pos": [
+        40,
+        840
+      ],
+      "size": [
+        330,
+        110
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
           "links": [
             8
           ],
           "slot_index": 0
-        },
-        {
-          "name": "CLIP",
-          "type": "CLIP",
-          "links": [
-            7
-          ],
-          "slot_index": 1
-        },
-        {
-          "name": "VAE",
-          "type": "VAE",
-          "links": [
-            10
-          ],
-          "slot_index": 2
         }
       ],
       "properties": {
-        "Node name for S&R": "CheckpointLoaderSimple"
+        "Node name for S&R": "SituationPreset"
       },
       "widgets_values": [
-        "SD1.5/fantexiRealistic_v10.safetensors"
+        "summer_beach",
+        ", ",
+        ""
       ]
     },
     {
-      "id": 10,
-      "type": "CLIPTextEncode",
-      "title": "Positive (9 prompts from stage 2)",
+      "id": 6,
+      "type": "MetaQuality",
       "pos": [
-        1200,
-        360
+        40,
+        980
       ],
       "size": [
-        400,
-        120
+        330,
+        460
       ],
       "flags": {},
-      "order": 9,
+      "order": 5,
       "mode": 0,
-      "inputs": [
-        {
-          "name": "clip",
-          "type": "CLIP",
-          "link": 7
-        },
-        {
-          "name": "text",
-          "type": "STRING",
-          "link": 18,
-          "widget": {
-            "name": "text"
-          }
-        }
-      ],
+      "inputs": [],
       "outputs": [
         {
-          "name": "CONDITIONING",
-          "type": "CONDITIONING",
+          "name": "bundle",
+          "type": "CUUN_TAGS",
           "links": [
             9
           ],
@@ -488,188 +231,71 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "CLIPTextEncode"
+        "Node name for S&R": "MetaQuality"
       },
       "widgets_values": [
+        ", ",
+        false,
+        true,
+        true,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        true,
         ""
       ]
     },
     {
-      "id": 11,
-      "type": "EmptyLatentImage",
+      "id": 7,
+      "type": "TagsMerge",
       "pos": [
-        1200,
-        520
-      ],
-      "size": [
-        320,
-        110
-      ],
-      "flags": {},
-      "order": 10,
-      "mode": 0,
-      "inputs": [],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            11
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "EmptyLatentImage"
-      },
-      "widgets_values": [
-        512,
-        512,
-        1
-      ]
-    },
-    {
-      "id": 12,
-      "type": "KSampler",
-      "pos": [
-        1640,
+        420,
         40
       ],
       "size": [
-        320,
+        330,
         260
       ],
       "flags": {},
-      "order": 11,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "model",
-          "type": "MODEL",
-          "link": 8
-        },
-        {
-          "name": "positive",
-          "type": "CONDITIONING",
-          "link": 9
-        },
-        {
-          "name": "latent_image",
-          "type": "LATENT",
-          "link": 11
-        }
-      ],
-      "outputs": [
-        {
-          "name": "LATENT",
-          "type": "LATENT",
-          "links": [
-            12
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "KSampler"
-      },
-      "widgets_values": [
-        42,
-        "fixed",
-        20,
-        8,
-        "euler",
-        "normal",
-        1.0
-      ]
-    },
-    {
-      "id": 13,
-      "type": "VAEDecode",
-      "pos": [
-        1640,
-        340
-      ],
-      "size": [
-        220,
-        50
-      ],
-      "flags": {},
-      "order": 12,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "samples",
-          "type": "LATENT",
-          "link": 12
-        },
-        {
-          "name": "vae",
-          "type": "VAE",
-          "link": 10
-        }
-      ],
-      "outputs": [
-        {
-          "name": "IMAGE",
-          "type": "IMAGE",
-          "links": [
-            16
-          ],
-          "slot_index": 0
-        }
-      ],
-      "properties": {
-        "Node name for S&R": "VAEDecode"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 14,
-      "type": "PreviewImage",
-      "title": "Preview (9 variants)",
-      "pos": [
-        1640,
-        420
-      ],
-      "size": [
-        320,
-        280
-      ],
-      "flags": {},
-      "order": 13,
-      "mode": 0,
-      "inputs": [
-        {
-          "name": "images",
-          "type": "IMAGE",
-          "link": 16
-        }
-      ],
-      "outputs": [],
-      "properties": {
-        "Node name for S&R": "PreviewImage"
-      },
-      "widgets_values": []
-    },
-    {
-      "id": 15,
-      "type": "TagsMerge",
-      "pos": [
-        1560,
-        40
-      ],
-      "size": [
-        300,
-        140
-      ],
-      "flags": {},
-      "order": 15,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
           "name": "bundle_1",
           "type": "CUUN_TAGS",
-          "link": 17
+          "link": 5
+        },
+        {
+          "name": "bundle_2",
+          "type": "CUUN_TAGS",
+          "link": 6
+        },
+        {
+          "name": "bundle_3",
+          "type": "CUUN_TAGS",
+          "link": 7
+        },
+        {
+          "name": "bundle_4",
+          "type": "CUUN_TAGS",
+          "link": 8
+        },
+        {
+          "name": "bundle_5",
+          "type": "CUUN_TAGS",
+          "link": 9
         }
       ],
       "outputs": [
@@ -677,7 +303,7 @@
           "name": "prompt",
           "type": "STRING",
           "links": [
-            18
+            12
           ],
           "slot_index": 0
         },
@@ -701,7 +327,411 @@
         ", ",
         ""
       ],
-      "title": "Merge \u2192 STRING"
+      "title": "Merge positive"
+    },
+    {
+      "id": 8,
+      "type": "MetaPony",
+      "pos": [
+        420,
+        340
+      ],
+      "size": [
+        330,
+        360
+      ],
+      "flags": {},
+      "order": 7,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            10
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "MetaPony"
+      },
+      "widgets_values": [
+        ", ",
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        false,
+        "worst quality, low quality, lowres, bad hands"
+      ],
+      "title": "Negative quality (via extra)"
+    },
+    {
+      "id": 9,
+      "type": "BadGeneral",
+      "pos": [
+        420,
+        720
+      ],
+      "size": [
+        330,
+        320
+      ],
+      "flags": {},
+      "order": 8,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            11
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "BadGeneral"
+      },
+      "widgets_values": [
+        ", ",
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        ""
+      ]
+    },
+    {
+      "id": 10,
+      "type": "TagsMerge",
+      "pos": [
+        420,
+        1060
+      ],
+      "size": [
+        330,
+        180
+      ],
+      "flags": {},
+      "order": 9,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bundle_1",
+          "type": "CUUN_TAGS",
+          "link": 10
+        },
+        {
+          "name": "bundle_2",
+          "type": "CUUN_TAGS",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            13
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "warnings",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        },
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "TagsMerge"
+      },
+      "widgets_values": [
+        ", ",
+        ""
+      ],
+      "title": "Merge negative"
+    },
+    {
+      "id": 11,
+      "type": "CLIPTextEncode",
+      "pos": [
+        800,
+        40
+      ],
+      "size": [
+        400,
+        120
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 2
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 12,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "title": "Positive"
+    },
+    {
+      "id": 12,
+      "type": "CLIPTextEncode",
+      "pos": [
+        800,
+        200
+      ],
+      "size": [
+        400,
+        120
+      ],
+      "flags": {},
+      "order": 11,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 13,
+          "widget": {
+            "name": "text"
+          }
+        }
+      ],
+      "outputs": [
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            15
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ],
+      "title": "Negative"
+    },
+    {
+      "id": 13,
+      "type": "EmptyLatentImage",
+      "pos": [
+        800,
+        360
+      ],
+      "size": [
+        320,
+        110
+      ],
+      "flags": {},
+      "order": 12,
+      "mode": 0,
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            16
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        1024,
+        1024,
+        1
+      ]
+    },
+    {
+      "id": 14,
+      "type": "KSampler",
+      "pos": [
+        1240,
+        40
+      ],
+      "size": [
+        320,
+        280
+      ],
+      "flags": {},
+      "order": 13,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 14
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 15
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            17
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        156680208700286,
+        "fixed",
+        25,
+        7.0,
+        "euler_ancestral",
+        "normal",
+        1.0
+      ]
+    },
+    {
+      "id": 15,
+      "type": "VAEDecode",
+      "pos": [
+        1240,
+        360
+      ],
+      "size": [
+        220,
+        50
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 17
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 4
+        }
+      ],
+      "outputs": [
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            18
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 16,
+      "type": "PreviewImage",
+      "pos": [
+        1240,
+        440
+      ],
+      "size": [
+        400,
+        420
+      ],
+      "flags": {},
+      "order": 15,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 18
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -709,129 +739,145 @@
       "id": 1,
       "origin_id": 1,
       "origin_slot": 0,
-      "target_id": 2,
+      "target_id": 14,
       "target_slot": 0,
-      "type": "CUUN_TAGS"
+      "type": "MODEL"
     },
     {
       "id": 2,
-      "origin_id": 3,
-      "origin_slot": 0,
-      "target_id": 4,
+      "origin_id": 1,
+      "origin_slot": 1,
+      "target_id": 11,
       "target_slot": 0,
-      "type": "CUUN_TAGS"
+      "type": "CLIP"
+    },
+    {
+      "id": 3,
+      "origin_id": 1,
+      "origin_slot": 1,
+      "target_id": 12,
+      "target_slot": 0,
+      "type": "CLIP"
     },
     {
       "id": 4,
-      "origin_id": 2,
+      "origin_id": 1,
       "origin_slot": 2,
-      "target_id": 5,
-      "target_slot": 0,
-      "type": "CUUN_TAGS"
+      "target_id": 15,
+      "target_slot": 1,
+      "type": "VAE"
     },
     {
       "id": 5,
-      "origin_id": 4,
-      "origin_slot": 0,
-      "target_id": 5,
-      "target_slot": 1,
-      "type": "CUUN_TAGS"
-    },
-    {
-      "id": 13,
-      "origin_id": 5,
-      "origin_slot": 1,
-      "target_id": 8,
-      "target_slot": 0,
-      "type": "CUUN_TAGS"
-    },
-    {
-      "id": 14,
-      "origin_id": 6,
+      "origin_id": 2,
       "origin_slot": 0,
       "target_id": 7,
       "target_slot": 0,
       "type": "CUUN_TAGS"
     },
     {
-      "id": 15,
-      "origin_id": 7,
+      "id": 6,
+      "origin_id": 3,
       "origin_slot": 0,
-      "target_id": 8,
+      "target_id": 7,
       "target_slot": 1,
       "type": "CUUN_TAGS"
     },
     {
       "id": 7,
-      "origin_id": 9,
-      "origin_slot": 1,
-      "target_id": 10,
-      "target_slot": 0,
-      "type": "CLIP"
+      "origin_id": 4,
+      "origin_slot": 0,
+      "target_id": 7,
+      "target_slot": 2,
+      "type": "CUUN_TAGS"
     },
     {
       "id": 8,
-      "origin_id": 9,
+      "origin_id": 5,
       "origin_slot": 0,
-      "target_id": 12,
-      "target_slot": 0,
-      "type": "MODEL"
+      "target_id": 7,
+      "target_slot": 3,
+      "type": "CUUN_TAGS"
     },
     {
       "id": 9,
+      "origin_id": 6,
+      "origin_slot": 0,
+      "target_id": 7,
+      "target_slot": 4,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 10,
+      "origin_id": 8,
+      "origin_slot": 0,
+      "target_id": 10,
+      "target_slot": 0,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 11,
+      "origin_id": 9,
+      "origin_slot": 0,
+      "target_id": 10,
+      "target_slot": 1,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 12,
+      "origin_id": 7,
+      "origin_slot": 0,
+      "target_id": 11,
+      "target_slot": 1,
+      "type": "STRING"
+    },
+    {
+      "id": 13,
       "origin_id": 10,
       "origin_slot": 0,
       "target_id": 12,
       "target_slot": 1,
+      "type": "STRING"
+    },
+    {
+      "id": 14,
+      "origin_id": 11,
+      "origin_slot": 0,
+      "target_id": 14,
+      "target_slot": 1,
       "type": "CONDITIONING"
     },
     {
-      "id": 10,
-      "origin_id": 9,
-      "origin_slot": 2,
-      "target_id": 13,
-      "target_slot": 1,
-      "type": "VAE"
-    },
-    {
-      "id": 11,
-      "origin_id": 11,
-      "origin_slot": 0,
-      "target_id": 12,
-      "target_slot": 3,
-      "type": "LATENT"
-    },
-    {
-      "id": 12,
+      "id": 15,
       "origin_id": 12,
       "origin_slot": 0,
-      "target_id": 13,
-      "target_slot": 0,
-      "type": "LATENT"
+      "target_id": 14,
+      "target_slot": 2,
+      "type": "CONDITIONING"
     },
     {
       "id": 16,
       "origin_id": 13,
       "origin_slot": 0,
       "target_id": 14,
-      "target_slot": 0,
-      "type": "IMAGE"
+      "target_slot": 3,
+      "type": "LATENT"
     },
     {
       "id": 17,
-      "origin_id": 8,
-      "origin_slot": 1,
+      "origin_id": 14,
+      "origin_slot": 0,
       "target_id": 15,
       "target_slot": 0,
-      "type": "CUUN_TAGS"
+      "type": "LATENT"
     },
     {
       "id": 18,
       "origin_id": 15,
       "origin_slot": 0,
-      "target_id": 10,
-      "target_slot": 1,
-      "type": "STRING"
+      "target_id": 16,
+      "target_slot": 0,
+      "type": "IMAGE"
     }
   ],
   "groups": [],

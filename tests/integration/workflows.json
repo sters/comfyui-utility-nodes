@@ -444,5 +444,68 @@
     "expect": [
       ["2", "tabi, black_hair, miko"]
     ]
+  },
+  {
+    "name": "pony_sdxl_pipeline_positive",
+    "description": "Mirrors the positive text chain of example_workflows/pony_sdxl_pipeline.json — MetaPony prefix (scores + rating + source + extra) layered with character / personality / situation / quality presets through TagsMerge.",
+    "workflow": {
+      "1": {
+        "class_type": "MetaPony",
+        "inputs": {
+          "score_9": true,
+          "score_8_up": true,
+          "score_7_up": true,
+          "rating_safe": true,
+          "source_anime": true,
+          "extra": "1girl, solo"
+        }
+      },
+      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "witch"}},
+      "3": {"class_type": "PersonalityPreset", "inputs": {"personality": "confident"}},
+      "4": {"class_type": "SituationPreset", "inputs": {"situation": "summer_beach"}},
+      "5": {
+        "class_type": "MetaQuality",
+        "inputs": {"masterpiece": true, "best_quality": true, "very_aesthetic": true}
+      },
+      "6": {
+        "class_type": "TagsMerge",
+        "inputs": {
+          "bundle_1": ["1", 0],
+          "bundle_2": ["2", 0],
+          "bundle_3": ["3", 0],
+          "bundle_4": ["4", 0],
+          "bundle_5": ["5", 0]
+        }
+      }
+    },
+    "expect": [
+      ["6", "score_9, score_8_up, score_7_up, rating_safe, source_anime, 1girl, solo, very_long_hair, purple_hair, witch, witch_hat, long_dress, thighhighs, boots, smug, grin, looking_at_viewer, hand_on_own_hip, determined, beach, ocean, outdoors, noon, sunny, swimsuit, wind_lift, looking_at_viewer, masterpiece, best_quality, very_aesthetic"]
+    ]
+  },
+  {
+    "name": "pony_sdxl_pipeline_negative",
+    "description": "Mirrors the negative text chain of example_workflows/pony_sdxl_pipeline.json — MetaPony with scores off carrying the quality-negatives through `extra`, merged with BadGeneral.",
+    "workflow": {
+      "1": {
+        "class_type": "MetaPony",
+        "inputs": {
+          "score_9": false,
+          "score_8_up": false,
+          "score_7_up": false,
+          "score_6_up": false,
+          "score_5_up": false,
+          "score_4_up": false,
+          "extra": "worst quality, low quality, lowres, bad hands"
+        }
+      },
+      "2": {"class_type": "BadGeneral"},
+      "3": {
+        "class_type": "TagsMerge",
+        "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}
+      }
+    },
+    "expect": [
+      ["3", "worst quality, low quality, lowres, bad hands, artistic_error, bad_anatomy, anatomical_nonsense, bad_proportions, bad_perspective, bad_reflection, bad_multiple_views, bad_shadow, bad_gun_anatomy, bad_vehicle_anatomy, bad_internal_anatomy"]
+    ]
   }
 ]

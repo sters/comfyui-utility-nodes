@@ -1,264 +1,763 @@
 {
   "version": 1,
   "state": {
-    "lastNodeId": 13,
+    "lastNodeId": 14,
     "lastGroupid": 0,
-    "lastLinkId": 15,
+    "lastLinkId": 17,
     "lastRerouteId": 0
   },
   "nodes": [
     {
       "id": 1,
       "type": "CheckpointLoaderSimple",
-      "pos": [40, 40],
-      "size": [320, 100],
+      "pos": [
+        40,
+        40
+      ],
+      "size": [
+        320,
+        100
+      ],
       "flags": {},
       "order": 0,
       "mode": 0,
       "inputs": [],
       "outputs": [
-        {"name": "MODEL", "type": "MODEL", "links": [1], "slot_index": 0},
-        {"name": "CLIP", "type": "CLIP", "links": [2, 3], "slot_index": 1},
-        {"name": "VAE", "type": "VAE", "links": [4], "slot_index": 2}
+        {
+          "name": "MODEL",
+          "type": "MODEL",
+          "links": [
+            1
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "CLIP",
+          "type": "CLIP",
+          "links": [
+            2,
+            3
+          ],
+          "slot_index": 1
+        },
+        {
+          "name": "VAE",
+          "type": "VAE",
+          "links": [
+            4
+          ],
+          "slot_index": 2
+        }
       ],
-      "properties": {"Node name for S&R": "CheckpointLoaderSimple"},
-      "widgets_values": ["SD1.5/fantexiRealistic_v10.safetensors"]
+      "properties": {
+        "Node name for S&R": "CheckpointLoaderSimple"
+      },
+      "widgets_values": [
+        "SD1.5/fantexiRealistic_v10.safetensors"
+      ]
     },
     {
       "id": 2,
       "type": "CharacterPreset",
-      "pos": [40, 180],
-      "size": [320, 100],
+      "pos": [
+        40,
+        180
+      ],
+      "size": [
+        320,
+        100
+      ],
       "flags": {},
       "order": 1,
       "mode": 0,
       "inputs": [],
       "outputs": [
-        {"name": "prompt", "type": "STRING", "links": null, "slot_index": 0},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": [5], "slot_index": 1}
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            5
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "CharacterPreset"},
-      "widgets_values": ["miko", ", ", ""]
+      "properties": {
+        "Node name for S&R": "CharacterPreset"
+      },
+      "widgets_values": [
+        "miko",
+        ", ",
+        ""
+      ]
     },
     {
       "id": 3,
       "type": "PersonalityPreset",
-      "pos": [40, 320],
-      "size": [320, 100],
+      "pos": [
+        40,
+        320
+      ],
+      "size": [
+        320,
+        100
+      ],
       "flags": {},
       "order": 2,
       "mode": 0,
       "inputs": [],
       "outputs": [
-        {"name": "prompt", "type": "STRING", "links": null, "slot_index": 0},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": [6], "slot_index": 1}
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "PersonalityPreset"},
-      "widgets_values": ["genki", ", ", ""]
+      "properties": {
+        "Node name for S&R": "PersonalityPreset"
+      },
+      "widgets_values": [
+        "genki",
+        ", ",
+        ""
+      ]
     },
     {
       "id": 4,
       "type": "SituationPreset",
-      "pos": [40, 460],
-      "size": [320, 100],
+      "pos": [
+        40,
+        460
+      ],
+      "size": [
+        320,
+        100
+      ],
       "flags": {},
       "order": 3,
       "mode": 0,
       "inputs": [],
       "outputs": [
-        {"name": "prompt", "type": "STRING", "links": null, "slot_index": 0},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": [7], "slot_index": 1}
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            7
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "SituationPreset"},
-      "widgets_values": ["shrine_visit", ", ", ""]
+      "properties": {
+        "Node name for S&R": "SituationPreset"
+      },
+      "widgets_values": [
+        "shrine_visit",
+        ", ",
+        ""
+      ]
     },
     {
       "id": 5,
       "type": "MetaQuality",
-      "pos": [40, 600],
-      "size": [320, 420],
+      "pos": [
+        40,
+        600
+      ],
+      "size": [
+        320,
+        420
+      ],
       "flags": {},
       "order": 4,
       "mode": 0,
       "inputs": [],
       "outputs": [
-        {"name": "prompt", "type": "STRING", "links": null, "slot_index": 0},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": [8], "slot_index": 1}
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            8
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "MetaQuality"},
+      "properties": {
+        "Node name for S&R": "MetaQuality"
+      },
       "widgets_values": [
         ", ",
-        "all_on",
-        true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
         ""
       ]
     },
     {
       "id": 6,
       "type": "TagsMerge",
-      "pos": [400, 40],
-      "size": [320, 180],
+      "pos": [
+        400,
+        40
+      ],
+      "size": [
+        320,
+        180
+      ],
       "flags": {},
       "order": 5,
       "mode": 0,
       "inputs": [
-        {"name": "bundle_1", "type": "CUUN_TAGS", "link": 5},
-        {"name": "bundle_2", "type": "CUUN_TAGS", "link": 6},
-        {"name": "bundle_3", "type": "CUUN_TAGS", "link": 7},
-        {"name": "bundle_4", "type": "CUUN_TAGS", "link": 8}
+        {
+          "name": "bundle_1",
+          "type": "CUUN_TAGS",
+          "link": 5
+        },
+        {
+          "name": "bundle_2",
+          "type": "CUUN_TAGS",
+          "link": 6
+        },
+        {
+          "name": "bundle_3",
+          "type": "CUUN_TAGS",
+          "link": 7
+        },
+        {
+          "name": "bundle_4",
+          "type": "CUUN_TAGS",
+          "link": 8
+        }
       ],
       "outputs": [
-        {"name": "prompt", "type": "STRING", "links": [9], "slot_index": 0},
-        {"name": "warnings", "type": "STRING", "links": null, "slot_index": 1},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": null, "slot_index": 2}
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            9
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "warnings",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        },
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": null,
+          "slot_index": 2
+        }
       ],
-      "properties": {"Node name for S&R": "TagsMerge"},
-      "widgets_values": [", ", ""]
+      "properties": {
+        "Node name for S&R": "TagsMerge"
+      },
+      "widgets_values": [
+        ", ",
+        ""
+      ]
     },
     {
       "id": 7,
       "type": "BadGeneral",
-      "pos": [400, 260],
-      "size": [320, 320],
+      "pos": [
+        400,
+        260
+      ],
+      "size": [
+        320,
+        320
+      ],
       "flags": {},
       "order": 6,
       "mode": 0,
       "inputs": [],
       "outputs": [
-        {"name": "prompt", "type": "STRING", "links": [10], "slot_index": 0},
-        {"name": "bundle", "type": "CUUN_TAGS", "links": null, "slot_index": 1}
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            16
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "BadGeneral"},
+      "properties": {
+        "Node name for S&R": "BadGeneral"
+      },
       "widgets_values": [
         ", ",
-        "all_on",
-        true, true, true, true, true, true, true, true, true, true, true,
+        false,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
         ""
       ]
     },
     {
       "id": 8,
       "type": "CLIPTextEncode",
-      "pos": [760, 40],
-      "size": [400, 120],
+      "pos": [
+        760,
+        40
+      ],
+      "size": [
+        400,
+        120
+      ],
       "flags": {},
       "order": 7,
       "mode": 0,
       "title": "Positive (from TagsMerge)",
       "inputs": [
-        {"name": "clip", "type": "CLIP", "link": 2},
-        {"name": "text", "type": "STRING", "link": 9, "widget": {"name": "text"}}
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 2
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 9,
+          "widget": {
+            "name": "text"
+          }
+        }
       ],
       "outputs": [
-        {"name": "CONDITIONING", "type": "CONDITIONING", "links": [11], "slot_index": 0}
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            11
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "CLIPTextEncode"},
-      "widgets_values": [""]
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ]
     },
     {
       "id": 9,
       "type": "CLIPTextEncode",
-      "pos": [760, 200],
-      "size": [400, 120],
+      "pos": [
+        760,
+        200
+      ],
+      "size": [
+        400,
+        120
+      ],
       "flags": {},
       "order": 8,
       "mode": 0,
       "title": "Negative (Bad: General)",
       "inputs": [
-        {"name": "clip", "type": "CLIP", "link": 3},
-        {"name": "text", "type": "STRING", "link": 10, "widget": {"name": "text"}}
+        {
+          "name": "clip",
+          "type": "CLIP",
+          "link": 3
+        },
+        {
+          "name": "text",
+          "type": "STRING",
+          "link": 17,
+          "widget": {
+            "name": "text"
+          }
+        }
       ],
       "outputs": [
-        {"name": "CONDITIONING", "type": "CONDITIONING", "links": [12], "slot_index": 0}
+        {
+          "name": "CONDITIONING",
+          "type": "CONDITIONING",
+          "links": [
+            12
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "CLIPTextEncode"},
-      "widgets_values": [""]
+      "properties": {
+        "Node name for S&R": "CLIPTextEncode"
+      },
+      "widgets_values": [
+        ""
+      ]
     },
     {
       "id": 10,
       "type": "EmptyLatentImage",
-      "pos": [760, 360],
-      "size": [320, 110],
+      "pos": [
+        760,
+        360
+      ],
+      "size": [
+        320,
+        110
+      ],
       "flags": {},
       "order": 9,
       "mode": 0,
       "inputs": [],
       "outputs": [
-        {"name": "LATENT", "type": "LATENT", "links": [13], "slot_index": 0}
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            13
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "EmptyLatentImage"},
-      "widgets_values": [512, 512, 1]
+      "properties": {
+        "Node name for S&R": "EmptyLatentImage"
+      },
+      "widgets_values": [
+        512,
+        512,
+        1
+      ]
     },
     {
       "id": 11,
       "type": "KSampler",
-      "pos": [1200, 40],
-      "size": [320, 260],
+      "pos": [
+        1200,
+        40
+      ],
+      "size": [
+        320,
+        260
+      ],
       "flags": {},
       "order": 10,
       "mode": 0,
       "inputs": [
-        {"name": "model", "type": "MODEL", "link": 1},
-        {"name": "positive", "type": "CONDITIONING", "link": 11},
-        {"name": "negative", "type": "CONDITIONING", "link": 12},
-        {"name": "latent_image", "type": "LATENT", "link": 13}
+        {
+          "name": "model",
+          "type": "MODEL",
+          "link": 1
+        },
+        {
+          "name": "positive",
+          "type": "CONDITIONING",
+          "link": 11
+        },
+        {
+          "name": "negative",
+          "type": "CONDITIONING",
+          "link": 12
+        },
+        {
+          "name": "latent_image",
+          "type": "LATENT",
+          "link": 13
+        }
       ],
       "outputs": [
-        {"name": "LATENT", "type": "LATENT", "links": [14], "slot_index": 0}
+        {
+          "name": "LATENT",
+          "type": "LATENT",
+          "links": [
+            14
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "KSampler"},
-      "widgets_values": [42, "fixed", 20, 8, "euler", "normal", 1.0]
+      "properties": {
+        "Node name for S&R": "KSampler"
+      },
+      "widgets_values": [
+        42,
+        "fixed",
+        20,
+        8,
+        "euler",
+        "normal",
+        1.0
+      ]
     },
     {
       "id": 12,
       "type": "VAEDecode",
-      "pos": [1200, 340],
-      "size": [220, 50],
+      "pos": [
+        1200,
+        340
+      ],
+      "size": [
+        220,
+        50
+      ],
       "flags": {},
       "order": 11,
       "mode": 0,
       "inputs": [
-        {"name": "samples", "type": "LATENT", "link": 14},
-        {"name": "vae", "type": "VAE", "link": 4}
+        {
+          "name": "samples",
+          "type": "LATENT",
+          "link": 14
+        },
+        {
+          "name": "vae",
+          "type": "VAE",
+          "link": 4
+        }
       ],
       "outputs": [
-        {"name": "IMAGE", "type": "IMAGE", "links": [15], "slot_index": 0}
+        {
+          "name": "IMAGE",
+          "type": "IMAGE",
+          "links": [
+            15
+          ],
+          "slot_index": 0
+        }
       ],
-      "properties": {"Node name for S&R": "VAEDecode"},
+      "properties": {
+        "Node name for S&R": "VAEDecode"
+      },
       "widgets_values": []
     },
     {
       "id": 13,
       "type": "PreviewImage",
-      "pos": [1200, 420],
-      "size": [320, 280],
+      "pos": [
+        1200,
+        420
+      ],
+      "size": [
+        320,
+        280
+      ],
       "flags": {},
       "order": 12,
       "mode": 0,
       "inputs": [
-        {"name": "images", "type": "IMAGE", "link": 15}
+        {
+          "name": "images",
+          "type": "IMAGE",
+          "link": 15
+        }
       ],
       "outputs": [],
-      "properties": {"Node name for S&R": "PreviewImage"},
+      "properties": {
+        "Node name for S&R": "PreviewImage"
+      },
       "widgets_values": []
+    },
+    {
+      "id": 14,
+      "type": "TagsMerge",
+      "pos": [
+        760,
+        260
+      ],
+      "size": [
+        300,
+        140
+      ],
+      "flags": {},
+      "order": 14,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bundle_1",
+          "type": "CUUN_TAGS",
+          "link": 16
+        }
+      ],
+      "outputs": [
+        {
+          "name": "prompt",
+          "type": "STRING",
+          "links": [
+            17
+          ],
+          "slot_index": 0
+        },
+        {
+          "name": "warnings",
+          "type": "STRING",
+          "links": null,
+          "slot_index": 1
+        },
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": null,
+          "slot_index": 2
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "TagsMerge"
+      },
+      "widgets_values": [
+        ", ",
+        ""
+      ],
+      "title": "Merge \u2192 STRING"
     }
   ],
   "links": [
-    {"id": 1, "origin_id": 1, "origin_slot": 0, "target_id": 11, "target_slot": 0, "type": "MODEL"},
-    {"id": 2, "origin_id": 1, "origin_slot": 1, "target_id": 8, "target_slot": 0, "type": "CLIP"},
-    {"id": 3, "origin_id": 1, "origin_slot": 1, "target_id": 9, "target_slot": 0, "type": "CLIP"},
-    {"id": 4, "origin_id": 1, "origin_slot": 2, "target_id": 12, "target_slot": 1, "type": "VAE"},
-    {"id": 5, "origin_id": 2, "origin_slot": 1, "target_id": 6, "target_slot": 0, "type": "CUUN_TAGS"},
-    {"id": 6, "origin_id": 3, "origin_slot": 1, "target_id": 6, "target_slot": 1, "type": "CUUN_TAGS"},
-    {"id": 7, "origin_id": 4, "origin_slot": 1, "target_id": 6, "target_slot": 2, "type": "CUUN_TAGS"},
-    {"id": 8, "origin_id": 5, "origin_slot": 1, "target_id": 6, "target_slot": 3, "type": "CUUN_TAGS"},
-    {"id": 9, "origin_id": 6, "origin_slot": 0, "target_id": 8, "target_slot": 1, "type": "STRING"},
-    {"id": 10, "origin_id": 7, "origin_slot": 0, "target_id": 9, "target_slot": 1, "type": "STRING"},
-    {"id": 11, "origin_id": 8, "origin_slot": 0, "target_id": 11, "target_slot": 1, "type": "CONDITIONING"},
-    {"id": 12, "origin_id": 9, "origin_slot": 0, "target_id": 11, "target_slot": 2, "type": "CONDITIONING"},
-    {"id": 13, "origin_id": 10, "origin_slot": 0, "target_id": 11, "target_slot": 3, "type": "LATENT"},
-    {"id": 14, "origin_id": 11, "origin_slot": 0, "target_id": 12, "target_slot": 0, "type": "LATENT"},
-    {"id": 15, "origin_id": 12, "origin_slot": 0, "target_id": 13, "target_slot": 0, "type": "IMAGE"}
+    {
+      "id": 1,
+      "origin_id": 1,
+      "origin_slot": 0,
+      "target_id": 11,
+      "target_slot": 0,
+      "type": "MODEL"
+    },
+    {
+      "id": 2,
+      "origin_id": 1,
+      "origin_slot": 1,
+      "target_id": 8,
+      "target_slot": 0,
+      "type": "CLIP"
+    },
+    {
+      "id": 3,
+      "origin_id": 1,
+      "origin_slot": 1,
+      "target_id": 9,
+      "target_slot": 0,
+      "type": "CLIP"
+    },
+    {
+      "id": 4,
+      "origin_id": 1,
+      "origin_slot": 2,
+      "target_id": 12,
+      "target_slot": 1,
+      "type": "VAE"
+    },
+    {
+      "id": 5,
+      "origin_id": 2,
+      "origin_slot": 0,
+      "target_id": 6,
+      "target_slot": 0,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 6,
+      "origin_id": 3,
+      "origin_slot": 0,
+      "target_id": 6,
+      "target_slot": 1,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 7,
+      "origin_id": 4,
+      "origin_slot": 0,
+      "target_id": 6,
+      "target_slot": 2,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 8,
+      "origin_id": 5,
+      "origin_slot": 0,
+      "target_id": 6,
+      "target_slot": 3,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 9,
+      "origin_id": 6,
+      "origin_slot": 0,
+      "target_id": 8,
+      "target_slot": 1,
+      "type": "STRING"
+    },
+    {
+      "id": 11,
+      "origin_id": 8,
+      "origin_slot": 0,
+      "target_id": 11,
+      "target_slot": 1,
+      "type": "CONDITIONING"
+    },
+    {
+      "id": 12,
+      "origin_id": 9,
+      "origin_slot": 0,
+      "target_id": 11,
+      "target_slot": 2,
+      "type": "CONDITIONING"
+    },
+    {
+      "id": 13,
+      "origin_id": 10,
+      "origin_slot": 0,
+      "target_id": 11,
+      "target_slot": 3,
+      "type": "LATENT"
+    },
+    {
+      "id": 14,
+      "origin_id": 11,
+      "origin_slot": 0,
+      "target_id": 12,
+      "target_slot": 0,
+      "type": "LATENT"
+    },
+    {
+      "id": 15,
+      "origin_id": 12,
+      "origin_slot": 0,
+      "target_id": 13,
+      "target_slot": 0,
+      "type": "IMAGE"
+    },
+    {
+      "id": 16,
+      "origin_id": 7,
+      "origin_slot": 0,
+      "target_id": 14,
+      "target_slot": 0,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 17,
+      "origin_id": 14,
+      "origin_slot": 0,
+      "target_id": 9,
+      "target_slot": 1,
+      "type": "STRING"
+    }
   ],
   "groups": [],
   "config": {},
