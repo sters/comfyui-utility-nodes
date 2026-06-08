@@ -42,14 +42,14 @@ _SEATING: tuple[str, ...] = (
 )
 
 
-class WholePosture(TagNodeBase):
+class BodyPosture(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "body.pose.posture"
     LAYER: ClassVar[str] = "anatomy"
     MUTEX_WITHIN: ClassVar[bool] = True
     TAGS = _POSTURE
 
 
-class WholeSeating(TagNodeBase):
+class BodySeating(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "body.pose.seating"
     LAYER: ClassVar[str] = "anatomy"
     MUTEX_WITHIN: ClassVar[bool] = True
@@ -57,11 +57,11 @@ class WholeSeating(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "WholePosture": WholePosture,
-    "WholeSeating": WholeSeating,
+    "BodyPosture": BodyPosture,
+    "BodySeating": BodySeating,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "WholePosture": "Posture",
-    "WholeSeating": "Seating Style",
+    "BodyPosture": "Posture",
+    "BodySeating": "Seating Style",
 }

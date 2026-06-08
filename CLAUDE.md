@@ -30,7 +30,7 @@ ComfyUI custom-node docs: https://docs.comfy.org/custom-nodes/walkthrough (and t
 
 Two halves under `nodes/tags/`:
 
-- `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `tags_combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them.
+- `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them.
 - `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `composition/`, `meta/` [including `bad.py` negative-quality and `pony.py` model template], `nsfw/`, `decoration/`) and the flat-tuple preset nodes under `preset/` (`character.py`, `personality.py`, `situation.py`, `nsfw_scene.py`).
 
 Auto-discovery walks both via `pkgutil.walk_packages`, so dropping a file under either path is enough to register it.
@@ -88,29 +88,39 @@ Preset nodes live under `nodes/tags/sources/preset/` (`character.py`, `personali
 
 ### Text nodes
 
-`nodes/text/` contains plain prompt utilities (`ListShuffle`, `TextConcat`, `RandomTextPicker`). They are independent of the tag-node bundle system. Combinatorial expansion happens on the tag side via `TagsCombinator` (`nodes/tags/tags_combinator.py`) — there is no STRING-axis combinator, because every axis worth varying in this pack is already a tag bundle.
+`nodes/text/` contains plain prompt utilities (`ListShuffle`, `TextConcat`, `RandomTextPicker`). They are independent of the tag-node bundle system. Combinatorial expansion happens on the tag side via `TagsCombinator` (`nodes/tags/combinator.py`) — there is no STRING-axis combinator, because every axis worth varying in this pack is already a tag bundle.
 
 ### Test layout
 
-`tests/` mirrors `nodes/` 1:1 — every node module has exactly one test file, and they live at the corresponding path:
+`tests/` mirrors `nodes/` 1:1 for everything that carries **behavior** — tag operations, presets, the meta nodes (`count`/`count_extract`/`bad`/`pony`/`quality`), text, image, and util. When a module under one of those areas has a test, it lives at the mirror path:
 
 ```
 nodes/tags/X.py             ←→  tests/tags/test_X.py
-nodes/tags/sources/X.py     ←→  tests/tags/sources/test_X.py
 nodes/tags/sources/sub/X.py ←→  tests/tags/sources/sub/test_X.py
 nodes/text/X.py             ←→  tests/text/test_X.py
 ```
 
-**Keep this invariant when adding nodes or moving things around.** If you split a source file, split its test file the same way; if you move a source into a subpackage, move its test there too. The auto-discovery system is forgiving — pytest will find tests anywhere — but the 1:1 path mapping is what lets a reader jump from a node to its tests (and vice versa) without grepping.
+**Plain `TagNodeBase` toggle sources are intentionally not unit-tested.** The boolean-checkbox source modules (`body/`, `clothing/`, `scene/`, `composition/`, `nsfw/`, `decoration/`) are pure declarative `TAGS` tuples with zero per-node logic — the base class is what's tested (`tests/tags/test_base.py`), and the tags themselves are exercised end-to-end through `TagsMerge` / the preset-combo fixture. **Do not add a one-test-per-toggle-source file** to "complete" the mirror; that's churn with no coverage gain. Only add a test when a source has non-trivial behavior (e.g. `count_extract` parses a prompt) — and then it goes at the mirror path. If you split or move a *tested* module, move its test the same way.
 
-`tests/tags/sources/test_preset_combos.py` is the one cross-cutting fixture: it exercises preset × preset × scene combinations through `TagsMerge` end-to-end and is the canonical place to add a regression when a conflict rule changes.
+`tests/tags/sources/preset/test_combos.py` is the one cross-cutting fixture: it exercises preset × preset × scene combinations through `TagsMerge` end-to-end and is the canonical place to add a regression when a conflict rule changes.
+
+### Naming conventions
+
+Four surfaces must stay in lockstep — folder path, file name, class name, and ComfyUI display name. Rules in force:
+
+- **Class prefix follows the source folder.** Body sources are `Body*` (`BodyPosture`, `BodySeating` — note: not `Whole*`), clothing `Clothing*`, scene `Scene*`, composition `Composition*`, face `Face*` (with `FaceEyes*` / `FaceMouth*` sub-groups), nsfw `Nsfw*`. The `meta/` folder is the one folder hosting **two** prefixes by design: `Meta*` (`MetaQuality`, `MetaPony`, `MetaCount*`) for the template/quality/count nodes and `Bad*` (`BadBody`, `BadNsfw`, …) for the negative-quality "Bad: X" family — keep that split, don't unify them.
+- **Tag *operations* (`nodes/tags/` top level) are `Tags*` plural** — `TagsMerge`, `TagsExplode`, `TagsDecorate`, `TagsFilter`, `TagsCombinator`, etc. (No singular `Tag*`.)
+- **No abbreviations in class names** — spell words out (`SceneBackgroundType`, not `SceneBgType`).
+- **Acronyms are mixed-case in class names, UPPERCASE in display names** — class `BadNsfw` / `NsfwSolo`, display `"Bad: NSFW"` / category `NSFW`. Keep class-name acronym casing as `Nsfw` / `Bdsm` everywhere; the all-caps form only appears in the human-facing display string.
+- **The registered key in `NODE_CLASS_MAPPINGS` equals the class name**, and **`web/docs/<ClassName>.md` filename equals the class name** — both are enforced today (105/105). Renaming a class means renaming its doc file, both mapping keys, any `class_type` in `tests/integration/workflows.json`, the `type` / `Node name for S&R` in `example_workflows/*.json`, and the test references.
+- **Display names drop the folder prefix the category already conveys** (`BodyAction` → `Action`) but **keep an in-folder sub-group prefix with a colon** (`HairColor` → `Hair: Color`, `FaceEyesColor` → `Eyes: Color`), and carry no default/behavior parentheticals.
 
 ## Adding a new tag node
 
 1. Create `nodes/tags/sources/.../foo.py` with a `TagNodeBase` subclass and a module-level `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS`. Use relative imports — `from ..._base import TagNodeBase` for files at `sources/<subpkg>/foo.py`, `from .._base import ...` for files directly under `sources/`.
 2. Auto-discovery picks it up — no registration step.
 3. If the new tags conflict with existing ones, edit `_conflicts.py` — not the node file.
-4. Add tests at the mirror path — `tests/tags/sources/.../test_foo.py` for a `nodes/tags/sources/.../foo.py` source, or `tests/tags/test_foo.py` for a `nodes/tags/foo.py` operation. One source/op file = one test file.
+4. A plain toggle source (just a `TAGS` tuple, no logic) needs **no test** — see "Test layout". Add a test only if the node has real behavior, at the mirror path (`tests/tags/sources/.../test_foo.py`, or `tests/tags/test_foo.py` for an operation).
 5. Add an English help page at `web/docs/<ClassName>.md` ([Help Page](https://docs.comfy.org/custom-nodes/help_page)). `__init__.py` already exposes `WEB_DIRECTORY = "./web"`. Filename must match the registered class name. For ordinary tag nodes the existing files are mechanically generated from `TAGS` — keep that shape unless the node has non-trivial behavior to explain.
 
 ## Workflow templates

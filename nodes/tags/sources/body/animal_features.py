@@ -114,6 +114,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
     "AnimalEars": "Animal Ears",
     "AnimalTail": "Animal Tail",
-    "AnimalWings": "Wings",
-    "AnimalHorns": "Horns",
+    "AnimalWings": "Animal Wings",
+    "AnimalHorns": "Animal Horns",
 }

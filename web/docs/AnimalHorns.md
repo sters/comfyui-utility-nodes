@@ -1,4 +1,4 @@
-# Body: Horns
+# Body: Animal Horns
 
 Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 **Mutex node** — only one of the toggled tags survives after `TagsMerge`.

@@ -73,7 +73,7 @@ After loading the template:
 
 ### `decorate_schoolgirl_skirt.json`
 
-Demonstrates **chained `TagDecorate`** for true multi-axis variant
+Demonstrates **chained `TagsDecorate`** for true multi-axis variant
 generation. Two decoration stages multiply axes inside ComfyUI's
 graph, producing a 3 × 3 = 9-prompt sweep with one click.
 
@@ -82,13 +82,13 @@ CharacterPreset(serafuku_schoolgirl) ─► TagsMerge ─┐
                                                    │
 ColorPalette(red, green, blue) ─► TagsExplode ─────┤   (skirt color axis)
                                                    ▼
-                                          TagDecorate (stage 1)
+                                          TagsDecorate (stage 1)
                                             target: clothing.bottoms
                                             output: 3 bundles
                                                    │
 ColorPalette(black, white, gray) ─► TagsExplode ───┤   (top color axis)
                                                    ▼
-                                          TagDecorate (stage 2)
+                                          TagsDecorate (stage 2)
                                             target: clothing.uniform
                                             output: 3 × 3 = 9 bundles
                                                    │
@@ -97,7 +97,7 @@ ColorPalette(black, white, gray) ─► TagsExplode ───┤   (top color ax
                   (bundle→STRING) (auto-fanout × 9)
 ```
 
-Each `TagDecorate` has `INPUT_IS_LIST=True` and iterates
+Each `TagsDecorate` has `INPUT_IS_LIST=True` and iterates
 `bundle × decoration` internally, so stage 1 (1 base × 3 colors) emits
 3 bundles, and stage 2 takes those 3 bundles × its own 3 colors → 9.
 The preset's `pleated_skirt` becomes `<skirt_color> pleated skirt`;
@@ -109,7 +109,7 @@ To extend further:
 
 - **More variants on an existing axis**: check more boxes on the
   matching `ColorPalette`. The cross-product scales automatically.
-- **More axes**: chain a third `TagDecorate` for, e.g.,
+- **More axes**: chain a third `TagsDecorate` for, e.g.,
   `clothing.legwear` × thighhigh patterns. Each stage multiplies.
 - **Different decoration types**: swap `ColorPalette` for
   `ClothingPattern` or `ClothingMaterial` on either axis.

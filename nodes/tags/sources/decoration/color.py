@@ -2,7 +2,7 @@ from typing import ClassVar
 
 from ..._base import TagNodeBase
 
-# Generic color words intended to be wired into TagDecorate as the
+# Generic color words intended to be wired into TagsDecorate as the
 # `decoration` input. These are deliberately the bare color names — not
 # the `*_hair` / `*_eyes` variants — so prefixing onto e.g. `pleated_skirt`
 # yields a natural phrase like `red pleated_skirt`.
@@ -41,7 +41,7 @@ _COLORS: tuple[str, ...] = (
 
 
 class ColorPalette(TagNodeBase):
-    """Generic color tags for use as a `TagDecorate` decoration input."""
+    """Generic color tags for use as a `TagsDecorate` decoration input."""
 
     CATEGORY_ID: ClassVar[str] = "decoration.color"
     LAYER: ClassVar[str] = "decoration"

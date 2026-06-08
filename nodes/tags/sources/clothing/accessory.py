@@ -92,7 +92,7 @@ class ClothingNeck(TagNodeBase):
     TAGS = _NECK
 
 
-class ClothingAccessoryOther(TagNodeBase):
+class ClothingAccessory(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "clothing.accessory.other"
     LAYER: ClassVar[str] = "clothing"
     MUTEX_WITHIN: ClassVar[bool] = False
@@ -102,11 +102,11 @@ class ClothingAccessoryOther(TagNodeBase):
 NODE_CLASS_MAPPINGS: dict[str, type] = {
     "ClothingHandArm": ClothingHandArm,
     "ClothingNeck": ClothingNeck,
-    "ClothingAccessoryOther": ClothingAccessoryOther,
+    "ClothingAccessory": ClothingAccessory,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
     "ClothingHandArm": "Hand & Arm",
     "ClothingNeck": "Neck",
-    "ClothingAccessoryOther": "Accessory",
+    "ClothingAccessory": "Accessory",
 }

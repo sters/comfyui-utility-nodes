@@ -1,4 +1,4 @@
-"""Tests for TagDecorate + ColorPalette."""
+"""Tests for TagsDecorate + ColorPalette."""
 
 from __future__ import annotations
 
@@ -7,7 +7,7 @@ import pkgutil
 
 import nodes.tags
 from nodes.tags._base import TAG_CATEGORY_REGISTRY, TaggedSelection
-from nodes.tags.decorate import TagDecorate
+from nodes.tags.decorate import TagsDecorate
 from nodes.tags.sources.decoration.color import ColorPalette
 
 
@@ -42,7 +42,7 @@ def _call(
     """
     b = bundle if isinstance(bundle, list) else ([bundle] if bundle is not None else None)
     d = decoration if isinstance(decoration, list) else ([decoration] if decoration is not None else None)
-    out = TagDecorate().decorate(
+    out = TagsDecorate().decorate(
         separator=[sep],
         target_category=[target],
         bundle=b,

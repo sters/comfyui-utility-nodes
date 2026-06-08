@@ -14,7 +14,7 @@ class TagsFilter:
     """Drop every tag whose registered category matches `target_category`.
 
     Per-tag lookup against `TAG_CATEGORY_REGISTRY` (the same registry
-    `TagDecorate` uses), not against the selection's own `category` field.
+    `TagsDecorate` uses), not against the selection's own `category` field.
     That way a preset like `CharacterPreset(serafuku_schoolgirl)` — which
     packs all its tags into one selection with category `preset.X` — can
     still have `thighhighs` removed by targeting `clothing.legwear`.

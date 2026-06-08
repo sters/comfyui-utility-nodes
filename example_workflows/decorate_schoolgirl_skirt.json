@@ -197,7 +197,7 @@
     },
     {
       "id": 5,
-      "type": "TagDecorate",
+      "type": "TagsDecorate",
       "title": "Stage 1: skirt \u00d7 color (\u00d7 3)",
       "pos": [
         760,
@@ -239,7 +239,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagDecorate"
+        "Node name for S&R": "TagsDecorate"
       },
       "widgets_values": [
         ", ",
@@ -350,7 +350,7 @@
     },
     {
       "id": 8,
-      "type": "TagDecorate",
+      "type": "TagsDecorate",
       "title": "Stage 2: serafuku \u00d7 color (3 \u00d7 3 = 9)",
       "pos": [
         1200,
@@ -392,7 +392,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagDecorate"
+        "Node name for S&R": "TagsDecorate"
       },
       "widgets_values": [
         ", ",

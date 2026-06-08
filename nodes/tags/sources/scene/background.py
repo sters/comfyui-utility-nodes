@@ -77,7 +77,7 @@ _OUTDOOR: tuple[str, ...] = (
 )
 
 
-class SceneBgType(TagNodeBase):
+class SceneBackgroundType(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "scene.bg_type"
     LAYER: ClassVar[str] = "scene"
     MUTEX_WITHIN: ClassVar[bool] = True
@@ -99,13 +99,13 @@ class SceneOutdoor(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "SceneBgType": SceneBgType,
+    "SceneBackgroundType": SceneBackgroundType,
     "SceneIndoor": SceneIndoor,
     "SceneOutdoor": SceneOutdoor,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "SceneBgType": "Background Type",
+    "SceneBackgroundType": "Background Type",
     "SceneIndoor": "Indoor Location",
     "SceneOutdoor": "Outdoor Location",
 }

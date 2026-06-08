@@ -1,7 +1,7 @@
 from nodes.tags._base import TaggedSelection
+from nodes.tags.combinator import TagsCombinator
 from nodes.tags.explode import TagsExplode
 from nodes.tags.sources.preset.character import CharacterPreset
-from nodes.tags.tags_combinator import TagsCombinator
 
 
 def _sel(category: str, tags: tuple[str, ...], mutex_within: bool = False) -> TaggedSelection:

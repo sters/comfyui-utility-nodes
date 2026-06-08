@@ -17,7 +17,7 @@ class MetaPony:
     with the rest of the pipeline.
 
     Rating/source tags aren't in the tag-category registry, so
-    `TagDecorate` won't latch onto them.
+    `TagsDecorate` won't latch onto them.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)

@@ -14,7 +14,7 @@ from nodes.tags.sources.meta.bad import (
     BadGeneral,
     BadHeadFace,
     BadLimbs,
-    BadNSFW,
+    BadNsfw,
     BadQuality,
 )
 
@@ -24,7 +24,7 @@ _NODES: list[tuple[type[TagNodeBase], str, str]] = [
     (BadHeadFace, "bad.head_face", "bad_face"),
     (BadBody, "bad.body", "bad_torso"),
     (BadLimbs, "bad.limbs", "bad_hands"),
-    (BadNSFW, "bad.nsfw", "bad_vulva"),
+    (BadNsfw, "bad.nsfw", "bad_vulva"),
 ]
 
 

@@ -9,12 +9,12 @@
 - `bundle` (CUUN_TAGS, optional): the main bundle to decorate. Typically the output of `TagsMerge`.
 - `decoration` (CUUN_TAGS, optional): bundle whose tags are joined with spaces and used as the prefix. Underscores become spaces (`light_blue` → `light blue`).
 
-Both `bundle` and `decoration` accept a list, and `TagDecorate` takes the **Cartesian product** internally (see "Variant generation" below).
+Both `bundle` and `decoration` accept a list, and `TagsDecorate` takes the **Cartesian product** internally (see "Variant generation" below).
 
 ## Outputs (lists, `OUTPUT_IS_LIST=True`)
 
 - `warnings` (STRING list): per-pair warnings — "no tags matched target_category" or "decoration provided but no category selected".
-- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagDecorate` or `TagsMerge` to multiply variants further. One flattened prompt per (bundle × decoration) pair also previews as the node's OUTPUT_NODE preview.
+- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagsDecorate` or `TagsMerge` to multiply variants further. One flattened prompt per (bundle × decoration) pair also previews as the node's OUTPUT_NODE preview.
 
 ## Variant generation
 
@@ -27,12 +27,12 @@ Both `bundle` and `decoration` accept a list, and `TagDecorate` takes the **Cart
 | M bundles | 1 decoration | M | "apply the same red plaid to each top variant" |
 | M bundles | N decorations | M × N | "every top × every colour" |
 
-Chaining two `TagDecorate`s multiplies axes:
+Chaining two `TagsDecorate`s multiplies axes:
 `Decorate(skirt, [red,green,blue])` → 3 bundles → `Decorate(tops, [shirt,blouse,hoodie])` → 3 × 3 = 9 prompts.
 
 ## How decoration is matched
 
-`TagDecorate` looks up each tag in the main bundle against a global tag→category registry built at import time from every `TagNodeBase` subclass's `TAGS`. Tags from `CharacterPreset` (which emit their own `preset.character` category) are still resolved correctly because the registry knows that, e.g., `pleated_skirt` originated in `ClothingBottoms` regardless of which node placed it in the bundle.
+`TagsDecorate` looks up each tag in the main bundle against a global tag→category registry built at import time from every `TagNodeBase` subclass's `TAGS`. Tags from `CharacterPreset` (which emit their own `preset.character` category) are still resolved correctly because the registry knows that, e.g., `pleated_skirt` originated in `ClothingBottoms` regardless of which node placed it in the bundle.
 
 The `extra` selection is always passed through untouched.
 
@@ -50,7 +50,7 @@ Merge multiple decoration sources through `TagsMerge` before wiring into `decora
 
 ```
 CharacterPreset(serafuku_schoolgirl) ─┐
-                                      ├─► TagsMerge ─► TagDecorate ─► prompt
+                                      ├─► TagsMerge ─► TagsDecorate ─► prompt
 [other nodes...]                    ──┘                ▲ target_category: clothing.bottoms
                                                        │
 ColorPalette(red, green) ─┐                            │
@@ -58,7 +58,7 @@ ColorPalette(red, green) ─┐                            │
 ClothingPattern(plaid)  ──┘
 ```
 
-`pleated_skirt` becomes `red green plaid pleated skirt` in the output; the rest of the preset (hair, top, footwear) is untouched. Chain another `TagDecorate` after this one to decorate a different category in the same workflow.
+`pleated_skirt` becomes `red green plaid pleated skirt` in the output; the rest of the preset (hair, top, footwear) is untouched. Chain another `TagsDecorate` after this one to decorate a different category in the same workflow.
 
 ## Notes
 

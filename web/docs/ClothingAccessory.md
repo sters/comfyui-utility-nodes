@@ -1,4 +1,4 @@
-# Clothing: Accessory (other)
+# Clothing: Accessory
 
 Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 Internal layer / category: `clothing` / `clothing.accessory.other`.

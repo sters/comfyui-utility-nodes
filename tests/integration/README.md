@@ -52,7 +52,7 @@ The `workflow` block is the ComfyUI **API format** (the same shape the
 that the exact string equals one of the elements of the named node's
 `outputs.text` from the `/history/<prompt_id>` response — which means
 the asserted node must have `OUTPUT_NODE = True`. All tag-toggle nodes,
-`TagsMerge`, `TagDecorate`, and `MetaPony` qualify; pure
+`TagsMerge`, `TagsDecorate`, and `MetaPony` qualify; pure
 pipe-through text nodes (e.g. `TextConcat`) don't expose preview text,
 so route them through an OUTPUT_NODE terminator if you need to assert
 on them.
@@ -82,7 +82,7 @@ shorter.
 text list:
 
 - For a single-prompt node, write the full prompt string.
-- For a list-output node (e.g. `TagDecorate` with `INPUT_IS_LIST=True`),
+- For a list-output node (e.g. `TagsDecorate` with `INPUT_IS_LIST=True`),
   one expectation per variant you care about. Each must equal one of
   the texts in the list verbatim.
 

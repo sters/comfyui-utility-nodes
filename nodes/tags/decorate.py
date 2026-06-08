@@ -10,7 +10,7 @@ def _all_categories() -> list[str]:
     return sorted({c for c in TAG_CATEGORY_REGISTRY.values() if c})
 
 
-class TagDecorate:
+class TagsDecorate:
     """Prefix tags in a bundle that belong to a chosen category with a
     decoration phrase (built from another bundle).
 
@@ -22,7 +22,7 @@ class TagDecorate:
     - 1 bundle × N decorations → N results (broadcast)
     - M bundles × N decorations → M × N results (cross product)
 
-    Chain multiple `TagDecorate` nodes for multi-axis decoration (e.g.
+    Chain multiple `TagsDecorate` nodes for multi-axis decoration (e.g.
     apply colors to clothing.bottoms in the first stage, then apply a
     different decoration to clothing.tops in the second — each stage
     multiplies the variant count).
@@ -102,10 +102,10 @@ class TagDecorate:
         if target == _NONE or not target:
             if prefix:
                 warnings.append(f"decorate: skipped — no target_category selected (prefix='{prefix}')")
-            return TagDecorate._flatten(sep, bundle, warnings)
+            return TagsDecorate._flatten(sep, bundle, warnings)
 
         if not prefix:
-            return TagDecorate._flatten(sep, bundle, warnings)
+            return TagsDecorate._flatten(sep, bundle, warnings)
 
         matched = 0
         new_bundle: list[TaggedSelection] = []
@@ -136,7 +136,7 @@ class TagDecorate:
         if matched == 0:
             warnings.append(f"decorate: no tags in bundle matched category '{target}' (prefix '{prefix}' dropped)")
 
-        return TagDecorate._flatten(sep, tuple(new_bundle), warnings)
+        return TagsDecorate._flatten(sep, tuple(new_bundle), warnings)
 
     @staticmethod
     def _flatten(
@@ -150,5 +150,5 @@ class TagDecorate:
         return sep.join(parts), "\n".join(warnings), bundle
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagDecorate": TagDecorate}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagDecorate": "Decorate"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsDecorate": TagsDecorate}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsDecorate": "Decorate"}

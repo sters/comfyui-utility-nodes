@@ -133,7 +133,7 @@ class BadLimbs(TagNodeBase):
     TAGS = _LIMBS
 
 
-class BadNSFW(TagNodeBase):
+class BadNsfw(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "bad.nsfw"
     LAYER: ClassVar[str] = "bad"
     MUTEX_WITHIN: ClassVar[bool] = False
@@ -147,7 +147,7 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
     "BadHeadFace": BadHeadFace,
     "BadBody": BadBody,
     "BadLimbs": BadLimbs,
-    "BadNSFW": BadNSFW,
+    "BadNsfw": BadNsfw,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
@@ -156,5 +156,5 @@ NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
     "BadHeadFace": "Bad: Head & Face",
     "BadBody": "Bad: Body",
     "BadLimbs": "Bad: Limbs",
-    "BadNSFW": "Bad: NSFW",
+    "BadNsfw": "Bad: NSFW",
 }

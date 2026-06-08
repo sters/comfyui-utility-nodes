@@ -1,6 +1,6 @@
 # Decoration: Color Palette
 
-`UtilityNodes/TagMaster` menu tree. Emits bare color names (`red`, `green`, `light_blue`, ...) as a `CUUN_TAGS` bundle. Intended as a `decoration` input for `TagDecorate`.
+`UtilityNodes/TagMaster` menu tree. Emits bare color names (`red`, `green`, `light_blue`, ...) as a `CUUN_TAGS` bundle. Intended as a `decoration` input for `TagsDecorate`.
 
 ## Inputs
 
@@ -21,14 +21,14 @@
 
 ```
 ColorPalette(red, green) ─┐
-                          ├─► TagsMerge ─► TagDecorate.decoration
+                          ├─► TagsMerge ─► TagsDecorate.decoration
 ClothingPattern(plaid)  ──┘                 ▲ target_category: clothing.bottoms
                                             │
 [preset / clothing nodes] ─► TagsMerge ─────┘ bundle
 ```
 
-The downstream `pleated_skirt` becomes `red green plaid pleated skirt`. See `TagDecorate` for the full pipeline.
+The downstream `pleated_skirt` becomes `red green plaid pleated skirt`. See `TagsDecorate` for the full pipeline.
 
 ## Tips
 
-- Don't wire `ColorPalette` directly into the main `TagsMerge` — the bare colors will appear as standalone tags in your prompt. Route it through `TagDecorate`'s `decoration` input.
+- Don't wire `ColorPalette` directly into the main `TagsMerge` — the bare colors will appear as standalone tags in your prompt. Route it through `TagsDecorate`'s `decoration` input.

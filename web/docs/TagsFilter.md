@@ -14,7 +14,7 @@
 
 ## Behavior
 
-- Category lookup uses `TAG_CATEGORY_REGISTRY` — the same per-tag registry `TagDecorate` uses — **not** the selection's own `category` field. That way preset selections (which use a `preset.X` selection-category) still have their inner tags filtered by the tag's original category.
+- Category lookup uses `TAG_CATEGORY_REGISTRY` — the same per-tag registry `TagsDecorate` uses — **not** the selection's own `category` field. That way preset selections (which use a `preset.X` selection-category) still have their inner tags filtered by the tag's original category.
 - Tags in the `extra` selection always pass through (they're free-form text and aren't in the registry).
 - Unregistered tags (free-form additions) are kept even if the selection they live in carries the targeted category, since the registry has no record of their intent.
 - Chain multiple `TagsFilter` nodes to drop more than one category.

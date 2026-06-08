@@ -11,7 +11,7 @@ class TagsShuffle:
     only the per-selection `tags` tuple is shuffled. Use this when you
     want to randomise the **textual order** of tags in the final prompt
     without breaking the merge-pipeline contract (categories still
-    matter for `TagsMerge` mutex / `TagDecorate` lookup).
+    matter for `TagsMerge` mutex / `TagsDecorate` lookup).
 
     `extra` selections are passed through untouched (they're free-form
     text, not orderable tag lists).
