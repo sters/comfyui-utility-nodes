@@ -1,10 +1,10 @@
 from typing import Any
 
-from nodes.tags.sources.meta.count_extract import MetaCountExtract
+from nodes.tags.count_extract import TagsExtractSubjectCount
 
 
 def _run(prompt: str) -> tuple[str, int, int, int, int]:
-    out: dict[str, Any] = MetaCountExtract().extract(prompt)
+    out: dict[str, Any] = TagsExtractSubjectCount().extract(prompt)
     r = out["result"]
     return str(r[0]), int(r[1]), int(r[2]), int(r[3]), int(r[4])
 
@@ -78,5 +78,5 @@ def test_does_not_match_inside_words() -> None:
 
 
 def test_preview_text_surfaced() -> None:
-    out = MetaCountExtract().extract("2girls, 1boy")
+    out = TagsExtractSubjectCount().extract("2girls, 1boy")
     assert out["ui"]["text"][0] == "3 subject(s): 2girls, 1boy"

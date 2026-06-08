@@ -24,13 +24,13 @@ _TOTAL_MAP = {"solo": 1, "solo_focus": 1, "duo": 2, "trio": 3, "couple": 2, "gro
 _GENDERS = ("girl", "boy", "other")
 
 
-class MetaCountExtract:
+class TagsExtractSubjectCount:
     """Extract subject-count tags and a person count from a prompt STRING."""
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "INT", "INT", "INT", "INT")
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("count_tags", "total", "girls", "boys", "others")
     FUNCTION: ClassVar[str] = "extract"
-    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Meta"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -86,5 +86,5 @@ class MetaCountExtract:
         }
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"MetaCountExtract": MetaCountExtract}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"MetaCountExtract": "Subject Count: Extract"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsExtractSubjectCount": TagsExtractSubjectCount}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsExtractSubjectCount": "Extract Subject Count"}

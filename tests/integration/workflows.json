@@ -499,7 +499,7 @@
   },
   {
     "name": "count_extract_from_merged_prompt",
-    "description": "MetaCountExtract parses subject-count tags out of an assembled prompt. CharacterPreset(miko) carries no count tag, so a count is injected via MetaCountGirls + MetaCountBoys, merged to a STRING, then extracted — verifying the STRING round-trips through TagsMerge into the parser and the preview reports the total.",
+    "description": "TagsExtractSubjectCount parses subject-count tags out of an assembled prompt. CharacterPreset(miko) carries no count tag, so a count is injected via MetaCountGirls + MetaCountBoys, merged to a STRING, then extracted — verifying the STRING round-trips through TagsMerge into the parser and the preview reports the total.",
     "workflow": {
       "1": {"class_type": "MetaCountGirls", "inputs": {"2girls": true}},
       "2": {"class_type": "MetaCountBoys", "inputs": {"1boy": true}},
@@ -508,7 +508,7 @@
         "class_type": "TagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}
       },
-      "5": {"class_type": "MetaCountExtract", "inputs": {"prompt": ["4", 0]}}
+      "5": {"class_type": "TagsExtractSubjectCount", "inputs": {"prompt": ["4", 0]}}
     },
     "expect": [
       ["5", "3 subject(s): 2girls, 1boy"]

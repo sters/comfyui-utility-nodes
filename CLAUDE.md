@@ -30,7 +30,7 @@ ComfyUI custom-node docs: https://docs.comfy.org/custom-nodes/walkthrough (and t
 
 Two halves under `nodes/tags/`:
 
-- `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them.
+- `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them. The one outlier is `count_extract.py` (`TagsExtractSubjectCount`), which *consumes* a prompt STRING (typically `TagsMerge.prompt`) and extracts an INT person count — it still belongs here as a tag operation, not under `sources/`, because it does not emit a CUUN_TAGS bundle.
 - `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `composition/`, `meta/` [including `bad.py` negative-quality and `pony.py` model template], `nsfw/`, `decoration/`) and the flat-tuple preset nodes under `preset/` (`character.py`, `personality.py`, `situation.py`, `nsfw_scene.py`).
 
 Auto-discovery walks both via `pkgutil.walk_packages`, so dropping a file under either path is enough to register it.
@@ -92,7 +92,7 @@ Preset nodes live under `nodes/tags/sources/preset/` (`character.py`, `personali
 
 ### Test layout
 
-`tests/` mirrors `nodes/` 1:1 for everything that carries **behavior** — tag operations, presets, the meta nodes (`count`/`count_extract`/`bad`/`pony`/`quality`), text, image, and util. When a module under one of those areas has a test, it lives at the mirror path:
+`tests/` mirrors `nodes/` 1:1 for everything that carries **behavior** — tag operations (including `count_extract`), presets, the meta nodes (`count`/`bad`/`pony`/`quality`), text, image, and util. When a module under one of those areas has a test, it lives at the mirror path:
 
 ```
 nodes/tags/X.py             ←→  tests/tags/test_X.py
@@ -109,7 +109,7 @@ nodes/text/X.py             ←→  tests/text/test_X.py
 Four surfaces must stay in lockstep — folder path, file name, class name, and ComfyUI display name. Rules in force:
 
 - **Class prefix follows the source folder.** Body sources are `Body*` (`BodyPosture`, `BodySeating` — note: not `Whole*`), clothing `Clothing*`, scene `Scene*`, composition `Composition*`, face `Face*` (with `FaceEyes*` / `FaceMouth*` sub-groups), nsfw `Nsfw*`. The `meta/` folder is the one folder hosting **two** prefixes by design: `Meta*` (`MetaQuality`, `MetaPony`, `MetaCount*`) for the template/quality/count nodes and `Bad*` (`BadBody`, `BadNsfw`, …) for the negative-quality "Bad: X" family — keep that split, don't unify them.
-- **Tag *operations* (`nodes/tags/` top level) are `Tags*` plural** — `TagsMerge`, `TagsExplode`, `TagsDecorate`, `TagsFilter`, `TagsCombinator`, etc. (No singular `Tag*`.)
+- **Tag *operations* (`nodes/tags/` top level) are `Tags*` plural** — `TagsMerge`, `TagsExplode`, `TagsDecorate`, `TagsFilter`, `TagsCombinator`, `TagsExtractSubjectCount`, etc. (No singular `Tag*`.)
 - **No abbreviations in class names** — spell words out (`SceneBackgroundType`, not `SceneBgType`).
 - **Acronyms are mixed-case in class names, UPPERCASE in display names** — class `BadNsfw` / `NsfwSolo`, display `"Bad: NSFW"` / category `NSFW`. Keep class-name acronym casing as `Nsfw` / `Bdsm` everywhere; the all-caps form only appears in the human-facing display string.
 - **The registered key in `NODE_CLASS_MAPPINGS` equals the class name**, and **`web/docs/<ClassName>.md` filename equals the class name** — both are enforced today (105/105). Renaming a class means renaming its doc file, both mapping keys, any `class_type` in `tests/integration/workflows.json`, the `type` / `Node name for S&R` in `example_workflows/*.json`, and the test references.
