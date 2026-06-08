@@ -23,7 +23,7 @@ class MetaPony:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Meta"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -88,5 +88,5 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "MetaPony": "Meta: Pony",
+    "MetaPony": "Pony",
 }

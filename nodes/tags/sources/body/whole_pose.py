@@ -62,6 +62,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "WholePosture": "Body: Posture (standing/lying/leaning)",
-    "WholeSeating": "Body: Seating Style",
+    "WholePosture": "Posture",
+    "WholeSeating": "Seating Style",
 }

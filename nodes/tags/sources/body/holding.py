@@ -79,6 +79,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "HoldingObject": "Body: Holding (object)",
-    "HoldingWeapon": "Body: Holding (weapon)",
+    "HoldingObject": "Holding: Object",
+    "HoldingWeapon": "Holding: Weapon",
 }

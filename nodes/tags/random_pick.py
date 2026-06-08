@@ -21,7 +21,7 @@ class TagsRandomPick:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "pick"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -78,4 +78,4 @@ class TagsRandomPick:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsRandomPick": TagsRandomPick}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsRandomPick": "Tags: Random Pick"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsRandomPick": "Random Pick"}

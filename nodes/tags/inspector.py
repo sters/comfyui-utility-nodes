@@ -15,7 +15,7 @@ class TagsBundleInspector:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE, "STRING")
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "report")
     FUNCTION: ClassVar[str] = "inspect"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -58,4 +58,4 @@ def _format_report(bundle: tuple[TaggedSelection, ...], warnings: str) -> str:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsBundleInspector": TagsBundleInspector}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsBundleInspector": "Tags: Bundle Inspector"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsBundleInspector": "Bundle Inspector"}

@@ -1,6 +1,6 @@
 # Situation Preset
 
-`utility/text` category. Emits an SFW scene bundle (location + time-of-day + atmosphere + costume + simple action) for a coherent everyday situation. Designed to layer with `Character Preset` and `Personality Preset` through `TagsMerge`.
+`UtilityNodes/TagMaster` menu tree. Emits an SFW scene bundle (location + time-of-day + atmosphere + costume + simple action) for a coherent everyday situation. Designed to layer with `Character Preset` and `Personality Preset` through `TagsMerge`.
 
 ## Inputs
 

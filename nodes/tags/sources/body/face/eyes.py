@@ -102,7 +102,7 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "FaceEyesColor": "Face / Eyes: Color",
-    "FaceEyesState": "Face / Eyes: State & Gaze",
-    "FaceEyesDetails": "Face / Eyes: Pupils & Details",
+    "FaceEyesColor": "Eyes: Color",
+    "FaceEyesState": "Eyes: State & Gaze",
+    "FaceEyesDetails": "Eyes: Pupils & Details",
 }

@@ -9,7 +9,7 @@ cd ComfyUI/custom_nodes
 git clone https://github.com/sters/comfyui-utility-nodes.git
 ```
 
-ComfyUI を再起動すると `utility/text` カテゴリにノードが追加される。
+ComfyUI を再起動すると `UtilityNodes` カテゴリ（`TagMaster` / `Text` / `Image` サブメニュー）にノードが追加される。
 
 ## ヘルプ
 

@@ -1,6 +1,6 @@
 # Decoration: Color Palette
 
-`utility/text` category. Emits bare color names (`red`, `green`, `light_blue`, ...) as a `CUUN_TAGS` bundle. Intended as a `decoration` input for `TagDecorate`.
+`UtilityNodes/TagMaster` menu tree. Emits bare color names (`red`, `green`, `light_blue`, ...) as a `CUUN_TAGS` bundle. Intended as a `decoration` input for `TagDecorate`.
 
 ## Inputs
 

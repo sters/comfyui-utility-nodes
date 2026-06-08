@@ -33,7 +33,7 @@ class TagDecorate:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("warnings", "bundle")
     OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True)
     FUNCTION: ClassVar[str] = "decorate"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -151,4 +151,4 @@ class TagDecorate:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagDecorate": TagDecorate}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagDecorate": "Tags: Decorate"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagDecorate": "Decorate"}

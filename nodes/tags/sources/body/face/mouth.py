@@ -58,6 +58,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "FaceMouthState": "Face / Mouth: State",
-    "FaceMouthDetails": "Face / Mouth: Details",
+    "FaceMouthState": "Mouth: State",
+    "FaceMouthDetails": "Mouth: Details",
 }

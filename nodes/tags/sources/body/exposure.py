@@ -41,6 +41,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BodyExposure": "Body: Exposure",
-    "BodyLowerAnatomy": "Body: Lower Anatomy",
+    "BodyExposure": "Exposure",
+    "BodyLowerAnatomy": "Lower Anatomy",
 }

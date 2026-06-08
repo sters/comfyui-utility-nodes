@@ -1,6 +1,6 @@
 # Face / Mouth: Details
 
-Tag-toggle node under the `utility/text` category.
+Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 Internal layer / category: `anatomy` / `body.face.mouth.details`.
 
 ## Inputs

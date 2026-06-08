@@ -1,6 +1,6 @@
 # Tags: Shuffle
 
-`utility/text` category. Randomly reorders the tags inside each `TaggedSelection` of a CUUN_TAGS bundle. Selection structure (category / layer / mutex_within) is preserved, so the downstream merge / decorate pipeline keeps working — only the textual tag order changes.
+`UtilityNodes/TagMaster` menu tree. Randomly reorders the tags inside each `TaggedSelection` of a CUUN_TAGS bundle. Selection structure (category / layer / mutex_within) is preserved, so the downstream merge / decorate pipeline keeps working — only the textual tag order changes.
 
 ## Inputs
 

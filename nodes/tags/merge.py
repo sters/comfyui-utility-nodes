@@ -11,7 +11,7 @@ class TagsMerge:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "warnings", "bundle")
     FUNCTION: ClassVar[str] = "merge"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -135,4 +135,4 @@ class TagsMerge:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsMerge": TagsMerge}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsMerge": "Tags: Merge & Validate"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsMerge": "Merge & Validate"}

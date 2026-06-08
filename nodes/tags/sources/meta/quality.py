@@ -33,4 +33,4 @@ class MetaQuality(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"MetaQuality": MetaQuality}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"MetaQuality": "Meta: Quality (defaults all-on)"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"MetaQuality": "Quality"}

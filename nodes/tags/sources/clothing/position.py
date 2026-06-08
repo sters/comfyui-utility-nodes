@@ -34,4 +34,4 @@ class ClothingPosition(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"ClothingPosition": ClothingPosition}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"ClothingPosition": "Clothing: Position (displacement)"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"ClothingPosition": "Position"}

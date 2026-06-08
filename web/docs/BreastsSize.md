@@ -1,6 +1,6 @@
 # Breasts: Size
 
-Tag-toggle node under the `utility/text` category.
+Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 **Mutex node** — only one of the toggled tags survives after `TagsMerge`.
 Internal layer / category: `anatomy` / `body.breasts.size`.
 

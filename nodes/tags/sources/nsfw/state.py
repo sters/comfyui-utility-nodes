@@ -69,6 +69,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "NsfwStateFluids": "NSFW State: Fluids",
-    "NsfwStateAftermathExpression": "NSFW State: Aftermath & Expression",
+    "NsfwStateFluids": "State: Fluids",
+    "NsfwStateAftermathExpression": "State: Aftermath & Expression",
 }

@@ -1,6 +1,6 @@
 # Text Concat
 
-`utility/text` category. Joins up to 10 STRING inputs with `separator`. `None` and empty-string inputs are skipped, so unwired sockets and blank prompts vanish cleanly.
+`UtilityNodes/Text` category. Joins up to 10 STRING inputs with `separator`. `None` and empty-string inputs are skipped, so unwired sockets and blank prompts vanish cleanly.
 
 ## Inputs
 

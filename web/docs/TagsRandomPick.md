@@ -1,6 +1,6 @@
 # Tags: Random Pick
 
-`utility/text` category. Picks `count` random tags out of every non-`extra` selection in a CUUN_TAGS bundle, returns them as a single new selection at category `random_pick`. Use for "give me a random subset of these tags in the prompt" — variety without writing a separate template for each combination.
+`UtilityNodes/TagMaster` menu tree. Picks `count` random tags out of every non-`extra` selection in a CUUN_TAGS bundle, returns them as a single new selection at category `random_pick`. Use for "give me a random subset of these tags in the prompt" — variety without writing a separate template for each combination.
 
 ## Inputs
 

@@ -27,7 +27,7 @@ class TagsFilter:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "filter"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -80,4 +80,4 @@ class TagsFilter:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsFilter": TagsFilter}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsFilter": "Tags: Filter (drop category)"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsFilter": "Filter"}

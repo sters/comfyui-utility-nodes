@@ -1,6 +1,6 @@
 # Tags: Filter (drop category)
 
-`utility/text` category. Drops every tag in a `CUUN_TAGS` bundle whose **registered category** matches `target_category`. Use to subtract a single aspect from a preset (e.g. keep `serafuku_schoolgirl` but drop the legwear) without rebuilding the preset by hand.
+`UtilityNodes/TagMaster` menu tree. Drops every tag in a `CUUN_TAGS` bundle whose **registered category** matches `target_category`. Use to subtract a single aspect from a preset (e.g. keep `serafuku_schoolgirl` but drop the legwear) without rebuilding the preset by hand.
 
 ## Inputs
 

@@ -82,7 +82,7 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BodyMolesFreckles": "Body: Moles & Freckles",
-    "BodyScars": "Body: Scars",
-    "BodyTattoos": "Body: Tattoos",
+    "BodyMolesFreckles": "Moles & Freckles",
+    "BodyScars": "Scars",
+    "BodyTattoos": "Tattoos",
 }

@@ -1,6 +1,6 @@
 # List Shuffle
 
-`utility/text` category. Shuffles a STRING list with a seed and optionally keeps only the first N items. Typically chained after `Prompt Combinator` to realize "expand all combinations, then sample N at random."
+`UtilityNodes/Text` category. Shuffles a STRING list with a seed and optionally keeps only the first N items. Typically chained after `Prompt Combinator` to realize "expand all combinations, then sample N at random."
 
 ## Inputs
 

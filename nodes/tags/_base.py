@@ -12,6 +12,40 @@ TAGS_TYPE = "CUUN_TAGS"
 # because module import order is deterministic under pkgutil.walk_packages).
 TAG_CATEGORY_REGISTRY: dict[str, str] = {}
 
+# Hierarchical category root for ComfyUI's Add Node menu. Subpackages under
+# `nodes/` mirror into nested entries beneath this root (see `category_for_module`).
+ROOT_CATEGORY = "UtilityNodes"
+
+# Segment-name overrides for parts that don't title-case cleanly.
+_SEGMENT_OVERRIDES = {
+    "tags": "TagMaster",
+    "nsfw": "NSFW",
+    "tagmaster": "TagMaster",
+}
+
+
+def category_for_module(module: str) -> str:
+    """Map a node module's dotted path to its ComfyUI category.
+
+    `nodes.tags.sources.body.hair` → `UtilityNodes/TagMaster/Body`
+    `nodes.tags.sources.body.face.eyes` → `UtilityNodes/TagMaster/Body/Face`
+    `nodes.tags.merge` → `UtilityNodes/TagMaster`
+    `nodes.image.aspect_ratio` → `UtilityNodes/Image`
+    """
+    parts = module.split(".")
+    if not parts or parts[0] != "nodes":
+        return ROOT_CATEGORY
+    # Drop the leading "nodes" segment and the trailing filename segment.
+    parts = parts[1:-1]
+    # Collapse `tags.sources` → `tags` so the menu reads "TagMaster/Body" not
+    # "TagMaster/Sources/Body".
+    if len(parts) >= 2 and parts[0] == "tags" and parts[1] == "sources":
+        parts = ["tags", *parts[2:]]
+    out: list[str] = [ROOT_CATEGORY]
+    for p in parts:
+        out.append(_SEGMENT_OVERRIDES.get(p.lower(), p.title()))
+    return "/".join(out)
+
 
 @dataclass(frozen=True)
 class TaggedSelection:
@@ -36,11 +70,16 @@ class TagNodeBase:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = ROOT_CATEGORY
     OUTPUT_NODE: ClassVar[bool] = True
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
+        # Subclasses inherit the bare root category by default; override it
+        # with the module-derived hierarchical category unless the subclass
+        # spelled out its own CATEGORY.
+        if cls.CATEGORY == TagNodeBase.CATEGORY:
+            cls.CATEGORY = category_for_module(cls.__module__)
         if not cls.CATEGORY_ID:
             return
         for tag in cls.TAGS:

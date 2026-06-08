@@ -157,8 +157,8 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "ClothingTops": "Clothing: Tops",
-    "ClothingBottoms": "Clothing: Bottoms",
-    "ClothingDress": "Clothing: Dress & One-piece",
-    "ClothingUniform": "Clothing: Uniform & Costume",
+    "ClothingTops": "Tops",
+    "ClothingBottoms": "Bottoms",
+    "ClothingDress": "Dress & One-piece",
+    "ClothingUniform": "Uniform & Costume",
 }

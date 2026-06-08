@@ -1,6 +1,6 @@
 # NSFW Act: Oral & Contact
 
-Tag-toggle node under the `utility/text` category.
+Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 Internal layer / category: `nsfw_act` / `nsfw.act.oral_contact`.
 
 ## Inputs

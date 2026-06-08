@@ -1,6 +1,6 @@
 # NSFW Scene Preset
 
-`utility/text` category. Emits a curated NSFW scene bundle covering act / position / state / aftermath cues in one click. Designed to layer with `Character Preset` and `Personality Preset` through `TagsMerge`.
+`UtilityNodes/TagMaster` menu tree. Emits a curated NSFW scene bundle covering act / position / state / aftermath cues in one click. Designed to layer with `Character Preset` and `Personality Preset` through `TagsMerge`.
 
 ## Inputs
 

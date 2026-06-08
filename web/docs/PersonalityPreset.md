@@ -1,6 +1,6 @@
 # Personality Preset
 
-`utility/text` category. Emits a tag bundle that nudges the model toward a personality archetype (face / expression / pose cues — not a costume).
+`UtilityNodes/TagMaster` menu tree. Emits a tag bundle that nudges the model toward a personality archetype (face / expression / pose cues — not a costume).
 
 ## Inputs
 

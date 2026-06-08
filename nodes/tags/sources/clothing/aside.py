@@ -52,4 +52,4 @@ class ClothingAside(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"ClothingAside": ClothingAside}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"ClothingAside": "Clothing: Aside & Partial Expose"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"ClothingAside": "Aside & Partial Expose"}

@@ -1,6 +1,6 @@
 # Scene: Background Type
 
-Tag-toggle node under the `utility/text` category.
+Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 **Mutex node** — only one of the toggled tags survives after `TagsMerge`.
 Internal layer / category: `scene` / `scene.bg_type`.
 

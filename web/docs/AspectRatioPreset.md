@@ -1,6 +1,6 @@
 # Aspect Ratio Preset
 
-`utility/image` category. Emits `(width, height)` INTs from a named SDXL / Flux-friendly resolution preset. Saves the round-trip through "what was the 16:9 bucket size again?" — feed the outputs into `EmptyLatentImage` (or `EmptySD3LatentImage` etc.) to set the canvas.
+`UtilityNodes/Image` category. Emits `(width, height)` INTs from a named SDXL / Flux-friendly resolution preset. Saves the round-trip through "what was the 16:9 bucket size again?" — feed the outputs into `EmptyLatentImage` (or `EmptySD3LatentImage` etc.) to set the canvas.
 
 ## Inputs
 

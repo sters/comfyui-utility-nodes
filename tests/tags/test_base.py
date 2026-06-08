@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from nodes.tags._base import TAGS_TYPE, TaggedSelection, TagNodeBase
+from nodes.tags._base import TAGS_TYPE, TaggedSelection, TagNodeBase, category_for_module
 
 
 class _SampleNode(TagNodeBase):
@@ -40,8 +40,23 @@ def test_class_constants() -> None:
     assert TagNodeBase.RETURN_TYPES == (TAGS_TYPE,)
     assert TagNodeBase.RETURN_NAMES == ("bundle",)
     assert TagNodeBase.FUNCTION == "build"
-    assert TagNodeBase.CATEGORY == "utility/text"
+    assert TagNodeBase.CATEGORY == "UtilityNodes"
     assert TagNodeBase.OUTPUT_NODE is True
+
+
+def test_category_for_module_maps_package_path_to_menu() -> None:
+    assert category_for_module("nodes.tags.merge") == "UtilityNodes/TagMaster"
+    assert category_for_module("nodes.tags.sources.body.hair") == "UtilityNodes/TagMaster/Body"
+    assert category_for_module("nodes.tags.sources.body.face.eyes") == "UtilityNodes/TagMaster/Body/Face"
+    assert category_for_module("nodes.tags.sources.nsfw.act") == "UtilityNodes/TagMaster/NSFW"
+    assert category_for_module("nodes.image.aspect_ratio") == "UtilityNodes/Image"
+    assert category_for_module("nodes.text.text_concat") == "UtilityNodes/Text"
+
+
+def test_subclass_inherits_module_derived_category() -> None:
+    # _SampleNode lives in the test module (not under `nodes.`), so it falls
+    # back to the bare root rather than a TagMaster subpath.
+    assert _SampleNode.CATEGORY == "UtilityNodes"
 
 
 def test_input_types_has_separator_and_invert() -> None:

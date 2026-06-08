@@ -35,6 +35,12 @@ Two halves under `nodes/tags/`:
 
 Auto-discovery walks both via `pkgutil.walk_packages`, so dropping a file under either path is enough to register it.
 
+### Node menu category (the `CATEGORY` field)
+
+ComfyUI's Add-Node menu groups nodes by their `CATEGORY` string. The root is `UtilityNodes`, with `TagMaster` as the tag sub-pack: `UtilityNodes/TagMaster/Body`, `.../Clothing`, `.../Body/Face`, `.../Preset`, `.../Meta`, `.../NSFW`, etc.
+
+`TagNodeBase` subclasses **don't set `CATEGORY` themselves** — `__init_subclass__` derives it from the module path via `category_for_module` in `_base.py` (`nodes.tags.sources.body.hair` → `UtilityNodes/TagMaster/Body`; the `tags.sources` prefix collapses to `TagMaster`, and `_SEGMENT_OVERRIDES` handles special-cased names like `nsfw` → `NSFW`). Non-`TagNodeBase` nodes (the tag operations, the preset/pony nodes, text/image nodes) spell out `CATEGORY` explicitly. Display names (`NODE_DISPLAY_NAME_MAPPINGS`) drop any folder prefix the category already conveys and carry no default/behavior parentheticals — e.g. `Body: Figure` → `Figure`, but `Hair: Color` keeps its prefix because hair shares the `Body` folder.
+
 Within node modules, use ordinary relative imports. Depth varies — count carefully:
 
 ```python

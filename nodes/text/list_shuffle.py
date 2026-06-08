@@ -8,7 +8,7 @@ class ListShuffle:
     INPUT_IS_LIST: ClassVar[bool] = True
     OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True,)
     FUNCTION: ClassVar[str] = "shuffle"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/Text"
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:

@@ -1,6 +1,6 @@
 # Clothing: Lift & Pull
 
-Tag-toggle node under the `utility/text` category.
+Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 Internal layer / category: `clothing` / `clothing.lift_pull`.
 
 ## Inputs

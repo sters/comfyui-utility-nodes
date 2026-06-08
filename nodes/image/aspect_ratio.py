@@ -28,7 +28,7 @@ class AspectRatioPreset:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("INT", "INT")
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("width", "height")
     FUNCTION: ClassVar[str] = "resolve"
-    CATEGORY: ClassVar[str] = "utility/image"
+    CATEGORY: ClassVar[str] = "UtilityNodes/Image"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod

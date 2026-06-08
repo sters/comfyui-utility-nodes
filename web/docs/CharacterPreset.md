@@ -1,6 +1,6 @@
 # Character Preset
 
-`utility/text` category. Emits a curated bundle of character tags (hair / outfit / accessory / scene) for an archetype in one click. The result still goes through the standard merge pipeline, so layering with regular tag nodes resolves cleanly via `TagsMerge`.
+`UtilityNodes/TagMaster` menu tree. Emits a curated bundle of character tags (hair / outfit / accessory / scene) for an archetype in one click. The result still goes through the standard merge pipeline, so layering with regular tag nodes resolves cleanly via `TagsMerge`.
 
 ## Inputs
 

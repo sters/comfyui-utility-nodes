@@ -1,6 +1,6 @@
 # Meta: Subject Count (other)
 
-Tag-toggle node under the `utility/text` category.
+Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 Internal layer / category: `meta` / `meta.count.other`.
 
 ## Inputs

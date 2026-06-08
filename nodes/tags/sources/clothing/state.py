@@ -105,7 +105,7 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "ClothingState": "Clothing: State",
-    "ClothingLiftPull": "Clothing: Lift & Pull",
-    "ClothingNakedX": "Clothing: Naked X (wearing only)",
+    "ClothingState": "State",
+    "ClothingLiftPull": "Lift & Pull",
+    "ClothingNakedX": "Naked X",
 }

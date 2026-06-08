@@ -7,7 +7,7 @@ class TextConcat:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING",)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("text",)
     FUNCTION: ClassVar[str] = "concat"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/Text"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod

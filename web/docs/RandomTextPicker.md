@@ -1,6 +1,6 @@
 # Random Text Picker
 
-`utility/text` category. Splits a text by a delimiter and randomly picks N items. Useful for "pick K random tags from this pool" workflows.
+`UtilityNodes/Text` category. Splits a text by a delimiter and randomly picks N items. Useful for "pick K random tags from this pool" workflows.
 
 ## Inputs
 

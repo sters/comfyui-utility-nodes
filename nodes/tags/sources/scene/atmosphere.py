@@ -90,7 +90,7 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "SceneTimeOfDay": "Scene: Time of Day",
-    "SceneWeather": "Scene: Weather",
-    "SceneParticles": "Scene: Particles & Atmosphere",
+    "SceneTimeOfDay": "Time of Day",
+    "SceneWeather": "Weather",
+    "SceneParticles": "Particles & Atmosphere",
 }

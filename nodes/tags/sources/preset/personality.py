@@ -159,7 +159,7 @@ class PersonalityPreset:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
     OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
@@ -207,6 +207,4 @@ class PersonalityPreset:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"PersonalityPreset": PersonalityPreset}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "PersonalityPreset": "Personality Preset (tsundere / kuudere / genki / ...)"
-}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"PersonalityPreset": "Personality"}

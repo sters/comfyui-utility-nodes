@@ -1,6 +1,6 @@
 # Tags: Decorate
 
-`utility/text` category. Prefixes tags in a bundle that belong to a chosen category with a decoration phrase built from a second bundle. Use it to attach colors / patterns / materials to a specific layer of an upstream preset or tag-toggle node without rewriting the tag itself.
+`UtilityNodes/TagMaster` menu tree. Prefixes tags in a bundle that belong to a chosen category with a decoration phrase built from a second bundle. Use it to attach colors / patterns / materials to a specific layer of an upstream preset or tag-toggle node without rewriting the tag itself.
 
 ## Inputs
 

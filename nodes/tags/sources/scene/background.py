@@ -105,7 +105,7 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "SceneBgType": "Scene: Background Type",
-    "SceneIndoor": "Scene: Indoor Location",
-    "SceneOutdoor": "Scene: Outdoor Location",
+    "SceneBgType": "Background Type",
+    "SceneIndoor": "Indoor Location",
+    "SceneOutdoor": "Outdoor Location",
 }

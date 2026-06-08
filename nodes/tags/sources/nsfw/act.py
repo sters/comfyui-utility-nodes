@@ -65,6 +65,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "NsfwActPenetrative": "NSFW Act: Penetrative",
-    "NsfwActOralContact": "NSFW Act: Oral & Contact",
+    "NsfwActPenetrative": "Act: Penetrative",
+    "NsfwActOralContact": "Act: Oral & Contact",
 }

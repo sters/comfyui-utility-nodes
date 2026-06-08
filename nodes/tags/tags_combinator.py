@@ -26,7 +26,7 @@ class TagsCombinator:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "label", "index", "warnings")
     OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True, True)
     FUNCTION: ClassVar[str] = "combine"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
     _MAX_AXES: ClassVar[int] = 8
 
@@ -102,5 +102,5 @@ class TagsCombinator:
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsCombinator": TagsCombinator}
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "TagsCombinator": "Tags Combinator (axes × bundles)",
+    "TagsCombinator": "Combinator",
 }

@@ -76,8 +76,8 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "MetaCountTotal": "Meta: Subject Count (solo/duo/group)",
-    "MetaCountGirls": "Meta: Subject Count (girls)",
-    "MetaCountBoys": "Meta: Subject Count (boys)",
-    "MetaCountOther": "Meta: Subject Count (other)",
+    "MetaCountTotal": "Subject Count: Total",
+    "MetaCountGirls": "Subject Count: Girls",
+    "MetaCountBoys": "Subject Count: Boys",
+    "MetaCountOther": "Subject Count: Other",
 }

@@ -6,7 +6,7 @@ class RandomTextPicker:
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING",)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("text",)
     FUNCTION: ClassVar[str] = "pick"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/Text"
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:

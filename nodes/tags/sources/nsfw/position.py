@@ -44,5 +44,5 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "NsfwPosition": "NSFW: Position",
+    "NsfwPosition": "Position",
 }

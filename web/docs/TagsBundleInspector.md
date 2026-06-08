@@ -1,6 +1,6 @@
 # Tags: Bundle Inspector
 
-`utility/text` category. Pass-through visualizer for a `CUUN_TAGS` bundle. Drop it between `TagsMerge` and `CLIPTextEncode` to see what survived the merge — and, optionally, what got dropped — in one UI box.
+`UtilityNodes/TagMaster` menu tree. Pass-through visualizer for a `CUUN_TAGS` bundle. Drop it between `TagsMerge` and `CLIPTextEncode` to see what survived the merge — and, optionally, what got dropped — in one UI box.
 
 ## Inputs
 

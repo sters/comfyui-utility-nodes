@@ -24,4 +24,4 @@ class CompositionCrop(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"CompositionCrop": CompositionCrop}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"CompositionCrop": "Composition: Crop"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"CompositionCrop": "Crop"}

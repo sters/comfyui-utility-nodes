@@ -52,4 +52,4 @@ class BodyAction(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"BodyAction": BodyAction}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"BodyAction": "Body: Action"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"BodyAction": "Action"}

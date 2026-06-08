@@ -1,6 +1,6 @@
 # Bad: NSFW
 
-Tag-toggle node under the `utility/text` category.
+Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
 All tags default to **ON** (use `invert` or the individual toggles to turn things off).
 Internal layer / category: `bad` / `bad.nsfw`.
 

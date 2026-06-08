@@ -1,6 +1,6 @@
 # Meta: Pony
 
-`utility/text` category. Pony Diffusion V6 XL meta-template — emits the model-specific score / rating / source tags as a CUUN_TAGS bundle. Sibling to `MetaQuality`, which does the generic-quality version of the same job.
+`UtilityNodes/TagMaster` menu tree. Pony Diffusion V6 XL meta-template — emits the model-specific score / rating / source tags as a CUUN_TAGS bundle. Sibling to `MetaQuality`, which does the generic-quality version of the same job.
 
 ## Inputs
 

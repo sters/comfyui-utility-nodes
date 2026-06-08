@@ -42,4 +42,4 @@ class SceneLighting(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"SceneLighting": SceneLighting}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"SceneLighting": "Scene: Lighting"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"SceneLighting": "Lighting"}

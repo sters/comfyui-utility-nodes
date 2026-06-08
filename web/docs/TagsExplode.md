@@ -1,6 +1,6 @@
 # Tags: Explode (per-tag axis)
 
-`utility/text` category. Splits a `CUUN_TAGS` bundle into a **list of single-tag bundles**, one per selected tag. Designed as the adapter that turns a tag-toggle node (e.g. `HairColor` with 4 colors checked) into an axis for `TagsCombinator`.
+`UtilityNodes/TagMaster` menu tree. Splits a `CUUN_TAGS` bundle into a **list of single-tag bundles**, one per selected tag. Designed as the adapter that turns a tag-toggle node (e.g. `HairColor` with 4 colors checked) into an axis for `TagsCombinator`.
 
 ## Inputs
 

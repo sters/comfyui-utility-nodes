@@ -17,7 +17,7 @@ class TagsExplode:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundles",)
     OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True,)
     FUNCTION: ClassVar[str] = "explode"
-    CATEGORY: ClassVar[str] = "utility/text"
+    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -45,4 +45,4 @@ class TagsExplode:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsExplode": TagsExplode}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsExplode": "Tags: Explode (per-tag axis)"}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsExplode": "Explode"}

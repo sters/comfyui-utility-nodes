@@ -1,6 +1,6 @@
 # Tags: Merge & Validate
 
-`utility/text` category. Accepts up to 10 `CUUN_TAGS` bundles from tag-toggle nodes and resolves cross-node conflicts before emitting a final STRING.
+`UtilityNodes/TagMaster` menu tree. Accepts up to 10 `CUUN_TAGS` bundles from tag-toggle nodes and resolves cross-node conflicts before emitting a final STRING.
 
 ## Inputs
 
