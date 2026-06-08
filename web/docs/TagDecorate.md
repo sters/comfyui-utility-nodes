@@ -13,9 +13,8 @@ Both `bundle` and `decoration` accept a list, and `TagDecorate` takes the **Cart
 
 ## Outputs (lists, `OUTPUT_IS_LIST=True`)
 
-- `prompt` (STRING list): one flattened prompt per (bundle × decoration) pair.
 - `warnings` (STRING list): per-pair warnings — "no tags matched target_category" or "decoration provided but no category selected".
-- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagDecorate` to multiply variants further.
+- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagDecorate` or `TagsMerge` to multiply variants further. One flattened prompt per (bundle × decoration) pair also previews as the node's OUTPUT_NODE preview.
 
 ## Variant generation
 

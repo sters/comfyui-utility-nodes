@@ -3,8 +3,8 @@ from typing import Any, ClassVar
 from ..._base import TAGS_TYPE, TaggedSelection
 
 _SCORE_TAGS = ("score_9", "score_8_up", "score_7_up", "score_6_up", "score_5_up", "score_4_up")
-_RATINGS = ("none", "safe", "questionable", "explicit")
-_SOURCES = ("none", "pony", "furry", "cartoon", "anime")
+_RATING_TAGS = ("rating_safe", "rating_questionable", "rating_explicit")
+_SOURCE_TAGS = ("source_pony", "source_furry", "source_cartoon", "source_anime")
 
 
 class MetaPony:
@@ -16,13 +16,12 @@ class MetaPony:
     descriptors. Wire its `bundle` output through `TagsMerge` together
     with the rest of the pipeline.
 
-    `rating_*` and `source_*` are synthetic tags built from the COMBO
-    selections (`rating="safe"` → `rating_safe`); they aren't in the
-    tag-category registry, so `TagDecorate` won't latch onto them.
+    Rating/source tags aren't in the tag-category registry, so
+    `TagDecorate` won't latch onto them.
     """
 
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "bundle")
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "utility/text"
     OUTPUT_NODE: ClassVar[bool] = True
@@ -34,8 +33,10 @@ class MetaPony:
         }
         for tag in _SCORE_TAGS:
             required[tag] = ("BOOLEAN", {"default": True})
-        required["rating"] = (list(_RATINGS), {"default": "none"})
-        required["source"] = (list(_SOURCES), {"default": "none"})
+        for tag in _RATING_TAGS:
+            required[tag] = ("BOOLEAN", {"default": False})
+        for tag in _SOURCE_TAGS:
+            required[tag] = ("BOOLEAN", {"default": False})
         return {
             "required": required,
             "optional": {
@@ -46,18 +47,13 @@ class MetaPony:
     def build(
         self,
         separator: str,
-        rating: str,
-        source: str,
         extra: str = "",
-        **scores: bool,
+        **toggles: bool,
     ) -> dict[str, Any]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
 
-        tags: list[str] = [tag for tag in _SCORE_TAGS if scores.get(tag, False)]
-        if rating != "none":
-            tags.append(f"rating_{rating}")
-        if source != "none":
-            tags.append(f"source_{source}")
+        ordered = (*_SCORE_TAGS, *_RATING_TAGS, *_SOURCE_TAGS)
+        tags: list[str] = [tag for tag in ordered if toggles.get(tag, False)]
 
         bundle: list[TaggedSelection] = []
         if tags:
@@ -83,8 +79,8 @@ class MetaPony:
                 )
             )
 
-        prompt = sep.join(parts)
-        return {"ui": {"text": (prompt,)}, "result": (prompt, tuple(bundle))}
+        preview = sep.join(parts)
+        return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {

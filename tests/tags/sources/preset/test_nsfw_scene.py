@@ -6,7 +6,7 @@ from nodes.tags.sources.preset.personality import PersonalityPreset
 
 
 def _build(scene: str) -> tuple[TaggedSelection, ...]:
-    return tuple(NsfwScenePreset().build(scene, ", ")["result"][1])
+    return tuple(NsfwScenePreset().build(scene, ", ")["result"][0])
 
 
 def test_input_types_lists_all_scenes() -> None:
@@ -45,7 +45,7 @@ def test_lingerie_preset_does_not_drop_its_own_underwear() -> None:
 def test_character_plus_nsfw_drops_outfit() -> None:
     # serafuku_schoolgirl + first_time_shy (has nude) — outfit drops,
     # character traits like hair stay.
-    girl = tuple(CharacterPreset().build("serafuku_schoolgirl", ", ")["result"][1])
+    girl = tuple(CharacterPreset().build("serafuku_schoolgirl", ", ")["result"][0])
     sex = _build("first_time_shy")
     out = TagsMerge().merge(", ", bundle_1=girl, bundle_2=sex)
     tokens = str(out["result"][0]).split(", ")
@@ -59,7 +59,7 @@ def test_character_plus_nsfw_drops_outfit() -> None:
 
 def test_personality_layered_with_nsfw_scene() -> None:
     # yandere personality + bondage shibari → smirk + ahegao + bound
-    p = tuple(PersonalityPreset().build("yandere", ", ")["result"][1])
+    p = tuple(PersonalityPreset().build("yandere", ", ")["result"][0])
     s = _build("shibari_suspension")
     out = TagsMerge().merge(", ", bundle_1=p, bundle_2=s)
     tokens = str(out["result"][0]).split(", ")

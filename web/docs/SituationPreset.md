@@ -10,7 +10,6 @@
 
 ## Outputs
 
-- `prompt` (STRING).
 - `bundle` (CUUN_TAGS): wire into `TagsMerge`. Outfit-bearing presets (e.g. `summer_beach` → `swimsuit`) trigger `TAG_CONFLICTS` against character-bundle clothing automatically.
 
 The flat tuples live in `nodes/tags/situation_preset.py`. NSFW counterparts are in `NsfwScenePreset`.

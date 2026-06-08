@@ -7,7 +7,7 @@ from nodes.tags.sources.preset.character import PRESETS, CharacterPreset
 
 def _build(preset: str, **kw: Any) -> tuple[str, tuple[TaggedSelection, ...]]:
     out = CharacterPreset().build(preset, ", ", **kw)
-    return str(out["result"][0]), tuple(out["result"][1])
+    return str(out["ui"]["text"][0]), tuple(out["result"][0])
 
 
 def test_input_types_lists_all_presets() -> None:

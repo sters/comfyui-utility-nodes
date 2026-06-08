@@ -32,7 +32,7 @@ def test_combinator_label_uses_distinguishing_segment() -> None:
 
 def test_combinator_preset_axis_uses_category_suffix_for_label() -> None:
     # CharacterPreset emits category like "character.serafuku_schoolgirl"
-    _, bundle = CharacterPreset().build("serafuku_schoolgirl", ", ")["result"]
+    (bundle,) = CharacterPreset().build("serafuku_schoolgirl", ", ")["result"]
     out = TagsCombinator().combine([", "], axis_1=[tuple(bundle)])
     labels = out[1]
     assert labels == ["serafuku_schoolgirl"]
@@ -40,7 +40,7 @@ def test_combinator_preset_axis_uses_category_suffix_for_label() -> None:
 
 def test_combinator_preset_x_explode_full_example() -> None:
     # The motivating example: 1 character × 4 hair colors × 4 figures × 4 sizes = 64.
-    _, char_bundle = CharacterPreset().build("serafuku_schoolgirl", ", ")["result"]
+    (char_bundle,) = CharacterPreset().build("serafuku_schoolgirl", ", ")["result"]
     char_axis = [tuple(char_bundle)]
     hair = _make_explode_axis("hair.color", ("red_hair", "blue_hair", "green_hair", "black_hair"))
     figure = _make_explode_axis("body.figure", ("muscular", "slim", "curvy", "plump"))

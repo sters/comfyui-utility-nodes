@@ -10,8 +10,7 @@
 
 ## Outputs
 
-- `prompt` (STRING): flattened tags after filtering.
-- `bundle` (CUUN_TAGS): same selections as input, with matching tags removed. Selections that lose every tag are dropped entirely; `mutex_within` / `layer` / `category` metadata is preserved on what remains.
+- `bundle` (CUUN_TAGS): same selections as input, with matching tags removed. Selections that lose every tag are dropped entirely; `mutex_within` / `layer` / `category` metadata is preserved on what remains. The filtered prompt also previews as the node's OUTPUT_NODE preview.
 
 ## Behavior
 

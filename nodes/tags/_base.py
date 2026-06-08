@@ -33,8 +33,8 @@ class TagNodeBase:
     CATEGORY_ID: ClassVar[str] = ""
     LAYER: ClassVar[str] = ""
     MUTEX_WITHIN: ClassVar[bool] = False
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "bundle")
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "utility/text"
     OUTPUT_NODE: ClassVar[bool] = True
@@ -50,10 +50,7 @@ class TagNodeBase:
     def INPUT_TYPES(cls) -> dict[str, Any]:
         required: dict[str, Any] = {
             "separator": ("STRING", {"multiline": False, "default": ", "}),
-            "preset": (
-                ["custom", "all_on", "all_off", "invert"],
-                {"default": "custom"},
-            ),
+            "invert": ("BOOLEAN", {"default": False}),
         }
         for tag in cls.TAGS:
             required[tag] = ("BOOLEAN", {"default": cls.DEFAULT_BOOLEAN})
@@ -66,13 +63,9 @@ class TagNodeBase:
 
     def build(self, separator: str, extra: str = "", **kwargs: Any) -> dict[str, Any]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
-        preset = str(kwargs.pop("preset", "custom"))
+        invert = bool(kwargs.pop("invert", False))
         tags: dict[str, bool] = {k: bool(v) for k, v in kwargs.items()}
-        if preset == "all_on":
-            selected: list[str] = list(self.TAGS)
-        elif preset == "all_off":
-            selected = []
-        elif preset == "invert":
+        if invert:
             selected = [tag for tag in self.TAGS if not tags.get(tag, False)]
         else:
             selected = [tag for tag in self.TAGS if tags.get(tag, False)]
@@ -99,5 +92,5 @@ class TagNodeBase:
                     mutex_within=False,
                 )
             )
-        prompt = sep.join(parts)
-        return {"ui": {"text": (prompt,)}, "result": (prompt, tuple(bundle))}
+        preview = sep.join(parts)
+        return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}

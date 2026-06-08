@@ -67,7 +67,7 @@ TagNodeBase subclass  ──►  bundle: tuple[TaggedSelection, ...]  ──► 
 Key types in `nodes/tags/_base.py`:
 
 - `TaggedSelection(category, layer, tags, mutex_within)` — one categorized chunk.
-- `TagNodeBase` — base class. Subclasses declare `TAGS`, `CATEGORY_ID`, `LAYER`, `MUTEX_WITHIN`. The base auto-builds the boolean `INPUT_TYPES`, handles the `custom / all_on / all_off / invert` preset selector, and emits one `TaggedSelection` (plus an optional `extra` selection for free-form text). Outputs are `(prompt, bundle)` where `bundle` is a tuple of `TaggedSelection`.
+- `TagNodeBase` — base class. Subclasses declare `TAGS`, `CATEGORY_ID`, `LAYER`, `MUTEX_WITHIN`. The base auto-builds the boolean `INPUT_TYPES`, exposes an `invert` BOOLEAN that flips every checkbox, and emits one `TaggedSelection` (plus an optional `extra` selection for free-form text). The only output socket is `bundle` (a tuple of `TaggedSelection`); the flattened text still surfaces as the OUTPUT_NODE preview but isn't a separate output — wire `bundle` through `TagsMerge` (or `TagsCombinator`) when you need a STRING.
 
 `TagsMerge` (`nodes/tags/merge.py`) accepts up to 10 `CUUN_TAGS` inputs and applies, in order:
 

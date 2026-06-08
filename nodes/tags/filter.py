@@ -24,8 +24,8 @@ class TagsFilter:
     nodes to drop more than one category.
     """
 
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "bundle")
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "filter"
     CATEGORY: ClassVar[str] = "utility/text"
     OUTPUT_NODE: ClassVar[bool] = True
@@ -75,8 +75,8 @@ class TagsFilter:
         parts: list[str] = []
         for sel in out:
             parts.extend(sel.tags)
-        prompt = sep.join(parts)
-        return {"ui": {"text": (prompt,)}, "result": (prompt, tuple(out))}
+        preview = sep.join(parts)
+        return {"ui": {"text": (preview,)}, "result": (tuple(out),)}
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsFilter": TagsFilter}

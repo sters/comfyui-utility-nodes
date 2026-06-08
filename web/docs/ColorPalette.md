@@ -5,13 +5,12 @@
 ## Inputs
 
 - `separator` (STRING).
-- `preset` (combo): `custom` / `all_on` / `all_off` / `invert`.
+- `invert` (BOOLEAN): if `True`, every checkbox is flipped.
 - One BOOLEAN per color. Default is off.
 - `extra` (STRING, multiline, optional).
 
 ## Outputs
 
-- `prompt` (STRING).
 - `bundle` (CUUN_TAGS): `category = decoration.color`, `layer = decoration`.
 
 ## Why a separate node

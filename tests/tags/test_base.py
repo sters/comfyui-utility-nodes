@@ -31,24 +31,25 @@ class _DefaultTrueNode(TagNodeBase):
 
 
 def _result(out: dict[str, Any]) -> tuple[str, tuple[TaggedSelection, ...]]:
-    assert out["ui"]["text"] == (out["result"][0],)
-    return str(out["result"][0]), tuple(out["result"][1])
+    preview = out["ui"]["text"][0]
+    bundle = tuple(out["result"][0])
+    return str(preview), bundle
 
 
 def test_class_constants() -> None:
-    assert TagNodeBase.RETURN_TYPES == ("STRING", TAGS_TYPE)
-    assert TagNodeBase.RETURN_NAMES == ("prompt", "bundle")
+    assert TagNodeBase.RETURN_TYPES == (TAGS_TYPE,)
+    assert TagNodeBase.RETURN_NAMES == ("bundle",)
     assert TagNodeBase.FUNCTION == "build"
     assert TagNodeBase.CATEGORY == "utility/text"
     assert TagNodeBase.OUTPUT_NODE is True
 
 
-def test_input_types_has_separator_and_preset() -> None:
+def test_input_types_has_separator_and_invert() -> None:
     spec = _SampleNode.INPUT_TYPES()
     assert spec["required"]["separator"][0] == "STRING"
-    options, meta = spec["required"]["preset"]
-    assert options == ["custom", "all_on", "all_off", "invert"]
-    assert meta["default"] == "custom"
+    kind, meta = spec["required"]["invert"]
+    assert kind == "BOOLEAN"
+    assert meta["default"] is False
 
 
 def test_input_types_boolean_default_false() -> None:
@@ -97,30 +98,23 @@ def test_build_custom_honors_booleans_and_preserves_order() -> None:
     )
 
 
-def test_build_all_on_ignores_booleans() -> None:
-    node = _SampleNode()
-    tags = dict.fromkeys(_SampleNode.TAGS, False)
-    prompt, bundle = _result(node.build(", ", "", preset="all_on", **tags))
-    assert prompt == ", ".join(_SampleNode.TAGS)
-    assert bundle[0].tags == _SampleNode.TAGS
-
-
-def test_build_all_off_ignores_booleans() -> None:
-    node = _SampleNode()
-    tags = dict.fromkeys(_SampleNode.TAGS, True)
-    prompt, bundle = _result(node.build(", ", "", preset="all_off", **tags))
-    assert prompt == ""
-    assert bundle == ()
-
-
 def test_build_invert_flips_booleans() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["alpha"] = True
-    prompt, bundle = _result(node.build(", ", "", preset="invert", **tags))
+    prompt, bundle = _result(node.build(", ", "", invert=True, **tags))
     expected = tuple(t for t in _SampleNode.TAGS if t != "alpha")
     assert prompt == ", ".join(expected)
     assert bundle[0].tags == expected
+
+
+def test_build_invert_false_keeps_selection() -> None:
+    node = _SampleNode()
+    tags = dict.fromkeys(_SampleNode.TAGS, False)
+    tags["alpha"] = True
+    prompt, bundle = _result(node.build(", ", "", invert=False, **tags))
+    assert prompt == "alpha"
+    assert bundle[0].tags == ("alpha",)
 
 
 def test_build_extra_emitted_as_separate_selection() -> None:

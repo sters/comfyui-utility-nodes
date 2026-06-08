@@ -10,7 +10,6 @@
 
 ## Outputs
 
-- `prompt` (STRING).
 - `bundle` (CUUN_TAGS): wire into `TagsMerge` to mix with other tag nodes; conflicts (hair color, outfit, etc.) get resolved there.
 
 ## Tips

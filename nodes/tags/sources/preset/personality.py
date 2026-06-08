@@ -156,8 +156,8 @@ PERSONALITY_PRESETS: dict[str, tuple[str, ...]] = {
 
 
 class PersonalityPreset:
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "bundle")
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "utility/text"
     OUTPUT_NODE: ClassVar[bool] = True
@@ -202,8 +202,8 @@ class PersonalityPreset:
                     mutex_within=False,
                 )
             )
-        prompt = sep.join(parts)
-        return {"ui": {"text": (prompt,)}, "result": (prompt, tuple(bundle))}
+        preview = sep.join(parts)
+        return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"PersonalityPreset": PersonalityPreset}

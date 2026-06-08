@@ -8,7 +8,7 @@ def _sel(category: str, tags: tuple[str, ...], mutex_within: bool = False) -> Ta
 
 def _run(target: str, bundle: tuple[TaggedSelection, ...]) -> tuple[str, tuple[TaggedSelection, ...]]:
     out = TagsFilter().filter(", ", target, bundle=bundle)
-    return str(out["result"][0]), tuple(out["result"][1])
+    return str(out["ui"]["text"][0]), tuple(out["result"][0])
 
 
 def test_none_target_passes_bundle_through() -> None:
@@ -92,9 +92,10 @@ def test_preserves_mutex_within_metadata() -> None:
 def test_separator_escape() -> None:
     bundle = (_sel("clothing.tops", ("shirt", "blouse")),)
     out = TagsFilter().filter(r"\n", "(none)", bundle=bundle)
-    assert out["result"][0] == "shirt\nblouse"
+    assert out["ui"]["text"] == ("shirt\nblouse",)
 
 
 def test_no_bundle_input_returns_empty() -> None:
     out = TagsFilter().filter(", ", "(none)")
-    assert out["result"] == ("", ())
+    assert out["ui"]["text"] == ("",)
+    assert out["result"] == ((),)

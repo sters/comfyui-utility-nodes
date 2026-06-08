@@ -29,9 +29,9 @@ class TagDecorate:
     """
 
     INPUT_IS_LIST: ClassVar[bool] = True
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "warnings", "bundle")
-    OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True)
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", TAGS_TYPE)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("warnings", "bundle")
+    OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True)
     FUNCTION: ClassVar[str] = "decorate"
     CATEGORY: ClassVar[str] = "utility/text"
     OUTPUT_NODE: ClassVar[bool] = True
@@ -79,7 +79,7 @@ class TagDecorate:
 
         return {
             "ui": {"text": tuple(prompts)},
-            "result": (prompts, warnings_out, bundles_out),
+            "result": (warnings_out, bundles_out),
         }
 
     @staticmethod

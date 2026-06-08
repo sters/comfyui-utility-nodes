@@ -10,7 +10,6 @@
 
 ## Outputs
 
-- `prompt` (STRING).
 - `bundle` (CUUN_TAGS): wire into `TagsMerge`. Clothing / nude triggers in the preset interact with regular tag nodes through `TAG_CONFLICTS` automatically.
 
 The flat tuples live in `nodes/tags/nsfw_preset.py`.

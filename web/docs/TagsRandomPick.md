@@ -11,8 +11,7 @@
 
 ## Outputs
 
-- `prompt` (STRING): flattened result with the picked tags + any pass-through `extra`.
-- `bundle` (CUUN_TAGS): one selection at `random_pick` / `random` with the picked tags, followed by the original `extra` selections (if any).
+- `bundle` (CUUN_TAGS): one selection at `random_pick` / `random` with the picked tags, followed by the original `extra` selections (if any). The flattened result also previews as the node's OUTPUT_NODE preview.
 
 ## Behavior
 

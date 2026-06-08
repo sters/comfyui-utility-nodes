@@ -35,7 +35,11 @@ def _call(
     *,
     sep: str = ", ",
 ) -> tuple[list[str], list[str], list[tuple[TaggedSelection, ...]]]:
-    """Helper mimicking ComfyUI's INPUT_IS_LIST contract: every arg is a list."""
+    """Helper mimicking ComfyUI's INPUT_IS_LIST contract: every arg is a list.
+
+    Returns (prompts, warnings, bundles) — prompts are reconstructed from the
+    bundles so callers don't need to know decorate dropped its prompt output.
+    """
     b = bundle if isinstance(bundle, list) else ([bundle] if bundle is not None else None)
     d = decoration if isinstance(decoration, list) else ([decoration] if decoration is not None else None)
     out = TagDecorate().decorate(
@@ -44,7 +48,9 @@ def _call(
         bundle=b,
         decoration=d,
     )
-    return out["result"]  # type: ignore[no-any-return]
+    warnings, bundles = out["result"]
+    prompts = [sep.join(t for sel in bun for t in sel.tags) for bun in bundles]
+    return prompts, warnings, bundles
 
 
 def test_registry_populated_from_subclasses() -> None:
@@ -138,9 +144,9 @@ def test_underscore_in_decoration_becomes_space() -> None:
 
 def test_color_palette_emits_decoration_color_selection() -> None:
     node = ColorPalette()
-    out = node.build(", ", preset="custom", red=True, green=True)
-    prompt, bundle = out["result"]
-    assert prompt == "red, green"
+    out = node.build(", ", "", red=True, green=True)
+    (bundle,) = out["result"]
+    assert out["ui"]["text"] == ("red, green",)
     assert len(bundle) == 1
     assert bundle[0].category == "decoration.color"
     assert bundle[0].layer == "decoration"
