@@ -36,7 +36,6 @@
         "Node name for S&R": "BodyExposure"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         false,
@@ -73,7 +72,6 @@
         "Node name for S&R": "ClothingTops"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         ""

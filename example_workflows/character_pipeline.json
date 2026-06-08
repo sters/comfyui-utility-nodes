@@ -86,7 +86,6 @@
       },
       "widgets_values": [
         "miko",
-        ", ",
         ""
       ]
     },
@@ -120,7 +119,6 @@
       },
       "widgets_values": [
         "genki",
-        ", ",
         ""
       ]
     },
@@ -154,7 +152,6 @@
       },
       "widgets_values": [
         "shrine_visit",
-        ", ",
         ""
       ]
     },
@@ -187,7 +184,6 @@
         "Node name for S&R": "MetaQuality"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         true,
@@ -305,7 +301,6 @@
         "Node name for S&R": "BadGeneral"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         true,

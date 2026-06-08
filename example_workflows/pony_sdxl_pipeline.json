@@ -85,7 +85,6 @@
         "Node name for S&R": "MetaPony"
       },
       "widgets_values": [
-        ", ",
         true,
         true,
         true,
@@ -133,7 +132,6 @@
       },
       "widgets_values": [
         "witch",
-        ", ",
         ""
       ]
     },
@@ -167,7 +165,6 @@
       },
       "widgets_values": [
         "confident",
-        ", ",
         ""
       ]
     },
@@ -201,7 +198,6 @@
       },
       "widgets_values": [
         "summer_beach",
-        ", ",
         ""
       ]
     },
@@ -234,7 +230,6 @@
         "Node name for S&R": "MetaQuality"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         true,
@@ -358,7 +353,6 @@
         "Node name for S&R": "BadQuality"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         true,
@@ -409,7 +403,6 @@
         "Node name for S&R": "BadGeneral"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         true,

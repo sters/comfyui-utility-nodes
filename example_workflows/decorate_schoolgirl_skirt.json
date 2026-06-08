@@ -37,7 +37,6 @@
       },
       "widgets_values": [
         "serafuku_schoolgirl",
-        ", ",
         ""
       ]
     },
@@ -123,7 +122,6 @@
         "Node name for S&R": "ColorPalette"
       },
       "widgets_values": [
-        ", ",
         false,
         true,
         false,
@@ -242,7 +240,6 @@
         "Node name for S&R": "TagsDecorate"
       },
       "widgets_values": [
-        ", ",
         "clothing.bottoms"
       ]
     },
@@ -276,7 +273,6 @@
         "Node name for S&R": "ColorPalette"
       },
       "widgets_values": [
-        ", ",
         false,
         false,
         false,
@@ -395,7 +391,6 @@
         "Node name for S&R": "TagsDecorate"
       },
       "widgets_values": [
-        ", ",
         "clothing.uniform"
       ]
     },
