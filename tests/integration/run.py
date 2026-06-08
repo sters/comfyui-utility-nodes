@@ -163,6 +163,40 @@ def _check_one(host: str, case: dict[str, Any], client_id: str) -> tuple[bool, s
     return True, name
 
 
+def _check_categories(host: str) -> tuple[bool, str]:
+    """Assert every registered node's live ComfyUI category matches the
+    category derived locally from its class.
+
+    ComfyUI loads this pack under its (hyphenated) directory name as the
+    top-level package, so a node's `__module__` is prefixed
+    (`comfyui-utility-nodes.nodes.tags...`) compared with the bare
+    `nodes.tags...` the local registry sees. `category_for_module` must
+    resolve both identically; this check is the only thing that exercises
+    the *prefixed* path on a real ComfyUI — a regression there silently
+    collapsed every node to the bare `UtilityNodes` root, which the
+    text-output checks never noticed.
+    """
+    try:
+        info = _get_json(f"{host}/object_info")
+    except (urllib.error.URLError, ConnectionError) as e:
+        return False, f"categories: cannot reach ComfyUI at {host}: {e}"
+
+    mismatches: list[str] = []
+    for class_type, cls in sorted(_NODE_REGISTRY.items()):
+        expected = getattr(cls, "CATEGORY", None)
+        node_info = info.get(class_type)
+        if node_info is None:
+            mismatches.append(f"{class_type}: not registered on ComfyUI")
+            continue
+        actual = node_info.get("category")
+        if actual != expected:
+            mismatches.append(f"{class_type}: category {actual!r} != expected {expected!r}")
+
+    if mismatches:
+        return False, "categories: " + "; ".join(mismatches)
+    return True, f"categories: {len(_NODE_REGISTRY)} nodes match"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default=_DEFAULT_HOST, help=f"ComfyUI base URL (default {_DEFAULT_HOST})")
@@ -179,6 +213,15 @@ def main() -> int:
 
     passed = 0
     failed: list[str] = []
+
+    ok, msg = _check_categories(args.host)
+    if ok:
+        print(f"PASS  {msg}")
+        passed += 1
+    else:
+        print(f"FAIL  {msg}")
+        failed.append(msg)
+
     for case in cases:
         ok, msg = _check_one(args.host, case, client_id)
         if ok:
@@ -188,7 +231,8 @@ def main() -> int:
             print(f"FAIL  {msg}")
             failed.append(msg)
 
-    print(f"\n{passed}/{len(cases)} workflows passed")
+    total = len(cases) + 1
+    print(f"\n{passed}/{total} checks passed")
     return 0 if not failed else 1
 
 

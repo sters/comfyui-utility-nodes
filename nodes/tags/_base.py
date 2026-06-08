@@ -31,12 +31,20 @@ def category_for_module(module: str) -> str:
     `nodes.tags.sources.body.face.eyes` → `UtilityNodes/TagMaster/Body/Face`
     `nodes.tags.merge` → `UtilityNodes/TagMaster`
     `nodes.image.aspect_ratio` → `UtilityNodes/Image`
+
+    ComfyUI imports this pack under its directory name as the top-level
+    package, so a node's `__module__` is prefixed (e.g.
+    `comfyui-utility-nodes.nodes.tags.sources.body.hair`), whereas the test
+    suite imports modules as bare `nodes.tags...`. Anchor on the `nodes`
+    package segment wherever it appears so both resolve identically — without
+    this, every node on ComfyUI fell back to the bare `UtilityNodes` root.
     """
     parts = module.split(".")
-    if not parts or parts[0] != "nodes":
+    if "nodes" not in parts:
         return ROOT_CATEGORY
-    # Drop the leading "nodes" segment and the trailing filename segment.
-    parts = parts[1:-1]
+    # Drop everything up to and including the `nodes` package segment, plus the
+    # trailing filename segment.
+    parts = parts[parts.index("nodes") + 1 : -1]
     # Collapse `tags.sources` → `tags` so the menu reads "TagMaster/Body" not
     # "TagMaster/Sources/Body".
     if len(parts) >= 2 and parts[0] == "tags" and parts[1] == "sources":

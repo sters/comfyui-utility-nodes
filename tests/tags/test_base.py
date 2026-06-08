@@ -53,6 +53,15 @@ def test_category_for_module_maps_package_path_to_menu() -> None:
     assert category_for_module("nodes.text.text_concat") == "UtilityNodes/Text"
 
 
+def test_category_for_module_handles_comfyui_package_prefix() -> None:
+    # ComfyUI imports the pack under its directory name as the top-level
+    # package, prefixing every node's __module__. The category must still
+    # resolve identically to the bare `nodes.*` form used in tests.
+    assert category_for_module("comfyui-utility-nodes.nodes.tags.merge") == "UtilityNodes/TagMaster"
+    assert category_for_module("comfyui-utility-nodes.nodes.tags.sources.body.hair") == "UtilityNodes/TagMaster/Body"
+    assert category_for_module("custom_nodes.comfyui_utility_nodes.nodes.image.aspect_ratio") == "UtilityNodes/Image"
+
+
 def test_subclass_inherits_module_derived_category() -> None:
     # _SampleNode lives in the test module (not under `nodes.`), so it falls
     # back to the bare root rather than a TagMaster subpath.
