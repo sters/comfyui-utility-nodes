@@ -5,7 +5,6 @@ Internal layer / category: `anatomy` / `body.hands.gesture`.
 
 ## Inputs
 
-- `separator` (STRING): joiner between selected tags (supports escape sequences like `\n`).
 - `invert` (BOOLEAN): if `True`, every checkbox is flipped (unchecked tags get emitted, checked ones drop out).
 - One BOOLEAN toggle per tag below (default: `False`).
 - `extra` (STRING, optional, multiline): free-form text appended after the joined tags.

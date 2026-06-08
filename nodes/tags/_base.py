@@ -88,7 +88,6 @@ class TagNodeBase:
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
         required: dict[str, Any] = {
-            "separator": ("STRING", {"multiline": False, "default": ", "}),
             "invert": ("BOOLEAN", {"default": False}),
         }
         for tag in cls.TAGS:
@@ -100,8 +99,7 @@ class TagNodeBase:
             },
         }
 
-    def build(self, separator: str, extra: str = "", **kwargs: Any) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
+    def build(self, extra: str = "", **kwargs: Any) -> dict[str, Any]:
         invert = bool(kwargs.pop("invert", False))
         tags: dict[str, bool] = {k: bool(v) for k, v in kwargs.items()}
         if invert:
@@ -131,5 +129,5 @@ class TagNodeBase:
                     mutex_within=False,
                 )
             )
-        preview = sep.join(parts)
+        preview = ", ".join(parts)
         return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}

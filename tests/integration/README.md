@@ -73,8 +73,7 @@ inputs you actually want to override.
 ```
 
 Equivalent to writing out every other boolean as `false`, the
-`separator` as `", "`, the `preset` as `"custom"`, etc. — but a lot
-shorter.
+`invert` toggle as `false`, etc. — but a lot shorter.
 
 ### Expectation shape
 
@@ -86,5 +85,7 @@ text list:
   one expectation per variant you care about. Each must equal one of
   the texts in the list verbatim.
 
-If `inputs.separator` is omitted (and the default is `", "`) the
-expectation should also use `, ` as the joiner.
+For nodes that still take a `separator` (`TagsMerge`, `TagsCombinator`,
+`TextConcat`), if `inputs.separator` is omitted the default `", "` is
+used, so the expectation should also use `, ` as the joiner. Every other
+node joins its preview with a fixed `", "`.

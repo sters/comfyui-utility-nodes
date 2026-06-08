@@ -225,15 +225,13 @@ class CharacterPreset:
         return {
             "required": {
                 "preset": (sorted(PRESETS), {"default": sorted(PRESETS)[0]}),
-                "separator": ("STRING", {"multiline": False, "default": ", "}),
             },
             "optional": {
                 "extra": ("STRING", {"multiline": True, "default": ""}),
             },
         }
 
-    def build(self, preset: str, separator: str, extra: str = "") -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
+    def build(self, preset: str, extra: str = "") -> dict[str, Any]:
         tags = PRESETS.get(preset, ())
         bundle: list[TaggedSelection] = []
         if tags:
@@ -257,7 +255,7 @@ class CharacterPreset:
                     mutex_within=False,
                 )
             )
-        preview = sep.join(parts)
+        preview = ", ".join(parts)
         return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
 
 

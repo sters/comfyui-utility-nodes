@@ -5,7 +5,6 @@
 ## Inputs
 
 - `character` (combo): preset name. Available: `blazer_schoolgirl`, `bunny_girl`, `catgirl_basic`, `cheerleader`, `gothic_lolita`, `knight`, `kunoichi`, `magical_girl`, `maid`, `miko`, `nun`, `nurse`, `office_lady`, `princess`, `santa_girl`, `serafuku_schoolgirl`, `vampire`, `witch`, `yandere_schoolgirl`, `yukata_festival`.
-- `separator` (STRING).
 - `extra` (STRING, multiline, optional): free-form text appended after the preset tags.
 
 ## Outputs

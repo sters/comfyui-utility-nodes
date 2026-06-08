@@ -4,7 +4,6 @@
 
 ## Inputs
 
-- `separator` (STRING).
 - `count` (INT, ≥ 1): number of tags to sample (without replacement).
 - `seed` (INT): RNG seed. Same seed = same picks.
 - `bundle` (CUUN_TAGS, optional).

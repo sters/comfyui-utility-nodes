@@ -59,9 +59,9 @@ def test_subclass_inherits_module_derived_category() -> None:
     assert _SampleNode.CATEGORY == "UtilityNodes"
 
 
-def test_input_types_has_separator_and_invert() -> None:
+def test_input_types_has_invert_and_no_separator() -> None:
     spec = _SampleNode.INPUT_TYPES()
-    assert spec["required"]["separator"][0] == "STRING"
+    assert "separator" not in spec["required"]
     kind, meta = spec["required"]["invert"]
     assert kind == "BOOLEAN"
     assert meta["default"] is False
@@ -91,7 +91,7 @@ def test_input_types_extra_is_optional_multiline_string() -> None:
 def test_build_no_tags_selected_returns_empty_string_and_empty_bundle() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
-    prompt, bundle = _result(node.build(", ", "", **tags))
+    prompt, bundle = _result(node.build("", **tags))
     assert prompt == ""
     assert bundle == ()
 
@@ -101,7 +101,7 @@ def test_build_custom_honors_booleans_and_preserves_order() -> None:
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["gamma"] = True
     tags["alpha"] = True
-    prompt, bundle = _result(node.build(", ", "", **tags))
+    prompt, bundle = _result(node.build("", **tags))
     assert prompt == "alpha, gamma"
     assert bundle == (
         TaggedSelection(
@@ -117,7 +117,7 @@ def test_build_invert_flips_booleans() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["alpha"] = True
-    prompt, bundle = _result(node.build(", ", "", invert=True, **tags))
+    prompt, bundle = _result(node.build("", invert=True, **tags))
     expected = tuple(t for t in _SampleNode.TAGS if t != "alpha")
     assert prompt == ", ".join(expected)
     assert bundle[0].tags == expected
@@ -127,7 +127,7 @@ def test_build_invert_false_keeps_selection() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["alpha"] = True
-    prompt, bundle = _result(node.build(", ", "", invert=False, **tags))
+    prompt, bundle = _result(node.build("", invert=False, **tags))
     assert prompt == "alpha"
     assert bundle[0].tags == ("alpha",)
 
@@ -136,7 +136,7 @@ def test_build_extra_emitted_as_separate_selection() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["beta"] = True
-    prompt, bundle = _result(node.build(", ", "1girl", **tags))
+    prompt, bundle = _result(node.build("1girl", **tags))
     assert prompt == "beta, 1girl"
     assert bundle == (
         TaggedSelection(
@@ -157,7 +157,7 @@ def test_build_extra_emitted_as_separate_selection() -> None:
 def test_build_extra_is_stripped() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
-    prompt, bundle = _result(node.build(", ", "   \n\n  ", **tags))
+    prompt, bundle = _result(node.build("   \n\n  ", **tags))
     assert prompt == ""
     assert bundle == ()
 
@@ -166,7 +166,7 @@ def test_build_hyphenated_kwarg() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["with-hyphen"] = True
-    prompt, _ = _result(node.build(", ", "", **tags))
+    prompt, _ = _result(node.build("", **tags))
     assert prompt == "with-hyphen"
 
 
@@ -174,25 +174,16 @@ def test_build_apostrophe_kwarg() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["with_apostrophe's"] = True
-    prompt, _ = _result(node.build(", ", "", **tags))
+    prompt, _ = _result(node.build("", **tags))
     assert prompt == "with_apostrophe's"
 
 
-def test_build_separator_escape_sequences_decoded() -> None:
+def test_build_preview_joins_with_comma_space() -> None:
     node = _SampleNode()
     tags = dict.fromkeys(_SampleNode.TAGS, False)
     tags["alpha"] = True
     tags["beta"] = True
-    prompt, _ = _result(node.build(r"\n", "", **tags))
-    assert prompt == "alpha\nbeta"
-
-
-def test_build_empty_separator_falls_back_to_comma_space() -> None:
-    node = _SampleNode()
-    tags = dict.fromkeys(_SampleNode.TAGS, False)
-    tags["alpha"] = True
-    tags["beta"] = True
-    prompt, _ = _result(node.build("", "", **tags))
+    prompt, _ = _result(node.build("", **tags))
     assert prompt == "alpha, beta"
 
 
@@ -200,6 +191,6 @@ def test_build_bundle_carries_mutex_flag() -> None:
     node = _MutexNode()
     tags = dict.fromkeys(_MutexNode.TAGS, False)
     tags["b"] = True
-    _, bundle = _result(node.build(", ", "", **tags))
+    _, bundle = _result(node.build("", **tags))
     assert bundle[0].mutex_within is True
     assert bundle[0].category == "test.mutex"

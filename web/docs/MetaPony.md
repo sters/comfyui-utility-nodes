@@ -4,7 +4,6 @@
 
 ## Inputs
 
-- `separator` (STRING).
 - `score_9` ... `score_4_up` (BOOLEAN, default `False`): toggle each score tag individually. Useful for keeping only the high ones in positive prompts, or only the low ones in negative prompts.
 - `rating_safe` / `rating_questionable` / `rating_explicit` (BOOLEAN, default `False`): pick the rating tags you want (multi-select; turn them all off for none).
 - `source_pony` / `source_furry` / `source_cartoon` / `source_anime` (BOOLEAN, default `False`): pick the source tags the same way.

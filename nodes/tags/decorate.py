@@ -40,7 +40,6 @@ class TagsDecorate:
     def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
-                "separator": ("STRING", {"multiline": False, "default": ", "}),
                 "target_category": ([_NONE, *_all_categories()], {"default": _NONE}),
             },
             "optional": {
@@ -51,13 +50,10 @@ class TagsDecorate:
 
     def decorate(
         self,
-        separator: list[str],
         target_category: list[str],
         bundle: list[tuple[TaggedSelection, ...]] | None = None,
         decoration: list[tuple[TaggedSelection, ...]] | None = None,
     ) -> dict[str, Any]:
-        sep_raw = separator[0] if separator else ", "
-        sep = sep_raw.encode("utf-8").decode("unicode_escape") if sep_raw else ", "
         target = target_category[0] if target_category else _NONE
 
         # Normalise empty lists to a single-element "empty" axis so that
@@ -72,7 +68,7 @@ class TagsDecorate:
 
         for b in bundles:
             for d in decorations:
-                p, w, ob = self._decorate_one(sep, target, b, d)
+                p, w, ob = self._decorate_one(target, b, d)
                 prompts.append(p)
                 warnings_out.append(w)
                 bundles_out.append(ob)
@@ -84,7 +80,6 @@ class TagsDecorate:
 
     @staticmethod
     def _decorate_one(
-        sep: str,
         target: str,
         bundle: tuple[TaggedSelection, ...],
         decoration: tuple[TaggedSelection, ...],
@@ -102,10 +97,10 @@ class TagsDecorate:
         if target == _NONE or not target:
             if prefix:
                 warnings.append(f"decorate: skipped — no target_category selected (prefix='{prefix}')")
-            return TagsDecorate._flatten(sep, bundle, warnings)
+            return TagsDecorate._flatten(bundle, warnings)
 
         if not prefix:
-            return TagsDecorate._flatten(sep, bundle, warnings)
+            return TagsDecorate._flatten(bundle, warnings)
 
         matched = 0
         new_bundle: list[TaggedSelection] = []
@@ -136,18 +131,17 @@ class TagsDecorate:
         if matched == 0:
             warnings.append(f"decorate: no tags in bundle matched category '{target}' (prefix '{prefix}' dropped)")
 
-        return TagsDecorate._flatten(sep, tuple(new_bundle), warnings)
+        return TagsDecorate._flatten(tuple(new_bundle), warnings)
 
     @staticmethod
     def _flatten(
-        sep: str,
         bundle: tuple[TaggedSelection, ...],
         warnings: list[str],
     ) -> tuple[str, str, tuple[TaggedSelection, ...]]:
         parts: list[str] = []
         for sel in bundle:
             parts.extend(sel.tags)
-        return sep.join(parts), "\n".join(warnings), bundle
+        return ", ".join(parts), "\n".join(warnings), bundle
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsDecorate": TagsDecorate}

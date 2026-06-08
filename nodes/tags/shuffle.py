@@ -27,7 +27,6 @@ class TagsShuffle:
     def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
-                "separator": ("STRING", {"multiline": False, "default": ", "}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
             },
             "optional": {
@@ -37,11 +36,9 @@ class TagsShuffle:
 
     def shuffle(
         self,
-        separator: str,
         seed: int,
         bundle: tuple[TaggedSelection, ...] = (),
     ) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         rng = random.Random(seed)
 
         out: list[TaggedSelection] = []
@@ -63,7 +60,7 @@ class TagsShuffle:
         parts: list[str] = []
         for sel in out:
             parts.extend(sel.tags)
-        preview = sep.join(parts)
+        preview = ", ".join(parts)
         return {"ui": {"text": (preview,)}, "result": (tuple(out),)}
 
 

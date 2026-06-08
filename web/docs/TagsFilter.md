@@ -4,7 +4,6 @@
 
 ## Inputs
 
-- `separator` (STRING, default `, `): joiner for the output prompt.
 - `target_category` (combo): a category from the global tag registry, or `(none)` to pass through unchanged.
 - `bundle` (CUUN_TAGS, optional): input bundle. If unwired, output is empty.
 

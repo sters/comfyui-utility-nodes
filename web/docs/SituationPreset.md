@@ -5,7 +5,6 @@
 ## Inputs
 
 - `situation` (combo): `after_school_classroom`, `cherry_blossom_park`, `gym_workout`, `hot_spring`, `karaoke_room`, `kitchen_cooking`, `library_study`, `morning_routine`, `park_picnic`, `rooftop_sunset`, `school_commute_morning`, `shopping_date`, `shrine_visit`, `snowy_streetscape`, `street_snap_city`, `summer_beach`, `summer_festival`, `winter_cafe`.
-- `separator` (STRING).
 - `extra` (STRING, multiline, optional).
 
 ## Outputs

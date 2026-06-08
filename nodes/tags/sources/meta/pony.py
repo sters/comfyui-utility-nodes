@@ -28,9 +28,7 @@ class MetaPony:
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
-        required: dict[str, Any] = {
-            "separator": ("STRING", {"multiline": False, "default": ", "}),
-        }
+        required: dict[str, Any] = {}
         # All toggles default off (like MetaQuality): the user opts into the
         # score / rating / source tags they want per workflow rather than
         # getting the full score_9..score_4_up stack baked into every prompt.
@@ -49,12 +47,9 @@ class MetaPony:
 
     def build(
         self,
-        separator: str,
         extra: str = "",
         **toggles: bool,
     ) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
-
         ordered = (*_SCORE_TAGS, *_RATING_TAGS, *_SOURCE_TAGS)
         tags: list[str] = [tag for tag in ordered if toggles.get(tag, False)]
 
@@ -82,7 +77,7 @@ class MetaPony:
                 )
             )
 
-        preview = sep.join(parts)
+        preview = ", ".join(parts)
         return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
 
 

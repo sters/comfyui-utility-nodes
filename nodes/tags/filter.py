@@ -34,7 +34,6 @@ class TagsFilter:
     def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
-                "separator": ("STRING", {"multiline": False, "default": ", "}),
                 "target_category": ([_NONE, *_all_categories()], {"default": _NONE}),
             },
             "optional": {
@@ -44,11 +43,9 @@ class TagsFilter:
 
     def filter(
         self,
-        separator: str,
         target_category: str,
         bundle: tuple[TaggedSelection, ...] | None = None,
     ) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         src = bundle or ()
         target = target_category if target_category and target_category != _NONE else ""
 
@@ -75,7 +72,7 @@ class TagsFilter:
         parts: list[str] = []
         for sel in out:
             parts.extend(sel.tags)
-        preview = sep.join(parts)
+        preview = ", ".join(parts)
         return {"ui": {"text": (preview,)}, "result": (tuple(out),)}
 
 

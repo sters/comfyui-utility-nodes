@@ -4,7 +4,6 @@
 
 ## Inputs
 
-- `separator` (STRING).
 - `invert` (BOOLEAN): if `True`, every checkbox is flipped.
 - One BOOLEAN per color. Default is off.
 - `extra` (STRING, multiline, optional).

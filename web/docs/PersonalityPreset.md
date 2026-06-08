@@ -5,7 +5,6 @@
 ## Inputs
 
 - `personality` (combo): `airhead`, `angry_fierce`, `apathetic`, `confident`, `dandere`, `genki`, `gyaru`, `hardboiled`, `kuudere`, `menhera`, `mesugaki`, `motherly`, `ojou_sama`, `playful_tease`, `scared`, `seiso`, `shy_girl`, `sleepy`, `tsundere`, `yandere`.
-- `separator` (STRING).
 - `extra` (STRING, multiline, optional).
 
 ## Outputs

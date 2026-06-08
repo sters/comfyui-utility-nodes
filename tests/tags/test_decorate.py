@@ -43,7 +43,6 @@ def _call(
     b = bundle if isinstance(bundle, list) else ([bundle] if bundle is not None else None)
     d = decoration if isinstance(decoration, list) else ([decoration] if decoration is not None else None)
     out = TagsDecorate().decorate(
-        separator=[sep],
         target_category=[target],
         bundle=b,
         decoration=d,
@@ -144,7 +143,7 @@ def test_underscore_in_decoration_becomes_space() -> None:
 
 def test_color_palette_emits_decoration_color_selection() -> None:
     node = ColorPalette()
-    out = node.build(", ", "", red=True, green=True)
+    out = node.build("", red=True, green=True)
     (bundle,) = out["result"]
     assert out["ui"]["text"] == ("red, green",)
     assert len(bundle) == 1

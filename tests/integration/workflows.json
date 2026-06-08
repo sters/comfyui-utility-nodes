@@ -257,7 +257,6 @@
       "2": {
         "class_type": "TagsFilter",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.legwear",
           "bundle": ["1", 0]
         }
@@ -275,7 +274,6 @@
       "2": {
         "class_type": "TagsFilter",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.legwear",
           "bundle": ["1", 0]
         }
@@ -283,7 +281,6 @@
       "3": {
         "class_type": "TagsFilter",
         "inputs": {
-          "separator": ", ",
           "target_category": "clothing.footwear",
           "bundle": ["2", 0]
         }

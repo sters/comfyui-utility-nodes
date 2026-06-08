@@ -203,15 +203,13 @@ class SituationPreset:
                     sorted(SITUATION_PRESETS),
                     {"default": sorted(SITUATION_PRESETS)[0]},
                 ),
-                "separator": ("STRING", {"multiline": False, "default": ", "}),
             },
             "optional": {
                 "extra": ("STRING", {"multiline": True, "default": ""}),
             },
         }
 
-    def build(self, situation: str, separator: str, extra: str = "") -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
+    def build(self, situation: str, extra: str = "") -> dict[str, Any]:
         tags = SITUATION_PRESETS.get(situation, ())
         bundle: list[TaggedSelection] = []
         if tags:
@@ -235,7 +233,7 @@ class SituationPreset:
                     mutex_within=False,
                 )
             )
-        preview = sep.join(parts)
+        preview = ", ".join(parts)
         return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
 
 

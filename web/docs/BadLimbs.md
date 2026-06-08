@@ -6,7 +6,6 @@ Internal layer / category: `bad` / `bad.limbs`.
 
 ## Inputs
 
-- `separator` (STRING): joiner between selected tags (supports escape sequences like `\n`).
 - `invert` (BOOLEAN): if `True`, every checkbox is flipped (unchecked tags get emitted, checked ones drop out).
 - One BOOLEAN toggle per tag below (default: `True`).
 - `extra` (STRING, optional, multiline): free-form text appended after the joined tags.

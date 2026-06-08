@@ -28,7 +28,6 @@ class TagsRandomPick:
     def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
-                "separator": ("STRING", {"multiline": False, "default": ", "}),
                 "count": ("INT", {"default": 1, "min": 1, "max": 1024}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
             },
@@ -39,12 +38,10 @@ class TagsRandomPick:
 
     def pick(
         self,
-        separator: str,
         count: int,
         seed: int,
         bundle: tuple[TaggedSelection, ...] = (),
     ) -> dict[str, Any]:
-        sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         rng = random.Random(seed)
 
         pool: list[str] = []
@@ -73,7 +70,7 @@ class TagsRandomPick:
         parts: list[str] = []
         for sel in out:
             parts.extend(sel.tags)
-        preview = sep.join(parts)
+        preview = ", ".join(parts)
         return {"ui": {"text": (preview,)}, "result": (tuple(out),)}
 
 

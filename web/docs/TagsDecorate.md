@@ -4,7 +4,6 @@
 
 ## Inputs
 
-- `separator` (STRING).
 - `target_category` (COMBO): pick the category whose tags should be decorated. The list is populated from every `TagNodeBase` subclass registered in this pack — e.g. `clothing.bottoms`, `clothing.legwear`, `clothing.headwear`, `body.hair.color`, ... `(none)` is a no-op (pass-through).
 - `bundle` (CUUN_TAGS, optional): the main bundle to decorate. Typically the output of `TagsMerge`.
 - `decoration` (CUUN_TAGS, optional): bundle whose tags are joined with spaces and used as the prefix. Underscores become spaces (`light_blue` → `light blue`).

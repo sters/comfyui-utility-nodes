@@ -5,7 +5,7 @@ from nodes.tags.sources.preset.situation import SITUATION_PRESETS, SituationPres
 
 
 def _build_situation(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(SituationPreset().build(name, ", ")["result"][0])
+    return tuple(SituationPreset().build(name)["result"][0])
 
 
 def test_situation_preset_input_lists_all() -> None:
@@ -23,7 +23,7 @@ def test_summer_beach_emits_expected_tags() -> None:
 
 
 def test_character_plus_situation_layers_cleanly() -> None:
-    miko = tuple(CharacterPreset().build("miko", ", ")["result"][0])
+    miko = tuple(CharacterPreset().build("miko")["result"][0])
     shrine = _build_situation("shrine_visit")
     out = TagsMerge().merge(", ", bundle_1=miko, bundle_2=shrine)
     tokens = str(out["result"][0]).split(", ")
@@ -32,7 +32,7 @@ def test_character_plus_situation_layers_cleanly() -> None:
 
 
 def test_situation_extra_appended() -> None:
-    out = SituationPreset().build("park_picnic", ", ", extra="1girl")
+    out = SituationPreset().build("park_picnic", extra="1girl")
     preview = str(out["ui"]["text"][0])
     assert preview.endswith(", 1girl")
     bundle = tuple(out["result"][0])

@@ -4,7 +4,6 @@
 
 ## Inputs
 
-- `separator` (STRING).
 - `seed` (INT): RNG seed. Same seed = same shuffle.
 - `bundle` (CUUN_TAGS, optional).
 

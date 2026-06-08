@@ -7,11 +7,11 @@ from nodes.tags.sources.preset.personality import PERSONALITY_PRESETS, Personali
 
 
 def _build_personality(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(PersonalityPreset().build(name, ", ")["result"][0])
+    return tuple(PersonalityPreset().build(name)["result"][0])
 
 
 def _build_character(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(CharacterPreset().build(name, ", ")["result"][0])
+    return tuple(CharacterPreset().build(name)["result"][0])
 
 
 def test_personality_preset_input_lists_all() -> None:
@@ -71,7 +71,7 @@ def test_kuudere_expressionless_drops_active_expression() -> None:
 
 
 def test_personality_extra_appended() -> None:
-    out = PersonalityPreset().build("genki", ", ", extra="1girl")
+    out = PersonalityPreset().build("genki", extra="1girl")
     preview = str(out["ui"]["text"][0])
     assert preview.endswith(", 1girl")
     bundle = tuple(out["result"][0])
@@ -94,4 +94,4 @@ def test_all_personality_tags_exist_in_some_tag_node() -> None:
 
 
 def _build_personality_full(name: str) -> Any:
-    return PersonalityPreset().build(name, ", ")
+    return PersonalityPreset().build(name)

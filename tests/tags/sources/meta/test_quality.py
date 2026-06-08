@@ -14,7 +14,7 @@ def test_quality_emits_only_checked_tags() -> None:
     tags = dict.fromkeys(_QUALITY, False)
     tags["masterpiece"] = True
     tags["best_quality"] = True
-    (bundle,) = node.build(", ", "", **tags)["result"]
+    (bundle,) = node.build("", **tags)["result"]
     assert bundle[0].tags == ("masterpiece", "best_quality")
     assert bundle[0].category == "meta.quality"
 
@@ -22,7 +22,7 @@ def test_quality_emits_only_checked_tags() -> None:
 def test_quality_empty_when_nothing_checked() -> None:
     node = MetaQuality()
     tags = dict.fromkeys(_QUALITY, False)
-    out = node.build(", ", "", **tags)
+    out = node.build("", **tags)
     assert out["result"] == ((),)
     assert out["ui"]["text"] == ("",)
 
@@ -31,6 +31,6 @@ def test_quality_invert_selects_the_rest() -> None:
     node = MetaQuality()
     tags = dict.fromkeys(_QUALITY, False)
     tags["realistic"] = True
-    (bundle,) = node.build(", ", "", invert=True, **tags)["result"]
+    (bundle,) = node.build("", invert=True, **tags)["result"]
     expected = tuple(t for t in _QUALITY if t != "realistic")
     assert bundle[0].tags == expected

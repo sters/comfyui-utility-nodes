@@ -5,7 +5,6 @@
 ## Inputs
 
 - `scene` (combo): `after_sex_aftermath`, `anal_focus`, `bound_submissive`, `breast_play`, `bukkake`, `cowgirl_riding`, `doggystyle`, `fellatio_pov`, `femdom_dominant`, `first_time_shy`, `footjob_dominant`, `handjob_dominant`, `lingerie_tease`, `masturbation_solo`, `mating_press`, `paizuri_scene`, `panty_shot_voyeur`, `public_exposure`, `shibari_suspension`, `shower_scene`, `squirting`, `threesome_ffm`, `vanilla_missionary`.
-- `separator` (STRING).
 - `extra` (STRING, multiline, optional).
 
 ## Outputs

@@ -6,7 +6,7 @@ from nodes.tags.sources.preset.character import PRESETS, CharacterPreset
 
 
 def _build(preset: str, **kw: Any) -> tuple[str, tuple[TaggedSelection, ...]]:
-    out = CharacterPreset().build(preset, ", ", **kw)
+    out = CharacterPreset().build(preset, **kw)
     return str(out["ui"]["text"][0]), tuple(out["result"][0])
 
 

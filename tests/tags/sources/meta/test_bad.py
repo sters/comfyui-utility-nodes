@@ -43,7 +43,7 @@ def test_bad_node_emits_bundle(cls: type[TagNodeBase], category_id: str, sample_
     node = cls()
     tags = dict.fromkeys(cls.TAGS, False)
     tags[sample_tag] = True
-    (bundle,) = node.build(", ", "", **tags)["result"]
+    (bundle,) = node.build("", **tags)["result"]
     assert bundle[0].category == category_id
     assert bundle[0].tags == (sample_tag,)
 
