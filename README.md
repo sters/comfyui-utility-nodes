@@ -1,52 +1,103 @@
 # comfyui-utility-nodes
 
-ComfyUI 向けのユーティリティ系カスタムノード集。プロンプト組み立て・タグ整合性チェック・キャラ/シーンプリセットなどを提供する。
+A pack of utility custom nodes for [ComfyUI](https://github.com/comfyanonymous/ComfyUI), focused on **prompt construction for Danbooru-style (booru) tag models**. It gives you checkbox-driven tag-group nodes, cross-node conflict resolution, one-click character/scene presets, and a handful of general text/image helpers.
 
-## インストール
+## Installation
 
 ```sh
 cd ComfyUI/custom_nodes
 git clone https://github.com/sters/comfyui-utility-nodes.git
 ```
 
-ComfyUI を再起動すると `UtilityNodes` カテゴリ（`TagMaster` / `Text` / `Image` サブメニュー）にノードが追加される。
+Restart ComfyUI. The nodes appear in the Add-Node menu under the `UtilityNodes` category (with `TagMaster`, `Text`, `Image`, and `Util` sub-menus).
 
-## ヘルプ
+## Per-node help
 
-各ノードの詳細仕様 (入出力 / 対応タグ / mutex 挙動など) は **ノード上の help (?) ボタン** から ComfyUI 内でそのまま読める ([Help Page Feature](https://docs.comfy.org/custom-nodes/help_page))。`web/docs/<ClassName>.md` の英語ドキュメントが表示される。
+Every node ships an in-app help page. Click the **help (?) button on the node** to read its full spec — inputs/outputs, the exact tags it emits, and any mutex/conflict behavior — without leaving ComfyUI ([Help Page feature](https://docs.comfy.org/custom-nodes/help_page)). The pages are the English docs under `web/docs/<ClassName>.md`.
 
-## ノード分類
+## Workflow templates
 
-| カテゴリ | 用途 | 代表ノード |
-| --- | --- | --- |
-| 汎用テキスト | プロンプト合成・連結・ランダム抽出 | `Prompt Combinator`, `List Shuffle`, `Text Concat`, `Random Text Picker` |
-| モデル固有 | Pony Diffusion 用テンプレ | `Meta: Pony` |
-| Bad / Negative | Danbooru の `bad_*` / `extra_*` 系をパーツ別に分割 | `Bad: General` / `Bad: Head & Face` / `Bad: Body` / `Bad: Limbs` / `Bad: NSFW` |
-| 構図 | アングル / フレーミング / クロップ / フォーカス | `Composition: Angle` ほか |
-| 髪 / 顔 / 体 | キャラ造形タグをパーツ別に | `Hair: ...`, `Face: ...`, `Body: ...`, `Breasts: ...` ほか |
-| 服飾 | 種類 / 素材 / フィット / 状態 / 着崩し | `Clothing: ...` ほか |
-| Meta / Scene | 人数指定・品質・背景・照明・天気 | `Meta: ...`, `Scene: ...` |
-| NSFW | 行為 / 体位 / 状態 / ソロ / 玩具 / 拘束 | `NSFW Act: ...`, `NSFW: Position`, `NSFW State: ...` ほか |
-| プリセット | 1クリックでキャラ / 性格 / シーン一式 | `Character Preset`, `Personality Preset`, `NSFW Scene Preset` |
-| 統合 | 全タグノードの矛盾解決と最終 prompt 生成 | `Tags: Merge & Validate` |
+Ready-made example graphs are bundled as ComfyUI [Workflow Templates](https://docs.comfy.org/custom-nodes/workflow_templates). Open them from **Workflow → Browse Templates → `comfyui-utility-nodes`**.
 
-## 推奨ワークフロー
+## How the tag pipeline works
 
-タグ系ノードはすべて 2 出力:
+The core idea: instead of hand-typing booru tags, you toggle them on dedicated nodes, then merge everything through a single node that resolves conflicts and emits the final prompt string.
 
-- `prompt` (STRING): 選択タグを `separator` で連結した文字列。手軽に `Text Concat` などへ
-- `bundle` (`CUUN_TAGS`): 構造化データ。category / layer / mutex 情報を保持
-
-整合性をきっちり取りたい場合は **全タグノードの `bundle` を `Tags: Merge & Validate` に集約** する。`nodes/tags/_conflicts.py` のルール (`MUTEX_GROUPS` と `TAG_CONFLICTS`) に従って、`nude` と clothing、`topless` と bras、`barefoot` と legwear などが自動で解決される。`warnings` 出力で drop 内容を確認できる。
-
-タグノード共通の `preset` combo (`custom` / `all_on` / `all_off` / `invert`) で、50タグ超のノードでも一括 on/off やスポット除外がワンクリックで切り替えられる。
-
-## 開発
-
-```sh
-make sync     # 依存導入
-make check    # lint + fmt-check + typecheck + pytest
-make fix      # ruff --fix + format
+```
+Tag-source nodes  ──►  bundle (CUUN_TAGS)  ──►  Tags: Merge & Validate  ──►  prompt (STRING)
+  (checkbox UIs)        structured tags          conflict resolution        + warnings + bundle
 ```
 
-Python 3.10+ / mypy strict / ruff。詳細は `CLAUDE.md` を参照。
+- **Tag-source nodes** (`Hair: ...`, `Body: ...`, `Clothing: ...`, `Scene: ...`, `NSFW ...`, etc.) are boolean-checkbox UIs. Their single output is `bundle`, a structured `CUUN_TAGS` value that carries each selection's category, layer, and mutex metadata. The flattened tag text is shown as a preview on the node, but it is **not** a separate output socket — wire `bundle` onward to get a STRING.
+- Each source also has an `invert` toggle (flips every checkbox at once — handy for "everything except a few" on large nodes) and an optional free-form `extra` text field that is appended verbatim.
+- **`Tags: Merge & Validate`** (`TagsMerge`) accepts up to 10 `CUUN_TAGS` bundles and applies the conflict rules defined in `nodes/tags/_conflicts.py` (`MUTEX_GROUPS` and `TAG_CONFLICTS`). It resolves things like `nude` vs. clothing, `topless` vs. bras, `barefoot` vs. legwear, or `long_hair` vs. `short_hair` automatically. It returns three outputs: `prompt` (the joined STRING), `warnings` (what was dropped and why), and `bundle` (the merged structured result for further chaining).
+
+For quick-and-dirty graphs you can also feed a bundle through `Tags: Combinator` / `Tags: Decorate` / `Tags: Filter` and friends without a full merge — but `Merge & Validate` is the node that guarantees a coherent, conflict-free prompt.
+
+## Node catalog
+
+### Tag operations — `UtilityNodes/TagMaster`
+
+These consume/transform `CUUN_TAGS` bundles (or, where noted, a prompt STRING).
+
+| Node | Class | Purpose |
+| --- | --- | --- |
+| `Tags: Merge & Validate` | `TagsMerge` | Merge up to 10 bundles, resolve all cross-node conflicts, emit the final prompt + warnings. |
+| `Tags: Combinator` | `TagsCombinator` | Cartesian product over tag axes — emits a list of `prompt`/`label`/`index` for batch/variation runs. |
+| `Tags: Decorate` | `TagsDecorate` | Prefix the tags of a chosen category with a decoration phrase (built from another bundle); broadcasts as a cross product for multi-variant runs. |
+| `Tags: Explode` | `TagsExplode` | Split a bundle into one single-tag bundle per tag — feed it into `Combinator` to turn N checked tags into N axis values. |
+| `Tags: Filter` | `TagsFilter` | Drop every tag whose registered category matches a target category. |
+| `Tags: Random Pick` | `TagsRandomPick` | Randomly pick a subset of tags from a bundle. |
+| `Tags: Shuffle` | `TagsShuffle` | Shuffle tag order within a bundle. |
+| `Tags: Extract Subject Count` | `TagsExtractSubjectCount` | Parse a prompt STRING and extract a person/subject count as an INT. |
+| `Tags: Bundle Inspector` | `TagsBundleInspector` | Debug helper — surface the structured contents of a `CUUN_TAGS` bundle. |
+
+### Presets — `UtilityNodes/TagMaster/Preset`
+
+One-click, pre-composed tag sets that still flow through the same merge pipeline.
+
+| Node | Class |
+| --- | --- |
+| `Character` | `CharacterPreset` |
+| `Personality` | `PersonalityPreset` |
+| `Situation` | `SituationPreset` |
+| `NSFW Scene` | `NsfwScenePreset` |
+
+### Tag sources
+
+Checkbox tag-group nodes, organized by what they describe:
+
+| Group | Examples |
+| --- | --- |
+| **Body** | `Figure`, `Posture`, `Action`, `Seating Style`, `Skin`, `Exposure`, `Scars`, `Tattoos`, `Moles & Freckles`, `Lower Anatomy`, `Breasts: Size`, `Breasts: Shape & State` |
+| **Face** | `Expression`, `Blush & Flush`, `Eyes: Color / State & Gaze / Pupils & Details`, `Mouth: State / Details` |
+| **Hair** | `Hair: Color`, `Hair: Length & Style`, `Hair: Details` |
+| **Hands & Feet** | `Hands: Pose / Gesture / Detail`, `Feet: Anatomy`, `Feet: Legs & Pose` |
+| **Holding** | `Holding: Object`, `Holding: Weapon` |
+| **Animal features** | `Animal Ears`, `Animal Horns`, `Animal Tail`, `Animal Wings` |
+| **Clothing** | `Tops`, `Bottoms`, `Dress & One-piece`, `Underwear`, `Swimwear`, `Legwear`, `Footwear`, `Headwear`, `Eyewear`, `Neck`, `Hand & Arm`, `Accessory`, `Uniform & Costume`, `Material`, `Pattern`, `Fit`, `State`, `Position`, `Lift & Pull`, `Aside & Partial Expose`, `Naked X` |
+| **Scene** | `Background Type`, `Indoor Location`, `Outdoor Location`, `Lighting`, `Time of Day`, `Weather`, `Particles & Atmosphere` |
+| **Composition** | `Angle`, `Framing`, `Crop`, `Focus`, `Multi-View` |
+| **Color** | `Color Palette` |
+| **Meta** | `Quality` (`MetaQuality`), `Pony` (`MetaPony`, Pony Diffusion template), `Subject Count: Total / Girls / Boys / Other` |
+| **Bad / negative** | `Bad: General`, `Bad: Head & Face`, `Bad: Body`, `Bad: Limbs`, `Bad: Quality`, `Bad: NSFW` — Danbooru `bad_*` / `extra_*` families split by body part for negative prompts |
+| **NSFW** | `Solo`, `Position`, `Act: Oral & Contact`, `Act: Penetrative`, `State: Fluids`, `State: Aftermath & Expression`, `BDSM`, `Toy` |
+
+### Text — `UtilityNodes/Text`
+
+General prompt utilities, independent of the tag bundle system: `Text Concat` (`TextConcat`), `List Shuffle` (`ListShuffle`), `Random Text Picker` (`RandomTextPicker`).
+
+### Image & Util
+
+`Aspect Ratio Preset` (`AspectRatioPreset`, under `UtilityNodes/Image`) and `Seed` (`Seed`, under `UtilityNodes/Util`).
+
+## Development
+
+```sh
+make sync     # install dependencies (uv)
+make check    # lint + fmt-check + typecheck + pytest
+make fix      # ruff --fix + format
+make integration  # end-to-end check against a CPU-only ComfyUI Docker image
+```
+
+Target Python is 3.10+, mypy runs in `strict` mode, and ruff enforces a 120-char line length. See `CLAUDE.md` for the architecture, naming conventions, and how to add a new tag node.
