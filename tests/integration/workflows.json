@@ -507,5 +507,22 @@
     "expect": [
       ["3", "worst quality, low quality, lowres, bad hands, artistic_error, bad_anatomy, anatomical_nonsense, bad_proportions, bad_perspective, bad_reflection, bad_multiple_views, bad_shadow, bad_gun_anatomy, bad_vehicle_anatomy, bad_internal_anatomy"]
     ]
+  },
+  {
+    "name": "count_extract_from_merged_prompt",
+    "description": "MetaCountExtract parses subject-count tags out of an assembled prompt. CharacterPreset(miko) carries no count tag, so a count is injected via MetaCountGirls + MetaCountBoys, merged to a STRING, then extracted — verifying the STRING round-trips through TagsMerge into the parser and the preview reports the total.",
+    "workflow": {
+      "1": {"class_type": "MetaCountGirls", "inputs": {"2girls": true}},
+      "2": {"class_type": "MetaCountBoys", "inputs": {"1boy": true}},
+      "3": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "4": {
+        "class_type": "TagsMerge",
+        "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}
+      },
+      "5": {"class_type": "MetaCountExtract", "inputs": {"prompt": ["4", 0]}}
+    },
+    "expect": [
+      ["5", "3 subject(s): 2girls, 1boy"]
+    ]
   }
 ]
