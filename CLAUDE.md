@@ -12,7 +12,9 @@ Dependencies are managed by `uv`. All commands go through the Makefile:
 - `make check` — lint + fmt-check + typecheck + test (run before committing)
 - `make fix` — ruff `--fix` + format
 - Run a single test: `uv run pytest tests/tags/test_merge.py::test_name -v`
-- `make integration` — end-to-end check. Builds a CPU-only ComfyUI Docker image, starts it with this repo mounted as a custom node, posts workflows to `/prompt`, asserts text outputs from `/history`, tears down. Stdlib-only runner. See `tests/integration/README.md`. Intentionally not part of `make check` (Docker build cost).
+- `make integration` — end-to-end check. Builds a CPU-only ComfyUI Docker image, starts it with this repo mounted as a custom node, posts workflows to `/prompt`, asserts text outputs from `/history`, tears down. Stdlib-only runner. See `tests/integration/README.md`. Intentionally not part of `make check` (first-build Docker cost).
+
+**Both are cheap to run — don't hesitate to run them.** `make check` is a sub-second offline suite (~360 pytest cases plus ruff/mypy). `make integration` only pays the Docker build once (cached after, ~1.5 GB); every run after that is just container-up → ~25 HTTP workflow checks → teardown, a handful of seconds. If you only changed an integration `workflows.json` expectation and the container is already up, you can skip the rebuild and re-run just the runner: `uv run python -m tests.integration.run`. Run them liberally to verify changes — especially `make integration` after touching any node I/O surface or `workflows.json`.
 
 Target Python is 3.10, mypy is `strict = true`, ruff line length 120.
 
