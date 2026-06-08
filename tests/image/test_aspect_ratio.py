@@ -5,27 +5,27 @@ from nodes.image.aspect_ratio import _PRESETS, AspectRatioPreset
 
 def test_returns_width_height_int_tuple() -> None:
     out = AspectRatioPreset().resolve("SDXL 1:1 (1024x1024)", swap=False)
-    assert out["result"] == (1024, 1024)
+    assert out == (1024, 1024)
 
 
 def test_swap_flips_orientation() -> None:
     out = AspectRatioPreset().resolve("SDXL 16:9 (1344x768)", swap=True)
-    assert out["result"] == (768, 1344)
+    assert out == (768, 1344)
 
 
 def test_swap_on_square_is_noop() -> None:
     out = AspectRatioPreset().resolve("SDXL 1:1 (1024x1024)", swap=True)
-    assert out["result"] == (1024, 1024)
+    assert out == (1024, 1024)
 
 
 def test_unknown_preset_falls_back_to_square() -> None:
     out = AspectRatioPreset().resolve("totally made up", swap=False)
-    assert out["result"] == (1024, 1024)
+    assert out == (1024, 1024)
 
 
 def test_ui_text_reflects_resolved_dimensions() -> None:
     out = AspectRatioPreset().resolve("SDXL 16:9 (1344x768)", swap=True)
-    assert out["ui"]["text"] == ("768x1344",)
+    assert f"{out[0]}x{out[1]}" == "768x1344"
 
 
 @pytest.mark.parametrize("name,dims", list(_PRESETS.items()))
@@ -48,4 +48,4 @@ def test_preset_label_matches_dimensions(name: str, dims: tuple[int, int]) -> No
 @pytest.mark.parametrize("name,dims", list(_PRESETS.items()))
 def test_all_presets_resolve(name: str, dims: tuple[int, int]) -> None:
     out = AspectRatioPreset().resolve(name, swap=False)
-    assert out["result"] == dims
+    assert out == dims

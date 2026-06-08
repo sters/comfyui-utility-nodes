@@ -7,7 +7,8 @@ from nodes.tags.sources.preset.character import PRESETS, CharacterPreset
 
 def _build(preset: str, **kw: Any) -> tuple[str, tuple[TaggedSelection, ...]]:
     out = CharacterPreset().build(preset, **kw)
-    return str(out["ui"]["text"][0]), tuple(out["result"][0])
+    bundle = tuple(out[0])
+    return ", ".join(t for sel in bundle for t in sel.tags), bundle
 
 
 def test_input_types_lists_all_presets() -> None:
@@ -36,7 +37,7 @@ def test_preset_extra_appended_as_separate_selection() -> None:
 def test_preset_pipes_through_tagsmerge_cleanly() -> None:
     _, bundle = _build("miko")
     out = TagsMerge().merge(", ", bundle_1=bundle)
-    assert out["result"][0] == ", ".join(PRESETS["miko"])
+    assert out[0] == ", ".join(PRESETS["miko"])
 
 
 def test_two_presets_with_conflicts_get_resolved() -> None:
@@ -46,7 +47,7 @@ def test_two_presets_with_conflicts_get_resolved() -> None:
     _, nun_bundle = _build("nun")
     _, maid_bundle = _build("maid")
     out = TagsMerge().merge(", ", bundle_1=nun_bundle, bundle_2=maid_bundle)
-    prompt = str(out["result"][0])
+    prompt = str(out[0])
     tokens = prompt.split(", ")
     # long_hair appears in both presets and is kept (duplicates are
     # harmless; mutex_group only drops *different* tags from a group).
@@ -62,7 +63,7 @@ def test_preset_layered_with_nude_drops_clothing() -> None:
     _, miko_bundle = _build("miko")
     nude_sel = (TaggedSelection("body.exposure", "exposure", ("nude",), False),)
     out = TagsMerge().merge(", ", bundle_1=nude_sel, bundle_2=miko_bundle)
-    prompt = str(out["result"][0])
+    prompt = str(out[0])
     tokens = prompt.split(", ")
     assert "nude" in tokens
     assert "miko" not in tokens  # dropped via _ALL_CLOTHING (uniform)

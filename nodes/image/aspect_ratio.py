@@ -29,7 +29,6 @@ class AspectRatioPreset:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("width", "height")
     FUNCTION: ClassVar[str] = "resolve"
     CATEGORY: ClassVar[str] = "UtilityNodes/Image"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -40,11 +39,11 @@ class AspectRatioPreset:
             },
         }
 
-    def resolve(self, preset: str, swap: bool) -> dict[str, Any]:
+    def resolve(self, preset: str, swap: bool) -> tuple[int, int]:
         w, h = _PRESETS.get(preset, (1024, 1024))
         if swap:
             w, h = h, w
-        return {"ui": {"text": (f"{w}x{h}",)}, "result": (w, h)}
+        return (w, h)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"AspectRatioPreset": AspectRatioPreset}

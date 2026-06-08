@@ -24,7 +24,6 @@ class MetaPony:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Meta"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -49,7 +48,7 @@ class MetaPony:
         self,
         extra: str = "",
         **toggles: bool,
-    ) -> dict[str, Any]:
+    ) -> tuple[tuple[TaggedSelection, ...]]:
         ordered = (*_SCORE_TAGS, *_RATING_TAGS, *_SOURCE_TAGS)
         tags: list[str] = [tag for tag in ordered if toggles.get(tag, False)]
 
@@ -64,10 +63,8 @@ class MetaPony:
                 )
             )
 
-        parts: list[str] = list(tags)
         extra_stripped = extra.strip()
         if extra_stripped:
-            parts.append(extra_stripped)
             bundle.append(
                 TaggedSelection(
                     category="extra",
@@ -77,8 +74,7 @@ class MetaPony:
                 )
             )
 
-        preview = ", ".join(parts)
-        return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
+        return (tuple(bundle),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {

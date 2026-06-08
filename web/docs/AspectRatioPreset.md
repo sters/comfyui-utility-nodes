@@ -23,4 +23,3 @@
 
 - All dimensions are multiples of 64 — safe for SDXL / Flux VAE strides.
 - The five `SDXL` entries are the official ~1MP training buckets. The three `Hi-res` entries are higher-resolution variants that Flux handles comfortably (and SDXL can use with refinement / tiled VAE).
-- The node previews the resolved `WxH` string in the UI so you can verify swap / preset at a glance.

@@ -14,12 +14,13 @@ def _all_scores_on() -> dict[str, bool]:
     }
 
 
-def _preview(result: dict[str, Any]) -> str:
-    return str(result["ui"]["text"][0])
+def _preview(result: tuple[Any, ...]) -> str:
+    bundle = tuple(result[0])
+    return ", ".join(t for sel in bundle for t in sel.tags)
 
 
-def _bundle(result: dict[str, Any]) -> tuple[Any, ...]:
-    return tuple(result["result"][0])
+def _bundle(result: tuple[Any, ...]) -> tuple[Any, ...]:
+    return tuple(result[0])
 
 
 def test_build_recommended() -> None:
@@ -85,10 +86,6 @@ def test_preview_joins_with_comma_space() -> None:
     scores["score_9"] = True
     out = _preview(node.build("x", rating_safe=True, source_pony=True, **scores))
     assert out == "score_9, rating_safe, source_pony, x"
-
-
-def test_output_node_flag() -> None:
-    assert MetaPony.OUTPUT_NODE is True
 
 
 def test_bundle_categorises_tags_under_meta_pony() -> None:

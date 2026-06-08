@@ -1,9 +1,9 @@
 {
   "version": 1,
   "state": {
-    "lastNodeId": 4,
+    "lastNodeId": 5,
     "lastGroupid": 0,
-    "lastLinkId": 4,
+    "lastLinkId": 5,
     "lastRerouteId": 0
   },
   "nodes": [
@@ -176,7 +176,9 @@
         {
           "name": "report",
           "type": "STRING",
-          "links": null,
+          "links": [
+            5
+          ],
           "slot_index": 1
         }
       ],
@@ -186,6 +188,33 @@
       "widgets_values": [
         ""
       ]
+    },
+    {
+      "id": 5,
+      "type": "PreviewAny",
+      "pos": [
+        1200,
+        40
+      ],
+      "size": [
+        320,
+        160
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "source",
+          "type": "*",
+          "link": 5
+        }
+      ],
+      "outputs": [],
+      "properties": {
+        "Node name for S&R": "PreviewAny"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -220,6 +249,14 @@
       "target_id": 4,
       "target_slot": 0,
       "type": "CUUN_TAGS"
+    },
+    {
+      "id": 5,
+      "origin_id": 4,
+      "origin_slot": 1,
+      "target_id": 5,
+      "target_slot": 0,
+      "type": "STRING"
     }
   ],
   "groups": [],

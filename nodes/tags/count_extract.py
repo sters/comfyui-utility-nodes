@@ -31,7 +31,6 @@ class TagsExtractSubjectCount:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("count_tags", "total", "girls", "boys", "others")
     FUNCTION: ClassVar[str] = "extract"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -41,7 +40,7 @@ class TagsExtractSubjectCount:
             },
         }
 
-    def extract(self, prompt: str) -> dict[str, Any]:
+    def extract(self, prompt: str) -> tuple[str, int, int, int, int]:
         text = prompt.lower()
         counts = {g: 0 for g in _GENDERS}
         multi = {g: False for g in _GENDERS}
@@ -79,11 +78,7 @@ class TagsExtractSubjectCount:
 
         ordered_tags = tags + total_tags
         count_tags = ", ".join(ordered_tags)
-        preview = f"{total} subject(s): {count_tags}" if ordered_tags else "0 subject(s)"
-        return {
-            "ui": {"text": (preview,)},
-            "result": (count_tags, total, counts["girl"], counts["boy"], counts["other"]),
-        }
+        return (count_tags, total, counts["girl"], counts["boy"], counts["other"])
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsExtractSubjectCount": TagsExtractSubjectCount}

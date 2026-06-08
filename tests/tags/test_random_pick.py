@@ -8,7 +8,7 @@ def _sel(category: str, tags: tuple[str, ...], mutex_within: bool = False) -> Ta
 
 def test_random_pick_count_equals_sample_size() -> None:
     bundle = (_sel("x", ("a", "b", "c", "d", "e")),)
-    (out_bundle,) = TagsRandomPick().pick(3, 42, bundle)["result"]
+    (out_bundle,) = TagsRandomPick().pick(3, 42, bundle)
     assert len(out_bundle) == 1
     assert len(out_bundle[0].tags) == 3
     assert set(out_bundle[0].tags) <= {"a", "b", "c", "d", "e"}
@@ -19,7 +19,7 @@ def test_random_pick_flattens_across_selections() -> None:
         _sel("hair.color", ("red", "blue")),
         _sel("clothing.tops", ("shirt", "blouse")),
     )
-    (out_bundle,) = TagsRandomPick().pick(4, 7, bundle)["result"]
+    (out_bundle,) = TagsRandomPick().pick(4, 7, bundle)
     assert set(out_bundle[0].tags) == {"red", "blue", "shirt", "blouse"}
     assert out_bundle[0].category == "random_pick"
     assert out_bundle[0].layer == "random"
@@ -27,7 +27,7 @@ def test_random_pick_flattens_across_selections() -> None:
 
 def test_random_pick_count_larger_than_pool_returns_all() -> None:
     bundle = (_sel("x", ("a", "b")),)
-    (out_bundle,) = TagsRandomPick().pick(99, 1, bundle)["result"]
+    (out_bundle,) = TagsRandomPick().pick(99, 1, bundle)
     assert set(out_bundle[0].tags) == {"a", "b"}
 
 
@@ -36,7 +36,7 @@ def test_random_pick_preserves_extra() -> None:
         _sel("x", ("a", "b", "c")),
         _sel("extra", ("freeform",)),
     )
-    (out_bundle,) = TagsRandomPick().pick(1, 1, bundle)["result"]
+    (out_bundle,) = TagsRandomPick().pick(1, 1, bundle)
     # extra selection is preserved at the end.
     assert out_bundle[-1].category == "extra"
     assert out_bundle[-1].tags == ("freeform",)
@@ -44,13 +44,13 @@ def test_random_pick_preserves_extra() -> None:
 
 def test_random_pick_is_deterministic_for_same_seed() -> None:
     bundle = (_sel("x", tuple(f"tag_{i}" for i in range(20))),)
-    r1 = TagsRandomPick().pick(5, 12345, bundle)["result"][0]
-    r2 = TagsRandomPick().pick(5, 12345, bundle)["result"][0]
+    r1 = TagsRandomPick().pick(5, 12345, bundle)[0]
+    r2 = TagsRandomPick().pick(5, 12345, bundle)[0]
     assert r1 == r2
 
 
 def test_random_pick_empty_bundle() -> None:
     out = TagsRandomPick().pick(3, 1, ())
-    (bundle,) = out["result"]
-    assert out["ui"]["text"] == ("",)
+    (bundle,) = out
+    assert ", ".join(t for sel in out[0] for t in sel.tags) == ""
     assert bundle == ()

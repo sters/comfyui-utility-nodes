@@ -2,8 +2,15 @@
 
 Reads `workflows.json`, posts each workflow to ComfyUI's `/prompt`
 endpoint, polls `/history/<prompt_id>` until completion, and asserts
-that each expected string equals (exactly) one of the OUTPUT_NODE
-preview texts of the named node.
+that each expected string equals (exactly) one of the text outputs of
+the named node.
+
+The pack's own nodes are pure data nodes (no OUTPUT_NODE), so each
+workflow terminates in a built-in `PreviewAny` node wired to the STRING
+(or INT) output under test; `PreviewAny` is the OUTPUT_NODE that drives
+execution and surfaces the stringified value in `/history`. A separate
+pass also checks every node's live `/object_info` category (see
+`_check_categories`).
 
 Usage:
     1. Start ComfyUI locally with this repo mounted under custom_nodes/.

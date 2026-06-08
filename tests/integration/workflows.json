@@ -1,38 +1,31 @@
 [
   {
     "name": "body_exposure_standalone",
-    "description": "Single tag-toggle node — verifies node loads, accepts BOOLEAN inputs, and emits OUTPUT_NODE preview text via /history.",
+    "description": "Single tag-toggle node — verifies the node loads, accepts BOOLEAN inputs, and its bundle flattens to the expected text once routed through TagsMerge. Terminated by PreviewAny so the merged STRING surfaces in /history.",
     "workflow": {
-      "1": {
-        "class_type": "BodyExposure",
-        "inputs": {"nude": true}
-      }
+      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
-      ["1", "nude"]
+      ["3", "nude"]
     ]
   },
   {
     "name": "exposure_through_tags_merge",
-    "description": "Wires a tag bundle into TagsMerge — verifies the CUUN_TAGS socket type and merge resolution work end-to-end.",
+    "description": "Wires a tag bundle into TagsMerge — verifies the CUUN_TAGS socket type and merge resolution work end-to-end. PreviewAny renders the merged prompt STRING.",
     "workflow": {
-      "1": {
-        "class_type": "BodyExposure",
-        "inputs": {"nude": true}
-      },
-      "2": {
-        "class_type": "TagsMerge",
-        "inputs": {"bundle_1": ["1", 0]}
-      }
+      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
-      ["1", "nude"],
-      ["2", "nude"]
+      ["3", "nude"]
     ]
   },
   {
     "name": "meta_pony",
-    "description": "Pony-specific preset — verifies BOOLEAN score / rating / source toggles compose into a CUUN_TAGS bundle with a previewable text.",
+    "description": "Pony-specific preset — verifies BOOLEAN score / rating / source toggles compose into a CUUN_TAGS bundle that flattens (via TagsMerge) to the expected text.",
     "workflow": {
       "1": {
         "class_type": "MetaPony",
@@ -44,15 +37,17 @@
           "source_anime": true,
           "extra": "1girl"
         }
-      }
+      },
+      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
-      ["1", "score_9, score_8_up, score_7_up, rating_safe, source_anime, 1girl"]
+      ["3", "score_9, score_8_up, score_7_up, rating_safe, source_anime, 1girl"]
     ]
   },
   {
     "name": "three_presets_through_merge",
-    "description": "Mirrors the text portion of example_workflows/character_pipeline.json — three preset bundles fanning into TagsMerge.",
+    "description": "Mirrors the text portion of example_workflows/character_pipeline.json — three preset bundles fanning into TagsMerge, rendered by PreviewAny.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
       "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki"}},
@@ -60,25 +55,28 @@
       "4": {
         "class_type": "TagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}
-      }
+      },
+      "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
     },
     "expect": [
-      ["4", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors, smile, grin, happy, sparkling_eyes, open_mouth, :d, blush_stickers, shrine, outdoors, afternoon, miko, hakama, looking_at_viewer, smile"]
+      ["5", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors, smile, grin, happy, sparkling_eyes, open_mouth, :d, blush_stickers, shrine, outdoors, afternoon, miko, hakama, looking_at_viewer, smile"]
     ]
   },
   {
     "name": "character_preset",
-    "description": "Preset combo selector — verifies COMBO with a non-trivial value list resolves to expected tags.",
+    "description": "Preset combo selector — verifies COMBO with a non-trivial value list resolves to expected tags (flattened via TagsMerge).",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}}
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
-      ["1", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors"]
+      ["3", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors"]
     ]
   },
   {
     "name": "tag_decorate_color",
-    "description": "TagsDecorate prefixes a clothing.bottoms tag from a CharacterPreset bundle with colors emitted by ColorPalette. Verifies the tag-category registry resolves preset-emitted tags and the decoration phrase is correctly composed.",
+    "description": "TagsDecorate prefixes a clothing.bottoms tag from a CharacterPreset bundle with colors emitted by ColorPalette. Verifies the tag-category registry resolves preset-emitted tags and the decoration phrase is correctly composed. The decorated bundle is flattened via TagsMerge and shown by PreviewAny.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true}},
@@ -89,15 +87,17 @@
           "bundle": ["1", 0],
           "decoration": ["2", 0]
         }
-      }
+      },
+      "4": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["3", 1]}},
+      "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
     },
     "expect": [
-      ["3", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, red green pleated skirt, thighhighs, loafers"]
+      ["5", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, red green pleated skirt, thighhighs, loafers"]
     ]
   },
   {
     "name": "tag_decorate_auto_broadcast",
-    "description": "TagsExplode fans out 3 single-color bundles into TagsDecorate.decoration. TagsDecorate runs once per element (1 bundle × 3 colors = 3) and emits 3 prompts, each prefixing pleated_skirt with one color.",
+    "description": "TagsExplode fans out 3 single-color bundles into TagsDecorate.decoration. TagsDecorate runs once per element (1 bundle × 3 colors = 3) and emits a 3-element CUUN_TAGS list; TagsMerge runs per element (list broadcast) and PreviewAny collects all 3 prompts.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
@@ -109,17 +109,19 @@
           "bundle": ["1", 0],
           "decoration": ["3", 0]
         }
-      }
+      },
+      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["4", 1]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
-      ["4", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, red pleated skirt, thighhighs, loafers"],
-      ["4", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, green pleated skirt, thighhighs, loafers"],
-      ["4", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, blue pleated skirt, thighhighs, loafers"]
+      ["6", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, red pleated skirt, thighhighs, loafers"],
+      ["6", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, green pleated skirt, thighhighs, loafers"],
+      ["6", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, blue pleated skirt, thighhighs, loafers"]
     ]
   },
   {
     "name": "tag_decorate_two_lists_cross_product",
-    "description": "TagsDecorate sets INPUT_IS_LIST=True and iterates bundle × decoration internally. 3 tops × 3 colors → 9 prompts covering every (top, color) pair (red shirt / blue shirt / green shirt / red blouse / ... / blue hoodie).",
+    "description": "TagsDecorate sets INPUT_IS_LIST=True and iterates bundle × decoration internally. 3 tops × 3 colors → 9 decorated bundles, each flattened via per-element TagsMerge and collected by PreviewAny (red shirt / blue shirt / green shirt / red blouse / ... / blue hoodie).",
     "workflow": {
       "1": {
         "class_type": "ClothingTops",
@@ -138,23 +140,25 @@
           "bundle": ["2", 0],
           "decoration": ["4", 0]
         }
-      }
+      },
+      "6": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["5", 1]}},
+      "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}}
     },
     "expect": [
-      ["5", "red shirt"],
-      ["5", "green shirt"],
-      ["5", "blue shirt"],
-      ["5", "red blouse"],
-      ["5", "green blouse"],
-      ["5", "blue blouse"],
-      ["5", "red hoodie"],
-      ["5", "green hoodie"],
-      ["5", "blue hoodie"]
+      ["7", "red shirt"],
+      ["7", "green shirt"],
+      ["7", "blue shirt"],
+      ["7", "red blouse"],
+      ["7", "green blouse"],
+      ["7", "blue blouse"],
+      ["7", "red hoodie"],
+      ["7", "green hoodie"],
+      ["7", "blue hoodie"]
     ]
   },
   {
     "name": "tag_decorate_chained_multiplies_axes",
-    "description": "Two TagsDecorate nodes chained back-to-back. Stage 1 decorates clothing.bottoms with 3 colors (1×3 = 3). Stage 2 decorates clothing.tops with 2 patterns (3×2 = 6 total prompts). Verifies that the list output of stage 1 flows correctly into the `bundle` of stage 2 and multiplies.",
+    "description": "Two TagsDecorate nodes chained back-to-back. Stage 1 decorates clothing.bottoms with 3 colors (1×3 = 3). Stage 2 decorates clothing.tops with 2 patterns (3×2 = 6 total). Verifies the list output of stage 1 flows into the `bundle` of stage 2 and multiplies; per-element TagsMerge + PreviewAny renders all 6.",
     "workflow": {
       "1": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
       "2": {"class_type": "ClothingBottoms", "inputs": {"pleated_skirt": true}},
@@ -187,20 +191,22 @@
           "bundle": ["6", 1],
           "decoration": ["8", 0]
         }
-      }
+      },
+      "10": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["9", 1]}},
+      "11": {"class_type": "PreviewAny", "inputs": {"source": ["10", 0]}}
     },
     "expect": [
-      ["9", "plaid shirt, red pleated skirt"],
-      ["9", "checkered shirt, red pleated skirt"],
-      ["9", "plaid shirt, green pleated skirt"],
-      ["9", "checkered shirt, green pleated skirt"],
-      ["9", "plaid shirt, blue pleated skirt"],
-      ["9", "checkered shirt, blue pleated skirt"]
+      ["11", "plaid shirt, red pleated skirt"],
+      ["11", "checkered shirt, red pleated skirt"],
+      ["11", "plaid shirt, green pleated skirt"],
+      ["11", "checkered shirt, green pleated skirt"],
+      ["11", "plaid shirt, blue pleated skirt"],
+      ["11", "checkered shirt, blue pleated skirt"]
     ]
   },
   {
     "name": "tag_decorate_three_axis_chain",
-    "description": "The full-stack sanity check. Base = CharacterPreset(serafuku_schoolgirl). Three TagsDecorate stages each pick a different target category and a different decoration source, multiplying to 3 × 2 × 2 = 12 prompts. Verifies (a) chained list propagation across three stages, (b) per-stage category targeting hits ALL tags belonging to that category (the clothing.uniform stage decorates BOTH serafuku and sailor_collar — they share the category — while leaving everything else untouched), (c) underscore-to-space replacement on multi-word decoration tags (polka_dot → polka dot), and (d) the full set of 12 outputs is exactly the Cartesian product in (skirt × top × legwear) iteration order.",
+    "description": "The full-stack sanity check. Base = CharacterPreset(serafuku_schoolgirl). Three TagsDecorate stages each pick a different target category and decoration source, multiplying to 3 × 2 × 2 = 12. Verifies (a) chained list propagation across three stages, (b) per-stage category targeting hits ALL tags belonging to that category (the clothing.uniform stage decorates BOTH serafuku and sailor_collar), (c) underscore-to-space replacement on multi-word decoration tags (polka_dot → polka dot), and (d) the full set of 12 outputs (rendered via per-element TagsMerge + PreviewAny) is exactly the Cartesian product in (skirt × top × legwear) iteration order.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
@@ -232,26 +238,28 @@
           "bundle": ["7", 1],
           "decoration": ["9", 0]
         }
-      }
+      },
+      "11": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["10", 1]}},
+      "12": {"class_type": "PreviewAny", "inputs": {"source": ["11", 0]}}
     },
     "expect": [
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, red pleated skirt, striped thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, red pleated skirt, polka dot thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, red pleated skirt, striped thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, red pleated skirt, polka dot thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, green pleated skirt, striped thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, green pleated skirt, polka dot thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, green pleated skirt, striped thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, green pleated skirt, polka dot thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, blue pleated skirt, striped thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, blue pleated skirt, polka dot thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, striped thighhighs, loafers"],
-      ["10", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, polka dot thighhighs, loafers"]
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, red pleated skirt, striped thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, red pleated skirt, polka dot thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, red pleated skirt, striped thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, red pleated skirt, polka dot thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, green pleated skirt, striped thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, green pleated skirt, polka dot thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, green pleated skirt, striped thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, green pleated skirt, polka dot thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, blue pleated skirt, striped thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, white serafuku, white sailor collar, blue pleated skirt, polka dot thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, striped thighhighs, loafers"],
+      ["12", "long_hair, black_hair, bangs, hair_ribbon, navy serafuku, navy sailor collar, blue pleated skirt, polka dot thighhighs, loafers"]
     ]
   },
   {
     "name": "tags_filter_drops_registry_category",
-    "description": "TagsFilter targets clothing.legwear and drops the `thighhighs` tag from inside CharacterPreset(serafuku_schoolgirl)'s preset.X selection. Verifies registry-based per-tag filtering on a preset bundle (not selection-category-based), and that the surrounding tags survive.",
+    "description": "TagsFilter targets clothing.legwear and drops the `thighhighs` tag from inside CharacterPreset(serafuku_schoolgirl)'s preset.X selection. Verifies registry-based per-tag filtering on a preset bundle; the survivors are flattened via TagsMerge and rendered by PreviewAny.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "2": {
@@ -260,10 +268,12 @@
           "target_category": "clothing.legwear",
           "bundle": ["1", 0]
         }
-      }
+      },
+      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
-      ["2", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, loafers"]
+      ["4", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, loafers"]
     ]
   },
   {
@@ -284,54 +294,60 @@
           "target_category": "clothing.footwear",
           "bundle": ["2", 0]
         }
-      }
+      },
+      "4": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["3", 0]}},
+      "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
     },
     "expect": [
-      ["3", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt"]
+      ["5", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt"]
     ]
   },
   {
     "name": "tags_shuffle_deterministic",
-    "description": "TagsShuffle reorders tags within each TaggedSelection deterministically per seed. CharacterPreset(miko) emits one selection of 8 tags; with seed=42 the shuffled order must match Python's random.Random(42).shuffle reference output.",
+    "description": "TagsShuffle reorders tags within each TaggedSelection deterministically per seed. CharacterPreset(miko) emits one selection of 8 tags; with seed=42 the shuffled order (flattened via TagsMerge, rendered by PreviewAny) must match Python's random.Random(42).shuffle reference output.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
       "2": {
         "class_type": "TagsShuffle",
         "inputs": {"seed": 42, "bundle": ["1", 0]}
-      }
+      },
+      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
-      ["2", "miko, hakama, zouri, shrine_outdoors, bangs, tabi, long_hair, black_hair"]
+      ["4", "miko, hakama, zouri, shrine_outdoors, bangs, tabi, long_hair, black_hair"]
     ]
   },
   {
     "name": "bundle_inspector_kept_only",
-    "description": "TagsBundleInspector renders a merged bundle grouped by layer/category. With no conflicts, the dropped section is omitted.",
+    "description": "TagsBundleInspector renders a merged bundle grouped by layer/category into its `report` STRING. With no conflicts, the dropped section is omitted. PreviewAny shows the report.",
     "workflow": {
       "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
       "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
-      "3": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["2", 2], "warnings": ["2", 1]}}
+      "3": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["2", 2], "warnings": ["2", 1]}},
+      "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 1]}}
     },
     "expect": [
-      ["3", "[exposure]\n  body.exposure : nude"]
+      ["4", "[exposure]\n  body.exposure : nude"]
     ]
   },
   {
     "name": "bundle_inspector_with_dropped",
-    "description": "TagsBundleInspector appends a `--- dropped ---` section when TagsMerge.warnings carries conflict info. `nude` triggers TAG_CONFLICTS to drop the `shirt` tag from ClothingTops.",
+    "description": "TagsBundleInspector appends a `--- dropped ---` section to its `report` when TagsMerge.warnings carries conflict info. `nude` triggers TAG_CONFLICTS to drop the `shirt` tag from ClothingTops; PreviewAny shows the report.",
     "workflow": {
       "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
       "2": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
       "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
-      "4": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["3", 2], "warnings": ["3", 1]}}
+      "4": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["3", 2], "warnings": ["3", 1]}},
+      "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 1]}}
     },
     "expect": [
-      ["4", "[exposure]\n  body.exposure : nude\n\n--- dropped ---\nconflict: dropped ['shirt'] from 'clothing.tops' (triggered by ['nude'])"]
+      ["5", "[exposure]\n  body.exposure : nude\n\n--- dropped ---\nconflict: dropped ['shirt'] from 'clothing.tops' (triggered by ['nude'])"]
     ]
   },
   {
     "name": "text_concat_break_attribute_binding",
-    "description": "Color/attribute binding pattern: each tag source's bundle goes through its own TagsMerge to produce a STRING, then TextConcat joins them with ' BREAK ' to isolate attention chunks so e.g. tops/bottoms colors don't bleed across attributes. Demonstrates that the existing TagsMerge+TextConcat composition covers the BREAK-grouping use case.",
+    "description": "Color/attribute binding pattern: each tag source's bundle goes through its own TagsMerge to produce a STRING, then TextConcat joins them with ' BREAK ' to isolate attention chunks. PreviewAny renders the concatenated result.",
     "workflow": {
       "1": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
       "2": {"class_type": "ClothingBottoms", "inputs": {"pleated_skirt": true}},
@@ -347,15 +363,16 @@
           "text_2": ["5", 0],
           "text_3": ["6", 0]
         }
-      }
+      },
+      "8": {"class_type": "PreviewAny", "inputs": {"source": ["7", 0]}}
     },
     "expect": [
-      ["7", "shirt BREAK pleated_skirt BREAK plaid"]
+      ["8", "shirt BREAK pleated_skirt BREAK plaid"]
     ]
   },
   {
     "name": "text_concat_break_two_characters",
-    "description": "Multi-character pattern: each CharacterPreset's bundle goes through its own TagsMerge → STRING, then TextConcat joins them with ' BREAK ', producing one BREAK-separated chunk per subject. Spatial positioning is still the encoder/sampler's job (smZ / Regional Prompter / Attention Couple) — this only handles the prompt-builder side.",
+    "description": "Multi-character pattern: each CharacterPreset's bundle goes through its own TagsMerge → STRING, then TextConcat joins them with ' BREAK ', producing one BREAK-separated chunk per subject. PreviewAny renders the result.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
       "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
@@ -368,15 +385,16 @@
           "text_1": ["3", 0],
           "text_2": ["4", 0]
         }
-      }
+      },
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
-      ["5", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors BREAK long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers"]
+      ["6", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors BREAK long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers"]
     ]
   },
   {
     "name": "text_concat_break_grouped_with_per_group_merge",
-    "description": "Multi-source-per-group pattern: each BREAK group is pre-composed by its own TagsMerge (so mutex/conflicts resolve within the group), then the per-group prompt STRINGs are joined with TextConcat / ' BREAK '. Verifies that the standard pipeline composes correctly when groups need internal conflict resolution before isolation.",
+    "description": "Multi-source-per-group pattern: each BREAK group is pre-composed by its own TagsMerge (so mutex/conflicts resolve within the group), then the per-group prompt STRINGs are joined with TextConcat / ' BREAK '. PreviewAny renders the result.",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
       "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki"}},
@@ -396,55 +414,64 @@
           "text_1": ["3", 0],
           "text_2": ["5", 0]
         }
-      }
+      },
+      "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}}
     },
     "expect": [
-      ["6", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors, smile, grin, happy, sparkling_eyes, open_mouth, :d, blush_stickers BREAK shrine, outdoors, afternoon, miko, hakama, looking_at_viewer, smile"]
+      ["7", "long_hair, black_hair, bangs, miko, hakama, tabi, zouri, shrine_outdoors, smile, grin, happy, sparkling_eyes, open_mouth, :d, blush_stickers BREAK shrine, outdoors, afternoon, miko, hakama, looking_at_viewer, smile"]
     ]
   },
   {
     "name": "aspect_ratio_preset_landscape",
-    "description": "AspectRatioPreset emits (width, height) INTs and a `WxH` UI preview. Verifies the node loads from the new `nodes/image/` subpackage and surfaces dimensions in the expected format.",
+    "description": "AspectRatioPreset emits (width, height) INTs. Verifies the node loads from the `nodes/image/` subpackage and resolves the named preset. Two PreviewAny terminators stringify each INT socket.",
     "workflow": {
       "1": {
         "class_type": "AspectRatioPreset",
         "inputs": {"preset": "SDXL 16:9 (1344x768)", "swap": false}
-      }
+      },
+      "2": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
+      "3": {"class_type": "PreviewAny", "inputs": {"source": ["1", 1]}}
     },
     "expect": [
-      ["1", "1344x768"]
+      ["2", "1344"],
+      ["3", "768"]
     ]
   },
   {
     "name": "aspect_ratio_preset_swap_to_portrait",
-    "description": "`swap=true` flips a landscape preset to portrait — verifies the swap toggle ends up reflected in the UI preview text (and therefore the INT outputs).",
+    "description": "`swap=true` flips a landscape preset to portrait — verifies the swap toggle is reflected in the (width, height) INT outputs.",
     "workflow": {
       "1": {
         "class_type": "AspectRatioPreset",
         "inputs": {"preset": "Hi-res 16:9 (1920x1088)", "swap": true}
-      }
+      },
+      "2": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
+      "3": {"class_type": "PreviewAny", "inputs": {"source": ["1", 1]}}
     },
     "expect": [
-      ["1", "1088x1920"]
+      ["2", "1088"],
+      ["3", "1920"]
     ]
   },
   {
     "name": "tags_random_pick_deterministic",
-    "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output.",
+    "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output (flattened via TagsMerge, rendered by PreviewAny).",
     "workflow": {
       "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
       "2": {
         "class_type": "TagsRandomPick",
         "inputs": {"count": 3, "seed": 7, "bundle": ["1", 0]}
-      }
+      },
+      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
-      ["2", "tabi, black_hair, miko"]
+      ["4", "tabi, black_hair, miko"]
     ]
   },
   {
     "name": "pony_sdxl_pipeline_positive",
-    "description": "Mirrors the positive text chain of example_workflows/pony_sdxl_pipeline.json — MetaPony prefix (scores + rating + source + extra) layered with character / personality / situation / quality presets through TagsMerge.",
+    "description": "Mirrors the positive text chain of example_workflows/pony_sdxl_pipeline.json — MetaPony prefix (scores + rating + source + extra) layered with character / personality / situation / quality presets through TagsMerge, rendered by PreviewAny.",
     "workflow": {
       "1": {
         "class_type": "MetaPony",
@@ -473,30 +500,32 @@
           "bundle_4": ["4", 0],
           "bundle_5": ["5", 0]
         }
-      }
+      },
+      "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}}
     },
     "expect": [
-      ["6", "score_9, score_8_up, score_7_up, rating_safe, source_anime, 1girl, solo, very_long_hair, purple_hair, witch, witch_hat, long_dress, thighhighs, boots, smug, grin, looking_at_viewer, hand_on_own_hip, determined, beach, ocean, outdoors, noon, sunny, swimsuit, wind_lift, looking_at_viewer, masterpiece, best_quality, very_aesthetic"]
+      ["7", "score_9, score_8_up, score_7_up, rating_safe, source_anime, 1girl, solo, very_long_hair, purple_hair, witch, witch_hat, long_dress, thighhighs, boots, smug, grin, looking_at_viewer, hand_on_own_hip, determined, beach, ocean, outdoors, noon, sunny, swimsuit, wind_lift, looking_at_viewer, masterpiece, best_quality, very_aesthetic"]
     ]
   },
   {
     "name": "pony_sdxl_pipeline_negative",
-    "description": "Mirrors the negative text chain of example_workflows/pony_sdxl_pipeline.json — BadQuality (fidelity negatives) merged with BadGeneral (anatomy negatives).",
+    "description": "Mirrors the negative text chain of example_workflows/pony_sdxl_pipeline.json — BadQuality (fidelity negatives) merged with BadGeneral (anatomy negatives), rendered by PreviewAny.",
     "workflow": {
       "1": {"class_type": "BadQuality"},
       "2": {"class_type": "BadGeneral"},
       "3": {
         "class_type": "TagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}
-      }
+      },
+      "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
-      ["3", "worst_quality, low_quality, normal_quality, bad_quality, lowres, jpeg_artifacts, compression_artifacts, blurry, watermark, signature, username, artist_name, text, logo, error, chromatic_aberration, artistic_error, bad_anatomy, anatomical_nonsense, bad_proportions, bad_perspective, bad_reflection, bad_multiple_views, bad_shadow, bad_gun_anatomy, bad_vehicle_anatomy, bad_internal_anatomy"]
+      ["4", "worst_quality, low_quality, normal_quality, bad_quality, lowres, jpeg_artifacts, compression_artifacts, blurry, watermark, signature, username, artist_name, text, logo, error, chromatic_aberration, artistic_error, bad_anatomy, anatomical_nonsense, bad_proportions, bad_perspective, bad_reflection, bad_multiple_views, bad_shadow, bad_gun_anatomy, bad_vehicle_anatomy, bad_internal_anatomy"]
     ]
   },
   {
     "name": "count_extract_from_merged_prompt",
-    "description": "TagsExtractSubjectCount parses subject-count tags out of an assembled prompt. CharacterPreset(miko) carries no count tag, so a count is injected via MetaCountGirls + MetaCountBoys, merged to a STRING, then extracted — verifying the STRING round-trips through TagsMerge into the parser and the preview reports the total.",
+    "description": "TagsExtractSubjectCount parses subject-count tags out of an assembled prompt. A count is injected via MetaCountGirls + MetaCountBoys, merged to a STRING, then extracted — verifying the STRING round-trips through TagsMerge into the parser. PreviewAny renders both the `count_tags` STRING and the `total` INT outputs.",
     "workflow": {
       "1": {"class_type": "MetaCountGirls", "inputs": {"2girls": true}},
       "2": {"class_type": "MetaCountBoys", "inputs": {"1boy": true}},
@@ -505,26 +534,32 @@
         "class_type": "TagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}
       },
-      "5": {"class_type": "TagsExtractSubjectCount", "inputs": {"prompt": ["4", 0]}}
+      "5": {"class_type": "TagsExtractSubjectCount", "inputs": {"prompt": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}},
+      "7": {"class_type": "PreviewAny", "inputs": {"source": ["5", 1]}}
     },
     "expect": [
-      ["5", "3 subject(s): 2girls, 1boy"]
+      ["6", "2girls, 1boy"],
+      ["7", "3"]
     ]
   },
   {
     "name": "shared_seed_drives_random_pick",
-    "description": "Seed emits one INT (with control-after-generate in the UI) wired into TagsRandomPick. Verifies the seed node loads from nodes/util/ and that its INT output drives a downstream seeded node deterministically (seed=7 over miko's 8 tags reproduces the random.Random(7) reference).",
+    "description": "Seed emits one INT (with control-after-generate in the UI) wired into TagsRandomPick. Verifies the seed node loads from nodes/util/ and that its INT output drives a downstream seeded node deterministically (seed=7 over miko's 8 tags reproduces the random.Random(7) reference). PreviewAny renders the seed INT and the picked tags.",
     "workflow": {
       "1": {"class_type": "Seed", "inputs": {"seed": 7}},
       "2": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
       "3": {
         "class_type": "TagsRandomPick",
         "inputs": {"count": 3, "seed": ["1", 0], "bundle": ["2", 0]}
-      }
+      },
+      "4": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
+      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["3", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
-      ["1", "7"],
-      ["3", "tabi, black_hair, miko"]
+      ["4", "7"],
+      ["6", "tabi, black_hair, miko"]
     ]
   }
 ]

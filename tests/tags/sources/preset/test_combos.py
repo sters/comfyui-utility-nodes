@@ -16,7 +16,7 @@ from nodes.tags.sources.preset.personality import PersonalityPreset
 
 
 def _bundle(node_cls: type, name: str) -> Any:
-    return tuple(node_cls().build(name)["result"][0])
+    return tuple(node_cls().build(name)[0])
 
 
 def _combo(
@@ -38,7 +38,7 @@ def _combo(
         bundles[f"bundle_{i}"] = _bundle(cls, name)
         i += 1
     out = TagsMerge().merge(", ", extra=extra, **bundles)
-    prompt = str(out["result"][0])
+    prompt = str(out[0])
     return prompt.split(", ") if prompt else []
 
 

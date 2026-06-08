@@ -13,7 +13,7 @@ Both `bundle` and `decoration` accept a list, and `TagsDecorate` takes the **Car
 ## Outputs (lists, `OUTPUT_IS_LIST=True`)
 
 - `warnings` (STRING list): per-pair warnings — "no tags matched target_category" or "decoration provided but no category selected".
-- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagsDecorate` or `TagsMerge` to multiply variants further. One flattened prompt per (bundle × decoration) pair also previews as the node's OUTPUT_NODE preview.
+- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagsDecorate` or `TagsMerge` to multiply variants further.
 
 ## Variant generation
 

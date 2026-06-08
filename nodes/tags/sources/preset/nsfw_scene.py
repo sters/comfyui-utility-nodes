@@ -235,7 +235,6 @@ class NsfwScenePreset:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -251,7 +250,7 @@ class NsfwScenePreset:
             },
         }
 
-    def build(self, scene: str, extra: str = "") -> dict[str, Any]:
+    def build(self, scene: str, extra: str = "") -> tuple[tuple[TaggedSelection, ...]]:
         tags = NSFW_SCENE_PRESETS.get(scene, ())
         bundle: list[TaggedSelection] = []
         if tags:
@@ -263,10 +262,8 @@ class NsfwScenePreset:
                     mutex_within=False,
                 )
             )
-        parts = list(tags)
         extra_stripped = extra.strip()
         if extra_stripped:
-            parts.append(extra_stripped)
             bundle.append(
                 TaggedSelection(
                     category="extra",
@@ -275,8 +272,7 @@ class NsfwScenePreset:
                     mutex_within=False,
                 )
             )
-        preview = ", ".join(parts)
-        return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
+        return (tuple(bundle),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"NsfwScenePreset": NsfwScenePreset}

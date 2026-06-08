@@ -79,7 +79,6 @@ class TagNodeBase:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = ROOT_CATEGORY
-    OUTPUT_NODE: ClassVar[bool] = True
 
     def __init_subclass__(cls, **kwargs: Any) -> None:
         super().__init_subclass__(**kwargs)
@@ -107,7 +106,7 @@ class TagNodeBase:
             },
         }
 
-    def build(self, extra: str = "", **kwargs: Any) -> dict[str, Any]:
+    def build(self, extra: str = "", **kwargs: Any) -> tuple[tuple[TaggedSelection, ...]]:
         invert = bool(kwargs.pop("invert", False))
         tags: dict[str, bool] = {k: bool(v) for k, v in kwargs.items()}
         if invert:
@@ -125,10 +124,8 @@ class TagNodeBase:
                     mutex_within=self.MUTEX_WITHIN,
                 )
             )
-        parts = list(selected)
         extra_stripped = extra.strip()
         if extra_stripped:
-            parts.append(extra_stripped)
             bundle.append(
                 TaggedSelection(
                     category="extra",
@@ -137,5 +134,4 @@ class TagNodeBase:
                     mutex_within=False,
                 )
             )
-        preview = ", ".join(parts)
-        return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
+        return (tuple(bundle),)

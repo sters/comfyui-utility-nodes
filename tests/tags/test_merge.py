@@ -63,14 +63,14 @@ def _scenario(tags_str: str, *, extra: str = "") -> str:
     input order while same-category mutex / cross-tag conflicts still fire.
     """
     if not tags_str.strip():
-        return str(TagsMerge().merge(", ", extra=extra)["result"][0])
+        return str(TagsMerge().merge(", ", extra=extra)[0])
     tags = [t.strip() for t in tags_str.split(",") if t.strip()]
     selections: list[TaggedSelection] = []
     for t in tags:
         cat, layer, mutex = _TAG_INDEX.get(t, ("_unknown", "unknown", False))
         selections.append(TaggedSelection(category=cat, layer=layer, tags=(t,), mutex_within=mutex))
     out = TagsMerge().merge(", ", extra=extra, bundle_1=tuple(selections))
-    return str(out["result"][0])
+    return str(out[0])
 
 
 # --------------------------------------------------------------------------
@@ -379,7 +379,7 @@ def test_scenario(tags_in: str, expected: object) -> None:
 
 def _run(**kwargs: Any) -> tuple[str, str, tuple[TaggedSelection, ...]]:
     out = TagsMerge().merge(", ", **kwargs)
-    return (str(out["result"][0]), str(out["result"][1]), tuple(out["result"][2]))
+    return (str(out[0]), str(out[1]), tuple(out[2]))
 
 
 def _sel(category: str, tags: tuple[str, ...], **kw: Any) -> TaggedSelection:
@@ -433,7 +433,7 @@ def test_mutex_within_collapses_multi_tag_selection() -> None:
 
 def test_separator_escape_sequence_decoded() -> None:
     out = TagsMerge().merge(r"\n", bundle_1=(_sel("a", ("x", "y")),))
-    assert out["result"][0] == "x\ny"
+    assert out[0] == "x\ny"
 
 
 def test_eleventh_bundle_is_silently_ignored() -> None:

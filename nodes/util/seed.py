@@ -17,7 +17,6 @@ class Seed:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("seed",)
     FUNCTION: ClassVar[str] = "get"
     CATEGORY: ClassVar[str] = "UtilityNodes/Util"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -30,9 +29,8 @@ class Seed:
             },
         }
 
-    def get(self, seed: int) -> dict[str, Any]:
-        s = int(seed)
-        return {"ui": {"text": (str(s),)}, "result": (s,)}
+    def get(self, seed: int) -> tuple[int]:
+        return (int(seed),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"Seed": Seed}

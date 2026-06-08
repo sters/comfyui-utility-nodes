@@ -1,4 +1,4 @@
-from typing import Any, ClassVar
+from typing import ClassVar
 
 from nodes.tags._base import TAGS_TYPE, TaggedSelection, TagNodeBase, category_for_module
 
@@ -30,10 +30,10 @@ class _DefaultTrueNode(TagNodeBase):
     TAGS: ClassVar[tuple[str, ...]] = ("x", "y")
 
 
-def _result(out: dict[str, Any]) -> tuple[str, tuple[TaggedSelection, ...]]:
-    preview = out["ui"]["text"][0]
-    bundle = tuple(out["result"][0])
-    return str(preview), bundle
+def _result(out: tuple[tuple[TaggedSelection, ...]]) -> tuple[str, tuple[TaggedSelection, ...]]:
+    bundle = tuple(out[0])
+    preview = ", ".join(t for sel in bundle for t in sel.tags)
+    return preview, bundle
 
 
 def test_class_constants() -> None:
@@ -41,7 +41,6 @@ def test_class_constants() -> None:
     assert TagNodeBase.RETURN_NAMES == ("bundle",)
     assert TagNodeBase.FUNCTION == "build"
     assert TagNodeBase.CATEGORY == "UtilityNodes"
-    assert TagNodeBase.OUTPUT_NODE is True
 
 
 def test_category_for_module_maps_package_path_to_menu() -> None:

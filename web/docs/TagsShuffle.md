@@ -9,7 +9,7 @@
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): same selections as input, with each selection's `tags` tuple reordered. The shuffled prompt also shows up as the node's OUTPUT_NODE preview.
+- `bundle` (CUUN_TAGS): same selections as input, with each selection's `tags` tuple reordered.
 
 ## Behavior
 

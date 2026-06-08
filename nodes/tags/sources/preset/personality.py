@@ -160,7 +160,6 @@ class PersonalityPreset:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -176,7 +175,7 @@ class PersonalityPreset:
             },
         }
 
-    def build(self, personality: str, extra: str = "") -> dict[str, Any]:
+    def build(self, personality: str, extra: str = "") -> tuple[tuple[TaggedSelection, ...]]:
         tags = PERSONALITY_PRESETS.get(personality, ())
         bundle: list[TaggedSelection] = []
         if tags:
@@ -188,10 +187,8 @@ class PersonalityPreset:
                     mutex_within=False,
                 )
             )
-        parts = list(tags)
         extra_stripped = extra.strip()
         if extra_stripped:
-            parts.append(extra_stripped)
             bundle.append(
                 TaggedSelection(
                     category="extra",
@@ -200,8 +197,7 @@ class PersonalityPreset:
                     mutex_within=False,
                 )
             )
-        preview = ", ".join(parts)
-        return {"ui": {"text": (preview,)}, "result": (tuple(bundle),)}
+        return (tuple(bundle),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"PersonalityPreset": PersonalityPreset}

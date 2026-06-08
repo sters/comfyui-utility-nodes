@@ -120,12 +120,12 @@ Same model-name caveat as `character_pipeline.json`.
 
 ### `inspector_debug.json`
 
-Minimal debug-only graph (no model / sampler) for the **Tags: Bundle Inspector** node. Two tag-source nodes feed into `TagsMerge`, and the Inspector renders both the surviving bundle (grouped by layer/category) and the merge `warnings` in one OUTPUT_NODE preview.
+Minimal debug-only graph (no model / sampler) for the **Tags: Bundle Inspector** node. Two tag-source nodes feed into `TagsMerge`, and the Inspector composes both the surviving bundle (grouped by layer/category) and the merge `warnings` into one `report` STRING. Since the pack's nodes aren't OUTPUT_NODEs, the `report` is wired into a built-in **`PreviewAny`** so the graph has a terminator and the text is visible after Queue Prompt.
 
 ```
 BodyExposure(nude) ─────────┐
-                            ├─► TagsMerge ─► (bundle)   ─► TagsBundleInspector
-ClothingTops(shirt) ────────┘             └─► (warnings) ─►   (preview text)
+                            ├─► TagsMerge ─► (bundle)   ─► TagsBundleInspector ─► report ─► PreviewAny
+ClothingTops(shirt) ────────┘             └─► (warnings) ─►
 ```
 
-Because `nude` triggers a TAG_CONFLICTS entry that drops all clothing, the Inspector preview shows `shirt` in the `--- dropped ---` section while `nude` survives under `[exposure]`. Drop the Inspector inline between `TagsMerge` and `CLIPTextEncode` in your own graphs to make conflict resolution visible at a glance.
+Because `nude` triggers a TAG_CONFLICTS entry that drops all clothing, the report shows `shirt` in the `--- dropped ---` section while `nude` survives under `[exposure]`. Drop the Inspector inline between `TagsMerge` and `CLIPTextEncode` in your own graphs to make conflict resolution visible at a glance.

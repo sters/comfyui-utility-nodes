@@ -12,7 +12,6 @@ class TagsMerge:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "warnings", "bundle")
     FUNCTION: ClassVar[str] = "merge"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -28,7 +27,7 @@ class TagsMerge:
             "optional": optional,
         }
 
-    def merge(self, separator: str, extra: str = "", **kwargs: Any) -> dict[str, Any]:
+    def merge(self, separator: str, extra: str = "", **kwargs: Any) -> tuple[str, str, tuple[TaggedSelection, ...]]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         warnings: list[str] = []
 
@@ -128,10 +127,7 @@ class TagsMerge:
             parts.append(extra_stripped)
         prompt = sep.join(parts)
         warnings_str = "\n".join(warnings)
-        return {
-            "ui": {"text": (prompt,)},
-            "result": (prompt, warnings_str, tuple(final)),
-        }
+        return (prompt, warnings_str, tuple(final))
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsMerge": TagsMerge}

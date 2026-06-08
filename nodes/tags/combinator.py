@@ -73,8 +73,7 @@ class TagsCombinator:
         merger = TagsMerge()
         for idx, combo in enumerate(product(*axes)):
             merge_kwargs: dict[str, Any] = {f"bundle_{i + 1}": bundle for i, bundle in enumerate(combo)}
-            result = merger.merge(sep, **merge_kwargs)
-            prompt, warnings, _ = result["result"]
+            prompt, warnings, _ = merger.merge(sep, **merge_kwargs)
             prompts.append(str(prompt))
             labels.append(self._label(combo))
             indices.append(idx)

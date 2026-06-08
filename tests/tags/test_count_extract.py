@@ -1,12 +1,9 @@
-from typing import Any
-
 from nodes.tags.count_extract import TagsExtractSubjectCount
 
 
 def _run(prompt: str) -> tuple[str, int, int, int, int]:
-    out: dict[str, Any] = TagsExtractSubjectCount().extract(prompt)
-    r = out["result"]
-    return str(r[0]), int(r[1]), int(r[2]), int(r[3]), int(r[4])
+    out = TagsExtractSubjectCount().extract(prompt)
+    return str(out[0]), int(out[1]), int(out[2]), int(out[3]), int(out[4])
 
 
 def test_single_girl() -> None:
@@ -79,4 +76,5 @@ def test_does_not_match_inside_words() -> None:
 
 def test_preview_text_surfaced() -> None:
     out = TagsExtractSubjectCount().extract("2girls, 1boy")
-    assert out["ui"]["text"][0] == "3 subject(s): 2girls, 1boy"
+    assert out[0] == "2girls, 1boy"
+    assert out[1] == 3

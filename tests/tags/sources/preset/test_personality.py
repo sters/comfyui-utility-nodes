@@ -7,11 +7,11 @@ from nodes.tags.sources.preset.personality import PERSONALITY_PRESETS, Personali
 
 
 def _build_personality(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(PersonalityPreset().build(name)["result"][0])
+    return tuple(PersonalityPreset().build(name)[0])
 
 
 def _build_character(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(CharacterPreset().build(name)["result"][0])
+    return tuple(CharacterPreset().build(name)[0])
 
 
 def test_personality_preset_input_lists_all() -> None:
@@ -34,7 +34,7 @@ def test_character_plus_personality_layers_cleanly() -> None:
     miko = _build_character("miko")
     tsundere = _build_personality("tsundere")
     out = TagsMerge().merge(", ", bundle_1=miko, bundle_2=tsundere)
-    tokens = str(out["result"][0]).split(", ")
+    tokens = str(out[0]).split(", ")
     # miko visuals
     for t in ("miko", "hakama", "long_hair", "black_hair"):
         assert t in tokens
@@ -50,7 +50,7 @@ def test_genki_and_tsundere_conflict_resolves() -> None:
     genki = _build_personality("genki")
     tsundere = _build_personality("tsundere")
     out = TagsMerge().merge(", ", bundle_1=genki, bundle_2=tsundere)
-    tokens = str(out["result"][0]).split(", ")
+    tokens = str(out[0]).split(", ")
     assert "frown" in tokens
     assert "smile" not in tokens
     assert "grin" not in tokens
@@ -65,16 +65,16 @@ def test_kuudere_expressionless_drops_active_expression() -> None:
     kuudere = _build_personality("kuudere")
     smile_bundle = (TaggedSelection("ext", "ext", ("smile",), False),)
     out = TagsMerge().merge(", ", bundle_1=smile_bundle, bundle_2=kuudere)
-    tokens = str(out["result"][0]).split(", ")
+    tokens = str(out[0]).split(", ")
     assert "expressionless" in tokens
     assert "smile" not in tokens
 
 
 def test_personality_extra_appended() -> None:
     out = PersonalityPreset().build("genki", extra="1girl")
-    preview = str(out["ui"]["text"][0])
+    bundle = tuple(out[0])
+    preview = ", ".join(t for sel in bundle for t in sel.tags)
     assert preview.endswith(", 1girl")
-    bundle = tuple(out["result"][0])
     assert len(bundle) == 2
     assert bundle[1].category == "extra"
 

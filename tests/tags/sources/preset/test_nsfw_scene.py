@@ -6,7 +6,7 @@ from nodes.tags.sources.preset.personality import PersonalityPreset
 
 
 def _build(scene: str) -> tuple[TaggedSelection, ...]:
-    return tuple(NsfwScenePreset().build(scene)["result"][0])
+    return tuple(NsfwScenePreset().build(scene)[0])
 
 
 def test_input_types_lists_all_scenes() -> None:
@@ -28,7 +28,7 @@ def test_nude_preset_drops_layered_clothing() -> None:
     nsfw = _build("mating_press")
     shirt_sel = (TaggedSelection("clothing.tops", "clothing", ("shirt",), False),)
     out = TagsMerge().merge(", ", bundle_1=nsfw, bundle_2=shirt_sel)
-    tokens = str(out["result"][0]).split(", ")
+    tokens = str(out[0]).split(", ")
     assert "nude" in tokens
     assert "shirt" not in tokens
 
@@ -37,7 +37,7 @@ def test_lingerie_preset_does_not_drop_its_own_underwear() -> None:
     # lingerie_tease has no `nude`, so bra/panties/garter_belt survive.
     bundle = _build("lingerie_tease")
     out = TagsMerge().merge(", ", bundle_1=bundle)
-    tokens = str(out["result"][0]).split(", ")
+    tokens = str(out[0]).split(", ")
     for t in ("lingerie", "bra", "panties", "garter_belt", "thighhighs"):
         assert t in tokens
 
@@ -45,10 +45,10 @@ def test_lingerie_preset_does_not_drop_its_own_underwear() -> None:
 def test_character_plus_nsfw_drops_outfit() -> None:
     # serafuku_schoolgirl + first_time_shy (has nude) — outfit drops,
     # character traits like hair stay.
-    girl = tuple(CharacterPreset().build("serafuku_schoolgirl")["result"][0])
+    girl = tuple(CharacterPreset().build("serafuku_schoolgirl")[0])
     sex = _build("first_time_shy")
     out = TagsMerge().merge(", ", bundle_1=girl, bundle_2=sex)
-    tokens = str(out["result"][0]).split(", ")
+    tokens = str(out[0]).split(", ")
     assert "nude" in tokens
     assert "serafuku" not in tokens  # uniform dropped by nude
     assert "pleated_skirt" not in tokens  # bottoms dropped
@@ -59,10 +59,10 @@ def test_character_plus_nsfw_drops_outfit() -> None:
 
 def test_personality_layered_with_nsfw_scene() -> None:
     # yandere personality + bondage shibari → smirk + ahegao + bound
-    p = tuple(PersonalityPreset().build("yandere")["result"][0])
+    p = tuple(PersonalityPreset().build("yandere")[0])
     s = _build("shibari_suspension")
     out = TagsMerge().merge(", ", bundle_1=p, bundle_2=s)
-    tokens = str(out["result"][0]).split(", ")
+    tokens = str(out[0]).split(", ")
     for t in ("yandere", "smirk", "shibari", "rope", "suspension_bondage"):
         assert t in tokens
 

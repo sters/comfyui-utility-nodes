@@ -28,7 +28,6 @@ class TagsFilter:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "filter"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -45,7 +44,7 @@ class TagsFilter:
         self,
         target_category: str,
         bundle: tuple[TaggedSelection, ...] | None = None,
-    ) -> dict[str, Any]:
+    ) -> tuple[tuple[TaggedSelection, ...]]:
         src = bundle or ()
         target = target_category if target_category and target_category != _NONE else ""
 
@@ -69,11 +68,7 @@ class TagsFilter:
                     )
                 )
 
-        parts: list[str] = []
-        for sel in out:
-            parts.extend(sel.tags)
-        preview = ", ".join(parts)
-        return {"ui": {"text": (preview,)}, "result": (tuple(out),)}
+        return (tuple(out),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsFilter": TagsFilter}

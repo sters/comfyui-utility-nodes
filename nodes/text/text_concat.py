@@ -8,7 +8,6 @@ class TextConcat:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("text",)
     FUNCTION: ClassVar[str] = "concat"
     CATEGORY: ClassVar[str] = "UtilityNodes/Text"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -19,7 +18,7 @@ class TextConcat:
             "optional": {f"text_{i}": ("STRING", {"forceInput": True}) for i in range(1, _MAX_INPUTS + 1)},
         }
 
-    def concat(self, separator: str, **kwargs: str | None) -> dict[str, Any]:
+    def concat(self, separator: str, **kwargs: str | None) -> tuple[str]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ""
         parts: list[str] = []
         for i in range(1, _MAX_INPUTS + 1):
@@ -27,8 +26,7 @@ class TextConcat:
             if v is None or v == "":
                 continue
             parts.append(v)
-        text = sep.join(parts)
-        return {"ui": {"text": (text,)}, "result": (text,)}
+        return (sep.join(parts),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {

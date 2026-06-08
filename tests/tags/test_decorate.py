@@ -47,7 +47,7 @@ def _call(
         bundle=b,
         decoration=d,
     )
-    warnings, bundles = out["result"]
+    warnings, bundles = out
     prompts = [sep.join(t for sel in bun for t in sel.tags) for bun in bundles]
     return prompts, warnings, bundles
 
@@ -144,8 +144,8 @@ def test_underscore_in_decoration_becomes_space() -> None:
 def test_color_palette_emits_decoration_color_selection() -> None:
     node = ColorPalette()
     out = node.build("", red=True, green=True)
-    (bundle,) = out["result"]
-    assert out["ui"]["text"] == ("red, green",)
+    (bundle,) = out
+    assert ", ".join(t for sel in bundle for t in sel.tags) == "red, green"
     assert len(bundle) == 1
     assert bundle[0].category == "decoration.color"
     assert bundle[0].layer == "decoration"

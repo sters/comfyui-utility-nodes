@@ -22,7 +22,6 @@ class TagsRandomPick:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "pick"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -41,7 +40,7 @@ class TagsRandomPick:
         count: int,
         seed: int,
         bundle: tuple[TaggedSelection, ...] = (),
-    ) -> dict[str, Any]:
+    ) -> tuple[tuple[TaggedSelection, ...]]:
         rng = random.Random(seed)
 
         pool: list[str] = []
@@ -67,11 +66,7 @@ class TagsRandomPick:
             )
         out.extend(extras)
 
-        parts: list[str] = []
-        for sel in out:
-            parts.extend(sel.tags)
-        preview = ", ".join(parts)
-        return {"ui": {"text": (preview,)}, "result": (tuple(out),)}
+        return (tuple(out),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsRandomPick": TagsRandomPick}

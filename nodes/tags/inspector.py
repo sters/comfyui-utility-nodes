@@ -16,7 +16,6 @@ class TagsBundleInspector:
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "report")
     FUNCTION: ClassVar[str] = "inspect"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
-    OUTPUT_NODE: ClassVar[bool] = True
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -25,9 +24,11 @@ class TagsBundleInspector:
             "optional": {"warnings": ("STRING", {"multiline": True, "default": "", "forceInput": True})},
         }
 
-    def inspect(self, bundle: tuple[TaggedSelection, ...], warnings: str = "") -> dict[str, Any]:
+    def inspect(
+        self, bundle: tuple[TaggedSelection, ...], warnings: str = ""
+    ) -> tuple[tuple[TaggedSelection, ...], str]:
         report = _format_report(bundle, warnings)
-        return {"ui": {"text": (report,)}, "result": (tuple(bundle), report)}
+        return (tuple(bundle), report)
 
 
 def _format_report(bundle: tuple[TaggedSelection, ...], warnings: str) -> str:
