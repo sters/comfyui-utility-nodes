@@ -1,14 +1,14 @@
-# Meta: Quality (defaults all-on)
+# Meta: Quality
 
 Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
-All tags default to **ON** (use `invert` or the individual toggles to turn things off).
+All tags default to **OFF** — anime-style prompts don't want `realistic` / `photorealistic` baked in, so pick the quality boosters you actually want per workflow (or set `invert` to grab everything except a few).
 Internal layer / category: `meta` / `meta.quality`.
 
 ## Inputs
 
 - `separator` (STRING): joiner between selected tags (supports escape sequences like `\n`).
 - `invert` (BOOLEAN): if `True`, every checkbox is flipped (unchecked tags get emitted, checked ones drop out).
-- One BOOLEAN toggle per tag below (default: `True`).
+- One BOOLEAN toggle per tag below (default: `False`).
 - `extra` (STRING, optional, multiline): free-form text appended after the joined tags.
 
 ## Outputs

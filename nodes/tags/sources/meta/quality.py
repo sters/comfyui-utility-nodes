@@ -28,7 +28,9 @@ class MetaQuality(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "meta.quality"
     LAYER: ClassVar[str] = "meta"
     MUTEX_WITHIN: ClassVar[bool] = False
-    DEFAULT_BOOLEAN: ClassVar[bool] = True
+    # Defaults to all-off: anime-style prompts don't want `realistic` /
+    # `photorealistic` baked in. Toggle the ones you want per workflow.
+    DEFAULT_BOOLEAN: ClassVar[bool] = False
     TAGS = _QUALITY
 
 
