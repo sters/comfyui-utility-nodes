@@ -15,9 +15,11 @@ from nodes.tags.sources.meta.bad import (
     BadHeadFace,
     BadLimbs,
     BadNSFW,
+    BadQuality,
 )
 
 _NODES: list[tuple[type[TagNodeBase], str, str]] = [
+    (BadQuality, "bad.quality", "worst_quality"),
     (BadGeneral, "bad.general", "bad_anatomy"),
     (BadHeadFace, "bad.head_face", "bad_face"),
     (BadBody, "bad.body", "bad_torso"),
@@ -44,3 +46,14 @@ def test_bad_node_emits_bundle(cls: type[TagNodeBase], category_id: str, sample_
     (bundle,) = node.build(", ", "", **tags)["result"]
     assert bundle[0].category == category_id
     assert bundle[0].tags == (sample_tag,)
+
+
+def test_bad_quality_is_fidelity_not_anatomy() -> None:
+    # Issue #13 clarification: BadQuality holds the `worst quality / low quality
+    # / lowres`-style fidelity negatives, NOT the bad_anatomy structural ones.
+    assert "worst_quality" in BadQuality.TAGS
+    assert "low_quality" in BadQuality.TAGS
+    assert "lowres" in BadQuality.TAGS
+    # anatomy tags must stay in BadGeneral, not leak into BadQuality.
+    assert not any(t.startswith("bad_") and "quality" not in t for t in BadQuality.TAGS)
+    assert "bad_anatomy" not in BadQuality.TAGS

@@ -331,14 +331,14 @@
     },
     {
       "id": 8,
-      "type": "MetaPony",
+      "type": "BadQuality",
       "pos": [
         420,
         340
       ],
       "size": [
         330,
-        360
+        420
       ],
       "flags": {},
       "order": 7,
@@ -355,33 +355,37 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "MetaPony"
+        "Node name for S&R": "BadQuality"
       },
       "widgets_values": [
         ", ",
         false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        false,
-        "worst quality, low quality, lowres, bad hands"
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        true,
+        ""
       ],
-      "title": "Negative quality (via extra)"
+      "title": "Negative: quality"
     },
     {
       "id": 9,
       "type": "BadGeneral",
       "pos": [
         420,
-        720
+        780
       ],
       "size": [
         330,
@@ -419,14 +423,15 @@
         true,
         true,
         ""
-      ]
+      ],
+      "title": "Negative: anatomy"
     },
     {
       "id": 10,
       "type": "TagsMerge",
       "pos": [
         420,
-        1060
+        1120
       ],
       "size": [
         330,

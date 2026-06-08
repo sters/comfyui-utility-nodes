@@ -20,8 +20,8 @@ PersonalityPreset(confident) ─┼─► TagsMerge ─► CLIPTextEncode (posit
 SituationPreset(summer_beach) ─┤
 MetaQuality(masterpiece, best_quality, very_aesthetic) ─┘        │
                                                                  │
-MetaPony(scores off, extra="worst quality, low quality, …") ─┐   │
-BadGeneral ──────────────────────────────────────────────────┼─► TagsMerge ─► CLIPTextEncode (negative)
+BadQuality(worst_quality, low_quality, lowres, …) ─┐             │
+BadGeneral(bad_anatomy, …) ─────────────────────────┼─► TagsMerge ─► CLIPTextEncode (negative)
                                                                  │
 CheckpointLoader(autismmixSDXL_autismmixPony) ─┬─► MODEL ────────►│ KSampler ─► VAEDecode ─► PreviewImage
                                                ├─► CLIP           │  (euler_ancestral, 25 steps, cfg 7)
@@ -29,10 +29,11 @@ CheckpointLoader(autismmixSDXL_autismmixPony) ─┬─► MODEL ─────
 EmptyLatentImage(1024×1024×1) ──────────────────────────────────►│
 ```
 
-The negative `MetaPony` keeps every score off and uses `extra` for the
-quality-negative phrase — a clean way to author the Pony negative without a
-dedicated text node. Replace the checkpoint name with your local Pony
-checkpoint. The positive/negative text portions are mirrored as
+`MetaPony` supplies the positive score/rating/source prefix and demonstrates the
+`extra` field ("1girl, solo"). The negative side pairs **Bad: Quality** (the
+`worst quality / low quality / lowres` fidelity negatives) with **Bad: General**
+(the `bad_anatomy` structural negatives). Replace the checkpoint name with your
+local Pony checkpoint. The positive/negative text portions are mirrored as
 `pony_sdxl_pipeline_positive` / `_negative` in
 `tests/integration/workflows.json`.
 

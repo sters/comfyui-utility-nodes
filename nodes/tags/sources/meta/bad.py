@@ -2,6 +2,29 @@ from typing import ClassVar
 
 from ..._base import TagNodeBase
 
+# Generic image-quality / artifact / overlay negatives — the `worst quality,
+# low quality, lowres, ...` staples of a negative prompt. Distinct from the
+# `bad_anatomy`-style structural-error tags below (issue #13): these describe
+# overall fidelity and stray overlays, not body geometry.
+_QUALITY: tuple[str, ...] = (
+    "worst_quality",
+    "low_quality",
+    "normal_quality",
+    "bad_quality",
+    "lowres",
+    "jpeg_artifacts",
+    "compression_artifacts",
+    "blurry",
+    "watermark",
+    "signature",
+    "username",
+    "artist_name",
+    "text",
+    "logo",
+    "error",
+    "chromatic_aberration",
+)
+
 _GENERAL: tuple[str, ...] = (
     "artistic_error",
     "bad_anatomy",
@@ -70,6 +93,14 @@ _NSFW: tuple[str, ...] = (
 )
 
 
+class BadQuality(TagNodeBase):
+    CATEGORY_ID: ClassVar[str] = "bad.quality"
+    LAYER: ClassVar[str] = "bad"
+    MUTEX_WITHIN: ClassVar[bool] = False
+    DEFAULT_BOOLEAN: ClassVar[bool] = True
+    TAGS = _QUALITY
+
+
 class BadGeneral(TagNodeBase):
     CATEGORY_ID: ClassVar[str] = "bad.general"
     LAYER: ClassVar[str] = "bad"
@@ -111,6 +142,7 @@ class BadNSFW(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
+    "BadQuality": BadQuality,
     "BadGeneral": BadGeneral,
     "BadHeadFace": BadHeadFace,
     "BadBody": BadBody,
@@ -119,6 +151,7 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
+    "BadQuality": "Bad: Quality",
     "BadGeneral": "Bad: General",
     "BadHeadFace": "Bad: Head & Face",
     "BadBody": "Bad: Body",

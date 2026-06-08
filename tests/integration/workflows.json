@@ -484,20 +484,9 @@
   },
   {
     "name": "pony_sdxl_pipeline_negative",
-    "description": "Mirrors the negative text chain of example_workflows/pony_sdxl_pipeline.json — MetaPony with scores off carrying the quality-negatives through `extra`, merged with BadGeneral.",
+    "description": "Mirrors the negative text chain of example_workflows/pony_sdxl_pipeline.json — BadQuality (fidelity negatives) merged with BadGeneral (anatomy negatives).",
     "workflow": {
-      "1": {
-        "class_type": "MetaPony",
-        "inputs": {
-          "score_9": false,
-          "score_8_up": false,
-          "score_7_up": false,
-          "score_6_up": false,
-          "score_5_up": false,
-          "score_4_up": false,
-          "extra": "worst quality, low quality, lowres, bad hands"
-        }
-      },
+      "1": {"class_type": "BadQuality"},
       "2": {"class_type": "BadGeneral"},
       "3": {
         "class_type": "TagsMerge",
@@ -505,7 +494,7 @@
       }
     },
     "expect": [
-      ["3", "worst quality, low quality, lowres, bad hands, artistic_error, bad_anatomy, anatomical_nonsense, bad_proportions, bad_perspective, bad_reflection, bad_multiple_views, bad_shadow, bad_gun_anatomy, bad_vehicle_anatomy, bad_internal_anatomy"]
+      ["3", "worst_quality, low_quality, normal_quality, bad_quality, lowres, jpeg_artifacts, compression_artifacts, blurry, watermark, signature, username, artist_name, text, logo, error, chromatic_aberration, artistic_error, bad_anatomy, anatomical_nonsense, bad_proportions, bad_perspective, bad_reflection, bad_multiple_views, bad_shadow, bad_gun_anatomy, bad_vehicle_anatomy, bad_internal_anatomy"]
     ]
   },
   {
