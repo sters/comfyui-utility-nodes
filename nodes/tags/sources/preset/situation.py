@@ -1,6 +1,4 @@
-from typing import Any, ClassVar
-
-from ..._base import TAGS_TYPE, TaggedSelection
+from ._base import PresetNodeBase
 
 # SFW situation/scene presets. Each bundle combines location + time-of-day +
 # atmosphere + composition + action cues for a coherent scene. Designed to
@@ -188,52 +186,10 @@ SITUATION_PRESETS: dict[str, tuple[str, ...]] = {
 }
 
 
-class SituationPreset:
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
-    FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
-    SEARCH_ALIASES: ClassVar[list[str]] = sorted(
-        {*SITUATION_PRESETS, *(t for v in SITUATION_PRESETS.values() for t in v)}
-    )
-
-    @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
-        return {
-            "required": {
-                "situation": (
-                    sorted(SITUATION_PRESETS),
-                    {"default": sorted(SITUATION_PRESETS)[0]},
-                ),
-            },
-            "optional": {
-                "extra": ("STRING", {"multiline": True, "default": ""}),
-            },
-        }
-
-    def build(self, situation: str, extra: str = "") -> tuple[tuple[TaggedSelection, ...]]:
-        tags = SITUATION_PRESETS.get(situation, ())
-        bundle: list[TaggedSelection] = []
-        if tags:
-            bundle.append(
-                TaggedSelection(
-                    category=f"situation.{situation}",
-                    layer="situation",
-                    tags=tags,
-                    mutex_within=False,
-                )
-            )
-        extra_stripped = extra.strip()
-        if extra_stripped:
-            bundle.append(
-                TaggedSelection(
-                    category="extra",
-                    layer="extra",
-                    tags=(extra_stripped,),
-                    mutex_within=False,
-                )
-            )
-        return (tuple(bundle),)
+class SituationPreset(PresetNodeBase):
+    PRESETS = SITUATION_PRESETS
+    PARAM = "situation"
+    LAYER = "situation"
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"SituationPreset": SituationPreset}

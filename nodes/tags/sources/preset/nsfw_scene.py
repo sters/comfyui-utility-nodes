@@ -1,6 +1,4 @@
-from typing import Any, ClassVar
-
-from ..._base import TAGS_TYPE, TaggedSelection
+from ._base import PresetNodeBase
 
 # NSFW scene presets — bundle act/position/state/expression/setting tags
 # that frequently appear together. Designed to layer on top of
@@ -230,52 +228,10 @@ NSFW_SCENE_PRESETS: dict[str, tuple[str, ...]] = {
 }
 
 
-class NsfwScenePreset:
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
-    FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
-    SEARCH_ALIASES: ClassVar[list[str]] = sorted(
-        {*NSFW_SCENE_PRESETS, *(t for v in NSFW_SCENE_PRESETS.values() for t in v)}
-    )
-
-    @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
-        return {
-            "required": {
-                "scene": (
-                    sorted(NSFW_SCENE_PRESETS),
-                    {"default": sorted(NSFW_SCENE_PRESETS)[0]},
-                ),
-            },
-            "optional": {
-                "extra": ("STRING", {"multiline": True, "default": ""}),
-            },
-        }
-
-    def build(self, scene: str, extra: str = "") -> tuple[tuple[TaggedSelection, ...]]:
-        tags = NSFW_SCENE_PRESETS.get(scene, ())
-        bundle: list[TaggedSelection] = []
-        if tags:
-            bundle.append(
-                TaggedSelection(
-                    category=f"nsfw_preset.{scene}",
-                    layer="nsfw_preset",
-                    tags=tags,
-                    mutex_within=False,
-                )
-            )
-        extra_stripped = extra.strip()
-        if extra_stripped:
-            bundle.append(
-                TaggedSelection(
-                    category="extra",
-                    layer="extra",
-                    tags=(extra_stripped,),
-                    mutex_within=False,
-                )
-            )
-        return (tuple(bundle),)
+class NsfwScenePreset(PresetNodeBase):
+    PRESETS = NSFW_SCENE_PRESETS
+    PARAM = "scene"
+    LAYER = "nsfw_preset"
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"NsfwScenePreset": NsfwScenePreset}

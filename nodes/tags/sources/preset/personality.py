@@ -1,6 +1,4 @@
-from typing import Any, ClassVar
-
-from ..._base import TAGS_TYPE, TaggedSelection
+from ._base import PresetNodeBase
 
 # Each personality preset is a bundle of expression / gaze / mouth / pose
 # tags that together evoke an archetype. Designed to layer on top of
@@ -155,52 +153,10 @@ PERSONALITY_PRESETS: dict[str, tuple[str, ...]] = {
 }
 
 
-class PersonalityPreset:
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
-    FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
-    SEARCH_ALIASES: ClassVar[list[str]] = sorted(
-        {*PERSONALITY_PRESETS, *(t for v in PERSONALITY_PRESETS.values() for t in v)}
-    )
-
-    @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
-        return {
-            "required": {
-                "personality": (
-                    sorted(PERSONALITY_PRESETS),
-                    {"default": sorted(PERSONALITY_PRESETS)[0]},
-                ),
-            },
-            "optional": {
-                "extra": ("STRING", {"multiline": True, "default": ""}),
-            },
-        }
-
-    def build(self, personality: str, extra: str = "") -> tuple[tuple[TaggedSelection, ...]]:
-        tags = PERSONALITY_PRESETS.get(personality, ())
-        bundle: list[TaggedSelection] = []
-        if tags:
-            bundle.append(
-                TaggedSelection(
-                    category=f"personality.{personality}",
-                    layer="personality",
-                    tags=tags,
-                    mutex_within=False,
-                )
-            )
-        extra_stripped = extra.strip()
-        if extra_stripped:
-            bundle.append(
-                TaggedSelection(
-                    category="extra",
-                    layer="extra",
-                    tags=(extra_stripped,),
-                    mutex_within=False,
-                )
-            )
-        return (tuple(bundle),)
+class PersonalityPreset(PresetNodeBase):
+    PRESETS = PERSONALITY_PRESETS
+    PARAM = "personality"
+    LAYER = "personality"
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"PersonalityPreset": PersonalityPreset}

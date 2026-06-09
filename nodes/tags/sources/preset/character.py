@@ -1,11 +1,7 @@
-from typing import Any, ClassVar
+from ._base import PresetNodeBase
 
-from ..._base import TAGS_TYPE, TaggedSelection
-
-# Each preset is a flat tuple of tags. The merge node still applies
-# TAG_CONFLICTS / MUTEX_GROUPS to the emitted bundle, so layering two
-# presets, or layering a preset with regular tag-node selections, still
-# resolves cleanly.
+# Character presets — each a flat tuple of visual tags (hair / build /
+# outfit) that together evoke an archetype.
 PRESETS: dict[str, tuple[str, ...]] = {
     "miko": (
         "long_hair",
@@ -213,47 +209,10 @@ PRESETS: dict[str, tuple[str, ...]] = {
 }
 
 
-class CharacterPreset:
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
-    FUNCTION: ClassVar[str] = "build"
-    CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster/Preset"
-    SEARCH_ALIASES: ClassVar[list[str]] = sorted({*PRESETS, *(t for v in PRESETS.values() for t in v)})
-
-    @classmethod
-    def INPUT_TYPES(cls) -> dict[str, Any]:
-        return {
-            "required": {
-                "preset": (sorted(PRESETS), {"default": sorted(PRESETS)[0]}),
-            },
-            "optional": {
-                "extra": ("STRING", {"multiline": True, "default": ""}),
-            },
-        }
-
-    def build(self, preset: str, extra: str = "") -> tuple[tuple[TaggedSelection, ...]]:
-        tags = PRESETS.get(preset, ())
-        bundle: list[TaggedSelection] = []
-        if tags:
-            bundle.append(
-                TaggedSelection(
-                    category=f"preset.{preset}",
-                    layer="preset",
-                    tags=tags,
-                    mutex_within=False,
-                )
-            )
-        extra_stripped = extra.strip()
-        if extra_stripped:
-            bundle.append(
-                TaggedSelection(
-                    category="extra",
-                    layer="extra",
-                    tags=(extra_stripped,),
-                    mutex_within=False,
-                )
-            )
-        return (tuple(bundle),)
+class CharacterPreset(PresetNodeBase):
+    PRESETS = PRESETS
+    PARAM = "preset"
+    LAYER = "preset"
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"CharacterPreset": CharacterPreset}
