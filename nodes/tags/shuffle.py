@@ -26,7 +26,7 @@ class TagsShuffle:
     def INPUT_TYPES(cls) -> dict[str, Any]:
         return {
             "required": {
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
             },
             "optional": {
                 "bundle": (TAGS_TYPE,),

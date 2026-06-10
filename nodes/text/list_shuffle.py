@@ -15,7 +15,7 @@ class ListShuffle:
         return {
             "required": {
                 "items": ("STRING", {"forceInput": True}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
                 "limit": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFF}),
             },
         }

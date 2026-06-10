@@ -28,7 +28,7 @@ class TagsRandomPick:
         return {
             "required": {
                 "count": ("INT", {"default": 1, "min": 1, "max": 1024}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
             },
             "optional": {
                 "bundle": (TAGS_TYPE,),

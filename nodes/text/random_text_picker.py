@@ -15,7 +15,7 @@ class RandomTextPicker:
                 "text": ("STRING", {"multiline": True, "default": ""}),
                 "delimiter": ("STRING", {"multiline": False, "default": ","}),
                 "count": ("INT", {"default": 1, "min": 1, "max": 1024}),
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
             },
         }
 
