@@ -2,29 +2,31 @@ from itertools import product
 from typing import Any, ClassVar
 
 from ._base import TAGS_TYPE, TaggedSelection
-from .merge import TagsMerge
 
 
 class TagsCombinator:
     """Cartesian product over axes of CUUN_TAGS bundles.
 
     Each axis input is a list of bundles (typically produced by
-    `TagsExplode` for tag-toggle nodes, or wired directly from a
-    preset for single-bundle axes). The node generates every
-    combination, runs each through `TagsMerge` for conflict
-    resolution, and outputs STRING lists that downstream
-    `CLIPTextEncode` / `KSampler` / `SaveImage` iterate over.
+    `TagsExplode` for tag-toggle nodes, `TagsCollect` for whole-bundle
+    alternatives, or wired directly from a preset for single-bundle
+    axes). The node generates every combination and emits each as a
+    **concatenated CUUN_TAGS bundle** — it does *not* merge or resolve
+    conflicts itself. Wire the `bundle` output into `TagsMerge`
+    ("Merge & Validate"); ComfyUI broadcasts that node over the output
+    list, so it runs once per combination and produces the per-combo
+    prompt / warnings.
 
-    Axis order is the priority order — MUTEX_GROUPS is last-wins,
-    so put base / fixed axes earlier and override axes later (a
-    later HairColor red_hair will defeat an earlier preset's
-    brown_hair).
+    Axis order is the priority order — `TagsMerge`'s MUTEX_GROUPS is
+    last-wins, so put base / fixed axes earlier and override axes later
+    (a later HairColor red_hair will defeat an earlier preset's
+    brown_hair once merged).
     """
 
     INPUT_IS_LIST: ClassVar[bool] = True
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", "INT", "STRING")
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "label", "index", "warnings")
-    OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True, True)
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE, "STRING", "INT")
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "label", "index")
+    OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True)
     FUNCTION: ClassVar[str] = "combine"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
@@ -36,20 +38,14 @@ class TagsCombinator:
         for i in range(1, cls._MAX_AXES + 1):
             optional[f"axis_{i}"] = (TAGS_TYPE,)
         return {
-            "required": {
-                "separator": ("STRING", {"multiline": False, "default": ", "}),
-            },
+            "required": {},
             "optional": optional,
         }
 
     def combine(
         self,
-        separator: list[str],
         **kwargs: Any,
-    ) -> tuple[list[str], list[str], list[int], list[str]]:
-        sep_raw = separator[0] if separator else ", "
-        sep = sep_raw.encode("utf-8").decode("unicode_escape") if sep_raw else ", "
-
+    ) -> tuple[list[tuple[TaggedSelection, ...]], list[str], list[int]]:
         axes: list[list[tuple[TaggedSelection, ...]]] = []
         for i in range(1, self._MAX_AXES + 1):
             v = kwargs.get(f"axis_{i}")
@@ -63,23 +59,21 @@ class TagsCombinator:
             axes.append(non_empty)
 
         if not axes:
-            return ([], [], [], [])
+            return ([], [], [])
 
-        prompts: list[str] = []
+        bundles: list[tuple[TaggedSelection, ...]] = []
         labels: list[str] = []
         indices: list[int] = []
-        warnings_list: list[str] = []
 
-        merger = TagsMerge()
         for idx, combo in enumerate(product(*axes)):
-            merge_kwargs: dict[str, Any] = {f"bundle_{i + 1}": bundle for i, bundle in enumerate(combo)}
-            prompt, warnings, _ = merger.merge(sep, **merge_kwargs)
-            prompts.append(str(prompt))
+            # Concatenate the chosen axis bundles in axis order; conflict
+            # resolution is deferred to a downstream TagsMerge.
+            merged = tuple(sel for bundle in combo for sel in bundle)
+            bundles.append(merged)
             labels.append(self._label(combo))
             indices.append(idx)
-            warnings_list.append(str(warnings))
 
-        return (prompts, labels, indices, warnings_list)
+        return (bundles, labels, indices)
 
     @staticmethod
     def _label(combo: tuple[tuple[TaggedSelection, ...], ...]) -> str:

@@ -561,5 +561,37 @@
       ["4", "7"],
       ["6", "tabi, black_hair, miko"]
     ]
+  },
+  {
+    "name": "combinator_collect_two_characters",
+    "description": "Issue #23/#24: TagsCollect gathers two whole CharacterPreset bundles into one Combinator axis, and TagsCombinator emits a 2-element CUUN_TAGS list (one bundle per character, unmerged) instead of prompts. TagsMerge broadcasts over the list (merge delegated downstream) and PreviewAny collects both resolved prompts — one full blazer character, one full serafuku character, not a per-tag blow-up.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "TagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["3", 0]}},
+      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
+    },
+    "expect": [
+      ["6", "medium_hair, brown_hair, blazer_uniform, blouse, pleated_skirt, cardigan, pantyhose, loafers"],
+      ["6", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers"]
+    ]
+  },
+  {
+    "name": "combinator_preset_override_axis",
+    "description": "Issue #24: TagsCombinator over a preset base axis × an exploded HairColor axis emits concatenated CUUN_TAGS bundles; the downstream TagsMerge (broadcast per combination) resolves the hair MUTEX_GROUP last-wins, so the preset's brown_hair is overridden by each axis hair color. PreviewAny collects both prompts.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "HairColor", "inputs": {"red_hair": true, "blue_hair": true}},
+      "3": {"class_type": "TagsExplode", "inputs": {"bundle": ["2", 0]}},
+      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["1", 0], "axis_2": ["3", 0]}},
+      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
+    },
+    "expect": [
+      ["6", "long_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers, blue_hair"],
+      ["6", "long_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers, red_hair"]
+    ]
   }
 ]
