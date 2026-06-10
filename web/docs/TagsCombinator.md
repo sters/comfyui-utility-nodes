@@ -53,6 +53,12 @@ To vary over multiple **whole characters** (not their individual tags), put them
 axis_1 = Collect(Character(blazer), Character(serafuku))   → 2 combinations, one per character
 ```
 
+## Large sweeps — mind the memory
+
+The list output fans **all** combinations out in a single Run, and ComfyUI materialises the whole list at each pipeline stage (N decoded images **and** N detailer outputs in memory at once). Model weights (VRAM) are reused across iterations and stay constant, but the accumulated intermediate **tensors** (system RAM) overflow at large N (e.g. 3 × 10 × 10 = 300).
+
+For big sweeps, switch to "N Runs, 1-wide" with `TagsSelect`: wire `bundle` / `label` into it, drive `index` from an incrementing `Seed`, and queue the prompt N times. Each Run resolves to one combination, so peak memory stays at one image's worth and progress is saved incrementally.
+
 ## Notes
 
 - `TAG_CONFLICTS` (hard semantic guards like `nude` dropping clothing) and MUTEX_GROUPS are applied by the downstream `TagsMerge`, per combination, exactly as for any other bundle.

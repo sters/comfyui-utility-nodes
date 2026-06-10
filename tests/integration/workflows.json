@@ -593,5 +593,38 @@
       ["6", "long_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers, blue_hair"],
       ["6", "long_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers, red_hair"]
     ]
+  },
+  {
+    "name": "combinator_select_one_by_index",
+    "description": "Memory-safe sweep: TagsSelect (INPUT_IS_LIST) picks ONE combination out of the TagsCombinator list by index, so the downstream pipeline is width 1 instead of fanning out all combinations. index=1 selects the second character; the picked label and the merged single prompt are surfaced via PreviewAny.",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "TagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["3", 0]}},
+      "5": {"class_type": "TagsSelect", "inputs": {"index": 1, "bundles": ["4", 0], "labels": ["4", 1]}},
+      "6": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["5", 0]}},
+      "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}},
+      "8": {"class_type": "PreviewAny", "inputs": {"source": ["5", 1]}}
+    },
+    "expect": [
+      ["7", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers"],
+      ["8", "serafuku_schoolgirl"]
+    ]
+  },
+  {
+    "name": "combinator_select_wraps_index",
+    "description": "TagsSelect wraps index modulo the list length: over 2 combinations, index=3 wraps to 3 % 2 == 1, picking the second character (so queuing more runs than combinations keeps cycling the sweep).",
+    "workflow": {
+      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "TagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["3", 0]}},
+      "5": {"class_type": "TagsSelect", "inputs": {"index": 3, "bundles": ["4", 0], "labels": ["4", 1]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 1]}}
+    },
+    "expect": [
+      ["6", "serafuku_schoolgirl"]
+    ]
   }
 ]
