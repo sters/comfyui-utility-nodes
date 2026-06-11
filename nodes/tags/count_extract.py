@@ -81,5 +81,5 @@ class TagsExtractSubjectCount:
         return (count_tags, total, counts["girl"], counts["boy"], counts["other"])
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsExtractSubjectCount": TagsExtractSubjectCount}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsExtractSubjectCount": "Extract Subject Count"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsExtractSubjectCount": TagsExtractSubjectCount}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsExtractSubjectCount": "Extract Subject Count"}

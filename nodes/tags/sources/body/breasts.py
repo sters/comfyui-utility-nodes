@@ -53,11 +53,11 @@ class BreastsShapeState(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "BreastsSize": BreastsSize,
-    "BreastsShapeState": BreastsShapeState,
+    "UtilityNodesBreastsSize": BreastsSize,
+    "UtilityNodesBreastsShapeState": BreastsShapeState,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BreastsSize": "Breasts: Size",
-    "BreastsShapeState": "Breasts: Shape & State",
+    "UtilityNodesBreastsSize": "Breasts: Size",
+    "UtilityNodesBreastsShapeState": "Breasts: Shape & State",
 }

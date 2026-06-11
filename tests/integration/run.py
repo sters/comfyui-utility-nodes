@@ -232,6 +232,39 @@ def _check_search_aliases(host: str) -> tuple[bool, str]:
     return True, f"search_aliases: {checked} source nodes match"
 
 
+_KEY_PREFIX = "UtilityNodes"
+
+
+def _check_node_replacements(host: str) -> tuple[bool, str]:
+    """Assert every prefixed class_type registered an old->new node replacement
+    so legacy workflows (saved with the bare pre-prefix names) auto-upgrade on
+    load. The package's __init__ registers `<bare> -> UtilityNodes<bare>` for
+    all nodes; verify each shows up in the live `/node_replacements` table."""
+    try:
+        table = _get_json(f"{host}/node_replacements")
+    except (urllib.error.URLError, ConnectionError) as e:
+        return False, f"node_replacements: cannot reach ComfyUI at {host}: {e}"
+
+    mismatches: list[str] = []
+    checked = 0
+    for new_id in sorted(_NODE_REGISTRY):
+        if not new_id.startswith(_KEY_PREFIX):
+            mismatches.append(f"{new_id}: class_type is not {_KEY_PREFIX}-prefixed")
+            continue
+        old_id = new_id[len(_KEY_PREFIX) :]
+        checked += 1
+        entries = table.get(old_id)
+        if not entries:
+            mismatches.append(f"{old_id}: no replacement registered")
+            continue
+        if not any(e.get("new_node_id") == new_id for e in entries):
+            mismatches.append(f"{old_id}: replacement does not map to {new_id}")
+
+    if mismatches:
+        return False, "node_replacements: " + "; ".join(mismatches)
+    return True, f"node_replacements: {checked} legacy names auto-migrate"
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default=_DEFAULT_HOST, help=f"ComfyUI base URL (default {_DEFAULT_HOST})")
@@ -249,7 +282,8 @@ def main() -> int:
     passed = 0
     failed: list[str] = []
 
-    for check in (_check_categories, _check_search_aliases):
+    checks = (_check_categories, _check_search_aliases, _check_node_replacements)
+    for check in checks:
         ok, msg = check(args.host)
         if ok:
             print(f"PASS  {msg}")
@@ -267,7 +301,7 @@ def main() -> int:
             print(f"FAIL  {msg}")
             failed.append(msg)
 
-    total = len(cases) + 2
+    total = len(cases) + len(checks)
     print(f"\n{passed}/{total} checks passed")
     return 0 if not failed else 1
 

@@ -74,11 +74,11 @@ class HoldingWeapon(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "HoldingObject": HoldingObject,
-    "HoldingWeapon": HoldingWeapon,
+    "UtilityNodesHoldingObject": HoldingObject,
+    "UtilityNodesHoldingWeapon": HoldingWeapon,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "HoldingObject": "Holding: Object",
-    "HoldingWeapon": "Holding: Weapon",
+    "UtilityNodesHoldingObject": "Holding: Object",
+    "UtilityNodesHoldingWeapon": "Holding: Weapon",
 }

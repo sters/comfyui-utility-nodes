@@ -99,13 +99,13 @@ class SceneOutdoor(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "SceneBackgroundType": SceneBackgroundType,
-    "SceneIndoor": SceneIndoor,
-    "SceneOutdoor": SceneOutdoor,
+    "UtilityNodesSceneBackgroundType": SceneBackgroundType,
+    "UtilityNodesSceneIndoor": SceneIndoor,
+    "UtilityNodesSceneOutdoor": SceneOutdoor,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "SceneBackgroundType": "Background Type",
-    "SceneIndoor": "Indoor Location",
-    "SceneOutdoor": "Outdoor Location",
+    "UtilityNodesSceneBackgroundType": "Background Type",
+    "UtilityNodesSceneIndoor": "Indoor Location",
+    "UtilityNodesSceneOutdoor": "Outdoor Location",
 }

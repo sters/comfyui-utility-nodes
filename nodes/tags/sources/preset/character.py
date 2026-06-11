@@ -215,5 +215,5 @@ class CharacterPreset(PresetNodeBase):
     LAYER = "preset"
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"CharacterPreset": CharacterPreset}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"CharacterPreset": "Character"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesCharacterPreset": CharacterPreset}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesCharacterPreset": "Character"}

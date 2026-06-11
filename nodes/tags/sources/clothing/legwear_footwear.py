@@ -67,11 +67,11 @@ class ClothingFootwear(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "ClothingLegwear": ClothingLegwear,
-    "ClothingFootwear": ClothingFootwear,
+    "UtilityNodesClothingLegwear": ClothingLegwear,
+    "UtilityNodesClothingFootwear": ClothingFootwear,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "ClothingLegwear": "Legwear",
-    "ClothingFootwear": "Footwear",
+    "UtilityNodesClothingLegwear": "Legwear",
+    "UtilityNodesClothingFootwear": "Footwear",
 }

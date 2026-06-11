@@ -150,15 +150,15 @@ class ClothingUniform(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "ClothingTops": ClothingTops,
-    "ClothingBottoms": ClothingBottoms,
-    "ClothingDress": ClothingDress,
-    "ClothingUniform": ClothingUniform,
+    "UtilityNodesClothingTops": ClothingTops,
+    "UtilityNodesClothingBottoms": ClothingBottoms,
+    "UtilityNodesClothingDress": ClothingDress,
+    "UtilityNodesClothingUniform": ClothingUniform,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "ClothingTops": "Tops",
-    "ClothingBottoms": "Bottoms",
-    "ClothingDress": "Dress & One-piece",
-    "ClothingUniform": "Uniform & Costume",
+    "UtilityNodesClothingTops": "Tops",
+    "UtilityNodesClothingBottoms": "Bottoms",
+    "UtilityNodesClothingDress": "Dress & One-piece",
+    "UtilityNodesClothingUniform": "Uniform & Costume",
 }

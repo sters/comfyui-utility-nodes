@@ -79,9 +79,9 @@ class MetaPony:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "MetaPony": MetaPony,
+    "UtilityNodesMetaPony": MetaPony,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "MetaPony": "Pony",
+    "UtilityNodesMetaPony": "Pony",
 }

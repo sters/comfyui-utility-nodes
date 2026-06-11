@@ -3,8 +3,8 @@
     "name": "body_exposure_standalone",
     "description": "Single tag-toggle node — verifies the node loads, accepts BOOLEAN inputs, and its bundle flattens to the expected text once routed through TagsMerge. Terminated by PreviewAny so the merged STRING surfaces in /history.",
     "workflow": {
-      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
-      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "1": {"class_type": "UtilityNodesBodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0]}},
       "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
@@ -15,8 +15,8 @@
     "name": "exposure_through_tags_merge",
     "description": "Wires a tag bundle into TagsMerge — verifies the CUUN_TAGS socket type and merge resolution work end-to-end. PreviewAny renders the merged prompt STRING.",
     "workflow": {
-      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
-      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "1": {"class_type": "UtilityNodesBodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0]}},
       "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
@@ -28,7 +28,7 @@
     "description": "Pony-specific preset — verifies BOOLEAN score / rating / source toggles compose into a CUUN_TAGS bundle that flattens (via TagsMerge) to the expected text.",
     "workflow": {
       "1": {
-        "class_type": "MetaPony",
+        "class_type": "UtilityNodesMetaPony",
         "inputs": {
           "score_9": true,
           "score_8_up": true,
@@ -38,7 +38,7 @@
           "extra": "1girl"
         }
       },
-      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "2": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0]}},
       "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
@@ -49,11 +49,11 @@
     "name": "three_presets_through_merge",
     "description": "Mirrors the text portion of example_workflows/character_pipeline.json — three preset bundles fanning into TagsMerge, rendered by PreviewAny.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
-      "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki"}},
-      "3": {"class_type": "SituationPreset", "inputs": {"situation": "shrine_visit"}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "UtilityNodesPersonalityPreset", "inputs": {"personality": "genki"}},
+      "3": {"class_type": "UtilityNodesSituationPreset", "inputs": {"situation": "shrine_visit"}},
       "4": {
-        "class_type": "TagsMerge",
+        "class_type": "UtilityNodesTagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}
       },
       "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
@@ -66,8 +66,8 @@
     "name": "character_preset",
     "description": "Preset combo selector — verifies COMBO with a non-trivial value list resolves to expected tags (flattened via TagsMerge).",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
-      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0]}},
       "3": {"class_type": "PreviewAny", "inputs": {"source": ["2", 0]}}
     },
     "expect": [
@@ -78,17 +78,17 @@
     "name": "tag_decorate_color",
     "description": "TagsDecorate prefixes a clothing.bottoms tag from a CharacterPreset bundle with colors emitted by ColorPalette. Verifies the tag-category registry resolves preset-emitted tags and the decoration phrase is correctly composed. The decorated bundle is flattened via TagsMerge and shown by PreviewAny.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesColorPalette", "inputs": {"red": true, "green": true}},
       "3": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.bottoms",
           "bundle": ["1", 0],
           "decoration": ["2", 0]
         }
       },
-      "4": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["3", 1]}},
+      "4": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["3", 1]}},
       "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
     },
     "expect": [
@@ -99,18 +99,18 @@
     "name": "tag_decorate_auto_broadcast",
     "description": "TagsExplode fans out 3 single-color bundles into TagsDecorate.decoration. TagsDecorate runs once per element (1 bundle × 3 colors = 3) and emits a 3-element CUUN_TAGS list; TagsMerge runs per element (list broadcast) and PreviewAny collects all 3 prompts.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
-      "3": {"class_type": "TagsExplode", "inputs": {"bundle": ["2", 0]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
+      "3": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["2", 0]}},
       "4": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.bottoms",
           "bundle": ["1", 0],
           "decoration": ["3", 0]
         }
       },
-      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["4", 1]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 1]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -124,24 +124,24 @@
     "description": "TagsDecorate sets INPUT_IS_LIST=True and iterates bundle × decoration internally. 3 tops × 3 colors → 9 decorated bundles, each flattened via per-element TagsMerge and collected by PreviewAny (red shirt / blue shirt / green shirt / red blouse / ... / blue hoodie).",
     "workflow": {
       "1": {
-        "class_type": "ClothingTops",
+        "class_type": "UtilityNodesClothingTops",
         "inputs": {"shirt": true, "blouse": true, "hoodie": true}
       },
-      "2": {"class_type": "TagsExplode", "inputs": {"bundle": ["1", 0]}},
+      "2": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["1", 0]}},
       "3": {
-        "class_type": "ColorPalette",
+        "class_type": "UtilityNodesColorPalette",
         "inputs": {"red": true, "green": true, "blue": true}
       },
-      "4": {"class_type": "TagsExplode", "inputs": {"bundle": ["3", 0]}},
+      "4": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["3", 0]}},
       "5": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.tops",
           "bundle": ["2", 0],
           "decoration": ["4", 0]
         }
       },
-      "6": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["5", 1]}},
+      "6": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["5", 1]}},
       "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}}
     },
     "expect": [
@@ -160,19 +160,19 @@
     "name": "tag_decorate_chained_multiplies_axes",
     "description": "Two TagsDecorate nodes chained back-to-back. Stage 1 decorates clothing.bottoms with 3 colors (1×3 = 3). Stage 2 decorates clothing.tops with 2 patterns (3×2 = 6 total). Verifies the list output of stage 1 flows into the `bundle` of stage 2 and multiplies; per-element TagsMerge + PreviewAny renders all 6.",
     "workflow": {
-      "1": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
-      "2": {"class_type": "ClothingBottoms", "inputs": {"pleated_skirt": true}},
+      "1": {"class_type": "UtilityNodesClothingTops", "inputs": {"shirt": true}},
+      "2": {"class_type": "UtilityNodesClothingBottoms", "inputs": {"pleated_skirt": true}},
       "3": {
-        "class_type": "TagsMerge",
+        "class_type": "UtilityNodesTagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}
       },
       "4": {
-        "class_type": "ColorPalette",
+        "class_type": "UtilityNodesColorPalette",
         "inputs": {"red": true, "green": true, "blue": true}
       },
-      "5": {"class_type": "TagsExplode", "inputs": {"bundle": ["4", 0]}},
+      "5": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["4", 0]}},
       "6": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.bottoms",
           "bundle": ["3", 2],
@@ -180,19 +180,19 @@
         }
       },
       "7": {
-        "class_type": "ClothingPattern",
+        "class_type": "UtilityNodesClothingPattern",
         "inputs": {"plaid": true, "checkered": true}
       },
-      "8": {"class_type": "TagsExplode", "inputs": {"bundle": ["7", 0]}},
+      "8": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["7", 0]}},
       "9": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.tops",
           "bundle": ["6", 1],
           "decoration": ["8", 0]
         }
       },
-      "10": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["9", 1]}},
+      "10": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["9", 1]}},
       "11": {"class_type": "PreviewAny", "inputs": {"source": ["10", 0]}}
     },
     "expect": [
@@ -208,38 +208,38 @@
     "name": "tag_decorate_three_axis_chain",
     "description": "The full-stack sanity check. Base = CharacterPreset(serafuku_schoolgirl). Three TagsDecorate stages each pick a different target category and decoration source, multiplying to 3 × 2 × 2 = 12. Verifies (a) chained list propagation across three stages, (b) per-stage category targeting hits ALL tags belonging to that category (the clothing.uniform stage decorates BOTH serafuku and sailor_collar), (c) underscore-to-space replacement on multi-word decoration tags (polka_dot → polka dot), and (d) the full set of 12 outputs (rendered via per-element TagsMerge + PreviewAny) is exactly the Cartesian product in (skirt × top × legwear) iteration order.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "2": {"class_type": "ColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
-      "3": {"class_type": "TagsExplode", "inputs": {"bundle": ["2", 0]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesColorPalette", "inputs": {"red": true, "green": true, "blue": true}},
+      "3": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["2", 0]}},
       "4": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.bottoms",
           "bundle": ["1", 0],
           "decoration": ["3", 0]
         }
       },
-      "5": {"class_type": "ColorPalette", "inputs": {"white": true, "navy": true}},
-      "6": {"class_type": "TagsExplode", "inputs": {"bundle": ["5", 0]}},
+      "5": {"class_type": "UtilityNodesColorPalette", "inputs": {"white": true, "navy": true}},
+      "6": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["5", 0]}},
       "7": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.uniform",
           "bundle": ["4", 1],
           "decoration": ["6", 0]
         }
       },
-      "8": {"class_type": "ClothingPattern", "inputs": {"striped": true, "polka_dot": true}},
-      "9": {"class_type": "TagsExplode", "inputs": {"bundle": ["8", 0]}},
+      "8": {"class_type": "UtilityNodesClothingPattern", "inputs": {"striped": true, "polka_dot": true}},
+      "9": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["8", 0]}},
       "10": {
-        "class_type": "TagsDecorate",
+        "class_type": "UtilityNodesTagsDecorate",
         "inputs": {
           "target_category": "clothing.legwear",
           "bundle": ["7", 1],
           "decoration": ["9", 0]
         }
       },
-      "11": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["10", 1]}},
+      "11": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["10", 1]}},
       "12": {"class_type": "PreviewAny", "inputs": {"source": ["11", 0]}}
     },
     "expect": [
@@ -261,15 +261,15 @@
     "name": "tags_filter_drops_registry_category",
     "description": "TagsFilter targets clothing.legwear and drops the `thighhighs` tag from inside CharacterPreset(serafuku_schoolgirl)'s preset.X selection. Verifies registry-based per-tag filtering on a preset bundle; the survivors are flattened via TagsMerge and rendered by PreviewAny.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "2": {
-        "class_type": "TagsFilter",
+        "class_type": "UtilityNodesTagsFilter",
         "inputs": {
           "target_category": "clothing.legwear",
           "bundle": ["1", 0]
         }
       },
-      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["2", 0]}},
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
@@ -280,22 +280,22 @@
     "name": "tags_filter_chain_drops_multiple_categories",
     "description": "Two TagsFilter nodes in series drop two different registry categories (legwear, then footwear) from the same preset. Verifies the documented multi-category pattern (chain nodes rather than multi-select UI).",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "2": {
-        "class_type": "TagsFilter",
+        "class_type": "UtilityNodesTagsFilter",
         "inputs": {
           "target_category": "clothing.legwear",
           "bundle": ["1", 0]
         }
       },
       "3": {
-        "class_type": "TagsFilter",
+        "class_type": "UtilityNodesTagsFilter",
         "inputs": {
           "target_category": "clothing.footwear",
           "bundle": ["2", 0]
         }
       },
-      "4": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["3", 0]}},
+      "4": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["3", 0]}},
       "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
     },
     "expect": [
@@ -306,12 +306,12 @@
     "name": "tags_shuffle_deterministic",
     "description": "TagsShuffle reorders tags within each TaggedSelection deterministically per seed. CharacterPreset(miko) emits one selection of 8 tags; with seed=42 the shuffled order (flattened via TagsMerge, rendered by PreviewAny) must match Python's random.Random(42).shuffle reference output.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
       "2": {
-        "class_type": "TagsShuffle",
+        "class_type": "UtilityNodesTagsShuffle",
         "inputs": {"seed": 42, "bundle": ["1", 0]}
       },
-      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["2", 0]}},
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
@@ -322,9 +322,9 @@
     "name": "bundle_inspector_kept_only",
     "description": "TagsBundleInspector renders a merged bundle grouped by layer/category into its `report` STRING. With no conflicts, the dropped section is omitted. PreviewAny shows the report.",
     "workflow": {
-      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
-      "2": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
-      "3": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["2", 2], "warnings": ["2", 1]}},
+      "1": {"class_type": "UtilityNodesBodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "3": {"class_type": "UtilityNodesTagsBundleInspector", "inputs": {"bundle": ["2", 2], "warnings": ["2", 1]}},
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 1]}}
     },
     "expect": [
@@ -335,10 +335,10 @@
     "name": "bundle_inspector_with_dropped",
     "description": "TagsBundleInspector appends a `--- dropped ---` section to its `report` when TagsMerge.warnings carries conflict info. `nude` triggers TAG_CONFLICTS to drop the `shirt` tag from ClothingTops; PreviewAny shows the report.",
     "workflow": {
-      "1": {"class_type": "BodyExposure", "inputs": {"nude": true}},
-      "2": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
-      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
-      "4": {"class_type": "TagsBundleInspector", "inputs": {"bundle": ["3", 2], "warnings": ["3", 1]}},
+      "1": {"class_type": "UtilityNodesBodyExposure", "inputs": {"nude": true}},
+      "2": {"class_type": "UtilityNodesClothingTops", "inputs": {"shirt": true}},
+      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesTagsBundleInspector", "inputs": {"bundle": ["3", 2], "warnings": ["3", 1]}},
       "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 1]}}
     },
     "expect": [
@@ -349,14 +349,14 @@
     "name": "text_concat_break_attribute_binding",
     "description": "Color/attribute binding pattern: each tag source's bundle goes through its own TagsMerge to produce a STRING, then TextConcat joins them with ' BREAK ' to isolate attention chunks. PreviewAny renders the concatenated result.",
     "workflow": {
-      "1": {"class_type": "ClothingTops", "inputs": {"shirt": true}},
-      "2": {"class_type": "ClothingBottoms", "inputs": {"pleated_skirt": true}},
-      "3": {"class_type": "ClothingPattern", "inputs": {"plaid": true}},
-      "4": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
-      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
-      "6": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["3", 0]}},
+      "1": {"class_type": "UtilityNodesClothingTops", "inputs": {"shirt": true}},
+      "2": {"class_type": "UtilityNodesClothingBottoms", "inputs": {"pleated_skirt": true}},
+      "3": {"class_type": "UtilityNodesClothingPattern", "inputs": {"plaid": true}},
+      "4": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "6": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["3", 0]}},
       "7": {
-        "class_type": "TextConcat",
+        "class_type": "UtilityNodesTextConcat",
         "inputs": {
           "separator": " BREAK ",
           "text_1": ["4", 0],
@@ -374,12 +374,12 @@
     "name": "text_concat_break_two_characters",
     "description": "Multi-character pattern: each CharacterPreset's bundle goes through its own TagsMerge → STRING, then TextConcat joins them with ' BREAK ', producing one BREAK-separated chunk per subject. PreviewAny renders the result.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
-      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["1", 0]}},
-      "4": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["1", 0]}},
+      "4": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["2", 0]}},
       "5": {
-        "class_type": "TextConcat",
+        "class_type": "UtilityNodesTextConcat",
         "inputs": {
           "separator": " BREAK ",
           "text_1": ["3", 0],
@@ -396,19 +396,19 @@
     "name": "text_concat_break_grouped_with_per_group_merge",
     "description": "Multi-source-per-group pattern: each BREAK group is pre-composed by its own TagsMerge (so mutex/conflicts resolve within the group), then the per-group prompt STRINGs are joined with TextConcat / ' BREAK '. PreviewAny renders the result.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
-      "2": {"class_type": "PersonalityPreset", "inputs": {"personality": "genki"}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "UtilityNodesPersonalityPreset", "inputs": {"personality": "genki"}},
       "3": {
-        "class_type": "TagsMerge",
+        "class_type": "UtilityNodesTagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}
       },
-      "4": {"class_type": "SituationPreset", "inputs": {"situation": "shrine_visit"}},
+      "4": {"class_type": "UtilityNodesSituationPreset", "inputs": {"situation": "shrine_visit"}},
       "5": {
-        "class_type": "TagsMerge",
+        "class_type": "UtilityNodesTagsMerge",
         "inputs": {"bundle_1": ["4", 0]}
       },
       "6": {
-        "class_type": "TextConcat",
+        "class_type": "UtilityNodesTextConcat",
         "inputs": {
           "separator": " BREAK ",
           "text_1": ["3", 0],
@@ -426,7 +426,7 @@
     "description": "AspectRatioPreset emits (width, height) INTs. Verifies the node loads from the `nodes/image/` subpackage and resolves the named preset. Two PreviewAny terminators stringify each INT socket.",
     "workflow": {
       "1": {
-        "class_type": "AspectRatioPreset",
+        "class_type": "UtilityNodesAspectRatioPreset",
         "inputs": {"preset": "SDXL 16:9 (1344x768)", "swap": false}
       },
       "2": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
@@ -442,7 +442,7 @@
     "description": "`swap=true` flips a landscape preset to portrait — verifies the swap toggle is reflected in the (width, height) INT outputs.",
     "workflow": {
       "1": {
-        "class_type": "AspectRatioPreset",
+        "class_type": "UtilityNodesAspectRatioPreset",
         "inputs": {"preset": "Hi-res 16:9 (1920x1088)", "swap": true}
       },
       "2": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
@@ -457,12 +457,12 @@
     "name": "tags_random_pick_deterministic",
     "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output (flattened via TagsMerge, rendered by PreviewAny).",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
       "2": {
-        "class_type": "TagsRandomPick",
+        "class_type": "UtilityNodesTagsRandomPick",
         "inputs": {"count": 3, "seed": 7, "bundle": ["1", 0]}
       },
-      "3": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["2", 0]}},
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
@@ -474,7 +474,7 @@
     "description": "Mirrors the positive text chain of example_workflows/pony_sdxl_pipeline.json — MetaPony prefix (scores + rating + source + extra) layered with character / personality / situation / quality presets through TagsMerge, rendered by PreviewAny.",
     "workflow": {
       "1": {
-        "class_type": "MetaPony",
+        "class_type": "UtilityNodesMetaPony",
         "inputs": {
           "score_9": true,
           "score_8_up": true,
@@ -484,15 +484,15 @@
           "extra": "1girl, solo"
         }
       },
-      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "witch"}},
-      "3": {"class_type": "PersonalityPreset", "inputs": {"personality": "confident"}},
-      "4": {"class_type": "SituationPreset", "inputs": {"situation": "summer_beach"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "witch"}},
+      "3": {"class_type": "UtilityNodesPersonalityPreset", "inputs": {"personality": "confident"}},
+      "4": {"class_type": "UtilityNodesSituationPreset", "inputs": {"situation": "summer_beach"}},
       "5": {
-        "class_type": "MetaQuality",
+        "class_type": "UtilityNodesMetaQuality",
         "inputs": {"masterpiece": true, "best_quality": true, "very_aesthetic": true}
       },
       "6": {
-        "class_type": "TagsMerge",
+        "class_type": "UtilityNodesTagsMerge",
         "inputs": {
           "bundle_1": ["1", 0],
           "bundle_2": ["2", 0],
@@ -511,10 +511,10 @@
     "name": "pony_sdxl_pipeline_negative",
     "description": "Mirrors the negative text chain of example_workflows/pony_sdxl_pipeline.json — BadQuality (fidelity negatives) merged with BadGeneral (anatomy negatives), rendered by PreviewAny.",
     "workflow": {
-      "1": {"class_type": "BadQuality"},
-      "2": {"class_type": "BadGeneral"},
+      "1": {"class_type": "UtilityNodesBadQuality"},
+      "2": {"class_type": "UtilityNodesBadGeneral"},
       "3": {
-        "class_type": "TagsMerge",
+        "class_type": "UtilityNodesTagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}
       },
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
@@ -527,14 +527,14 @@
     "name": "count_extract_from_merged_prompt",
     "description": "TagsExtractSubjectCount parses subject-count tags out of an assembled prompt. A count is injected via MetaCountGirls + MetaCountBoys, merged to a STRING, then extracted — verifying the STRING round-trips through TagsMerge into the parser. PreviewAny renders both the `count_tags` STRING and the `total` INT outputs.",
     "workflow": {
-      "1": {"class_type": "MetaCountGirls", "inputs": {"2girls": true}},
-      "2": {"class_type": "MetaCountBoys", "inputs": {"1boy": true}},
-      "3": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "1": {"class_type": "UtilityNodesMetaCountGirls", "inputs": {"2girls": true}},
+      "2": {"class_type": "UtilityNodesMetaCountBoys", "inputs": {"1boy": true}},
+      "3": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
       "4": {
-        "class_type": "TagsMerge",
+        "class_type": "UtilityNodesTagsMerge",
         "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}
       },
-      "5": {"class_type": "TagsExtractSubjectCount", "inputs": {"prompt": ["4", 0]}},
+      "5": {"class_type": "UtilityNodesTagsExtractSubjectCount", "inputs": {"prompt": ["4", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}},
       "7": {"class_type": "PreviewAny", "inputs": {"source": ["5", 1]}}
     },
@@ -547,14 +547,14 @@
     "name": "shared_seed_drives_random_pick",
     "description": "Seed emits one INT (with control-after-generate in the UI) wired into TagsRandomPick. Verifies the seed node loads from nodes/util/ and that its INT output drives a downstream seeded node deterministically (seed=7 over miko's 8 tags reproduces the random.Random(7) reference). PreviewAny renders the seed INT and the picked tags.",
     "workflow": {
-      "1": {"class_type": "SharedSeed", "inputs": {"seed": 7}},
-      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
+      "1": {"class_type": "UtilityNodesSeed", "inputs": {"seed": 7}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
       "3": {
-        "class_type": "TagsRandomPick",
+        "class_type": "UtilityNodesTagsRandomPick",
         "inputs": {"count": 3, "seed": ["1", 0], "bundle": ["2", 0]}
       },
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
-      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["3", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -566,11 +566,11 @@
     "name": "combinator_collect_two_characters",
     "description": "Issue #23/#24: TagsCollect gathers two whole CharacterPreset bundles into one Combinator axis, and TagsCombinator emits a 2-element CUUN_TAGS list (one bundle per character, unmerged) instead of prompts. TagsMerge broadcasts over the list (merge delegated downstream) and PreviewAny collects both resolved prompts — one full blazer character, one full serafuku character, not a per-tag blow-up.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
-      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "3": {"class_type": "TagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
-      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["3", 0]}},
-      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "UtilityNodesTagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesTagsCombinator", "inputs": {"axis_1": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -582,11 +582,11 @@
     "name": "combinator_preset_override_axis",
     "description": "Issue #24: TagsCombinator over a preset base axis × an exploded HairColor axis emits concatenated CUUN_TAGS bundles; the downstream TagsMerge (broadcast per combination) resolves the hair MUTEX_GROUP last-wins, so the preset's brown_hair is overridden by each axis hair color. PreviewAny collects both prompts.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "2": {"class_type": "HairColor", "inputs": {"red_hair": true, "blue_hair": true}},
-      "3": {"class_type": "TagsExplode", "inputs": {"bundle": ["2", 0]}},
-      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["1", 0], "axis_2": ["3", 0]}},
-      "5": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesHairColor", "inputs": {"red_hair": true, "blue_hair": true}},
+      "3": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesTagsCombinator", "inputs": {"axis_1": ["1", 0], "axis_2": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -598,12 +598,12 @@
     "name": "combinator_select_one_by_index",
     "description": "Memory-safe sweep: TagsSelect (INPUT_IS_LIST) picks ONE combination out of the TagsCombinator list by index, so the downstream pipeline is width 1 instead of fanning out all combinations. index=1 selects the second character; the picked label and the merged single prompt are surfaced via PreviewAny.",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
-      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "3": {"class_type": "TagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
-      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["3", 0]}},
-      "5": {"class_type": "TagsSelect", "inputs": {"index": 1, "bundles": ["4", 0], "labels": ["4", 1]}},
-      "6": {"class_type": "TagsMerge", "inputs": {"bundle_1": ["5", 0]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "UtilityNodesTagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesTagsCombinator", "inputs": {"axis_1": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsSelect", "inputs": {"index": 1, "bundles": ["4", 0], "labels": ["4", 1]}},
+      "6": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["5", 0]}},
       "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}},
       "8": {"class_type": "PreviewAny", "inputs": {"source": ["5", 1]}}
     },
@@ -616,11 +616,11 @@
     "name": "combinator_select_wraps_index",
     "description": "TagsSelect wraps index modulo the list length: over 2 combinations, index=3 wraps to 3 % 2 == 1, picking the second character (so queuing more runs than combinations keeps cycling the sweep).",
     "workflow": {
-      "1": {"class_type": "CharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
-      "2": {"class_type": "CharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
-      "3": {"class_type": "TagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
-      "4": {"class_type": "TagsCombinator", "inputs": {"axis_1": ["3", 0]}},
-      "5": {"class_type": "TagsSelect", "inputs": {"index": 3, "bundles": ["4", 0], "labels": ["4", 1]}},
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "UtilityNodesTagsCollect", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesTagsCombinator", "inputs": {"axis_1": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsSelect", "inputs": {"index": 3, "bundles": ["4", 0], "labels": ["4", 1]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 1]}}
     },
     "expect": [

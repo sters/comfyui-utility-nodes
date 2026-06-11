@@ -71,5 +71,5 @@ class TagsFilter:
         return (tuple(out),)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsFilter": TagsFilter}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsFilter": "Filter"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsFilter": TagsFilter}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsFilter": "Filter"}

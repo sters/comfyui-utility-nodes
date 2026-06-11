@@ -41,5 +41,5 @@ class SceneLighting(TagNodeBase):
     TAGS = _LIGHTING
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"SceneLighting": SceneLighting}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"SceneLighting": "Lighting"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesSceneLighting": SceneLighting}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesSceneLighting": "Lighting"}

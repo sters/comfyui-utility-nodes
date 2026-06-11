@@ -30,9 +30,9 @@ class TextConcat:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "TextConcat": TextConcat,
+    "UtilityNodesTextConcat": TextConcat,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "TextConcat": "Text Concat",
+    "UtilityNodesTextConcat": "Text Concat",
 }

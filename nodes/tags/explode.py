@@ -44,5 +44,5 @@ class TagsExplode:
         return (out,)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsExplode": TagsExplode}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsExplode": "Explode"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsExplode": TagsExplode}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsExplode": "Explode"}

@@ -53,11 +53,11 @@ class FaceMouthDetails(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "FaceMouthState": FaceMouthState,
-    "FaceMouthDetails": FaceMouthDetails,
+    "UtilityNodesFaceMouthState": FaceMouthState,
+    "UtilityNodesFaceMouthDetails": FaceMouthDetails,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "FaceMouthState": "Mouth: State",
-    "FaceMouthDetails": "Mouth: Details",
+    "UtilityNodesFaceMouthState": "Mouth: State",
+    "UtilityNodesFaceMouthDetails": "Mouth: Details",
 }

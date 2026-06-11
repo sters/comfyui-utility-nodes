@@ -142,19 +142,19 @@ class BadNsfw(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "BadQuality": BadQuality,
-    "BadGeneral": BadGeneral,
-    "BadHeadFace": BadHeadFace,
-    "BadBody": BadBody,
-    "BadLimbs": BadLimbs,
-    "BadNsfw": BadNsfw,
+    "UtilityNodesBadQuality": BadQuality,
+    "UtilityNodesBadGeneral": BadGeneral,
+    "UtilityNodesBadHeadFace": BadHeadFace,
+    "UtilityNodesBadBody": BadBody,
+    "UtilityNodesBadLimbs": BadLimbs,
+    "UtilityNodesBadNsfw": BadNsfw,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BadQuality": "Bad: Quality",
-    "BadGeneral": "Bad: General",
-    "BadHeadFace": "Bad: Head & Face",
-    "BadBody": "Bad: Body",
-    "BadLimbs": "Bad: Limbs",
-    "BadNsfw": "Bad: NSFW",
+    "UtilityNodesBadQuality": "Bad: Quality",
+    "UtilityNodesBadGeneral": "Bad: General",
+    "UtilityNodesBadHeadFace": "Bad: Head & Face",
+    "UtilityNodesBadBody": "Bad: Body",
+    "UtilityNodesBadLimbs": "Bad: Limbs",
+    "UtilityNodesBadNsfw": "Bad: NSFW",
 }

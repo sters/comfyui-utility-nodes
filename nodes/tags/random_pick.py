@@ -69,5 +69,5 @@ class TagsRandomPick:
         return (tuple(out),)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsRandomPick": TagsRandomPick}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsRandomPick": "Random Pick"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsRandomPick": TagsRandomPick}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsRandomPick": "Random Pick"}

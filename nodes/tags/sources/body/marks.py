@@ -76,13 +76,13 @@ class BodyTattoos(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "BodyMolesFreckles": BodyMolesFreckles,
-    "BodyScars": BodyScars,
-    "BodyTattoos": BodyTattoos,
+    "UtilityNodesBodyMolesFreckles": BodyMolesFreckles,
+    "UtilityNodesBodyScars": BodyScars,
+    "UtilityNodesBodyTattoos": BodyTattoos,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BodyMolesFreckles": "Moles & Freckles",
-    "BodyScars": "Scars",
-    "BodyTattoos": "Tattoos",
+    "UtilityNodesBodyMolesFreckles": "Moles & Freckles",
+    "UtilityNodesBodyScars": "Scars",
+    "UtilityNodesBodyTattoos": "Tattoos",
 }

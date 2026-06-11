@@ -159,5 +159,5 @@ class PersonalityPreset(PresetNodeBase):
     LAYER = "personality"
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"PersonalityPreset": PersonalityPreset}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"PersonalityPreset": "Personality"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesPersonalityPreset": PersonalityPreset}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesPersonalityPreset": "Personality"}

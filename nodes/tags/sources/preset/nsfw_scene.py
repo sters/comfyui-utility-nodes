@@ -234,5 +234,5 @@ class NsfwScenePreset(PresetNodeBase):
     LAYER = "nsfw_preset"
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"NsfwScenePreset": NsfwScenePreset}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"NsfwScenePreset": "NSFW Scene"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesNsfwScenePreset": NsfwScenePreset}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesNsfwScenePreset": "NSFW Scene"}

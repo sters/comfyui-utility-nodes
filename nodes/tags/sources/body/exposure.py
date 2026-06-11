@@ -36,11 +36,11 @@ class BodyLowerAnatomy(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "BodyExposure": BodyExposure,
-    "BodyLowerAnatomy": BodyLowerAnatomy,
+    "UtilityNodesBodyExposure": BodyExposure,
+    "UtilityNodesBodyLowerAnatomy": BodyLowerAnatomy,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BodyExposure": "Exposure",
-    "BodyLowerAnatomy": "Lower Anatomy",
+    "UtilityNodesBodyExposure": "Exposure",
+    "UtilityNodesBodyLowerAnatomy": "Lower Anatomy",
 }

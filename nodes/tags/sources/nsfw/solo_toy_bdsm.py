@@ -82,13 +82,13 @@ class NsfwBdsm(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "NsfwSolo": NsfwSolo,
-    "NsfwToy": NsfwToy,
-    "NsfwBdsm": NsfwBdsm,
+    "UtilityNodesNsfwSolo": NsfwSolo,
+    "UtilityNodesNsfwToy": NsfwToy,
+    "UtilityNodesNsfwBdsm": NsfwBdsm,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "NsfwSolo": "Solo",
-    "NsfwToy": "Toy",
-    "NsfwBdsm": "BDSM",
+    "UtilityNodesNsfwSolo": "Solo",
+    "UtilityNodesNsfwToy": "Toy",
+    "UtilityNodesNsfwBdsm": "BDSM",
 }

@@ -100,13 +100,13 @@ class ClothingAccessory(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "ClothingHandArm": ClothingHandArm,
-    "ClothingNeck": ClothingNeck,
-    "ClothingAccessory": ClothingAccessory,
+    "UtilityNodesClothingHandArm": ClothingHandArm,
+    "UtilityNodesClothingNeck": ClothingNeck,
+    "UtilityNodesClothingAccessory": ClothingAccessory,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "ClothingHandArm": "Hand & Arm",
-    "ClothingNeck": "Neck",
-    "ClothingAccessory": "Accessory",
+    "UtilityNodesClothingHandArm": "Hand & Arm",
+    "UtilityNodesClothingNeck": "Neck",
+    "UtilityNodesClothingAccessory": "Accessory",
 }

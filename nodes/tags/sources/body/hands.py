@@ -78,13 +78,13 @@ class HandsDetail(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "HandsPose": HandsPose,
-    "HandsGesture": HandsGesture,
-    "HandsDetail": HandsDetail,
+    "UtilityNodesHandsPose": HandsPose,
+    "UtilityNodesHandsGesture": HandsGesture,
+    "UtilityNodesHandsDetail": HandsDetail,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "HandsPose": "Hands: Pose",
-    "HandsGesture": "Hands: Gesture",
-    "HandsDetail": "Hands: Detail",
+    "UtilityNodesHandsPose": "Hands: Pose",
+    "UtilityNodesHandsGesture": "Hands: Gesture",
+    "UtilityNodesHandsDetail": "Hands: Detail",
 }

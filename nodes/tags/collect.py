@@ -44,5 +44,5 @@ class TagsCollect:
         return (out,)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsCollect": TagsCollect}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsCollect": "Collect"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsCollect": TagsCollect}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsCollect": "Collect"}

@@ -58,5 +58,5 @@ def _format_report(bundle: tuple[TaggedSelection, ...], warnings: str) -> str:
     return "\n".join(lines)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsBundleInspector": TagsBundleInspector}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsBundleInspector": "Bundle Inspector"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsBundleInspector": TagsBundleInspector}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsBundleInspector": "Bundle Inspector"}

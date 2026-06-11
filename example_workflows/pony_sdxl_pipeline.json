@@ -58,7 +58,7 @@
     },
     {
       "id": 2,
-      "type": "MetaPony",
+      "type": "UtilityNodesMetaPony",
       "pos": [
         40,
         180
@@ -82,7 +82,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "MetaPony"
+        "Node name for S&R": "UtilityNodesMetaPony"
       },
       "widgets_values": [
         true,
@@ -104,7 +104,7 @@
     },
     {
       "id": 3,
-      "type": "CharacterPreset",
+      "type": "UtilityNodesCharacterPreset",
       "pos": [
         40,
         560
@@ -128,7 +128,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "CharacterPreset"
+        "Node name for S&R": "UtilityNodesCharacterPreset"
       },
       "widgets_values": [
         "witch",
@@ -137,7 +137,7 @@
     },
     {
       "id": 4,
-      "type": "PersonalityPreset",
+      "type": "UtilityNodesPersonalityPreset",
       "pos": [
         40,
         700
@@ -161,7 +161,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "PersonalityPreset"
+        "Node name for S&R": "UtilityNodesPersonalityPreset"
       },
       "widgets_values": [
         "confident",
@@ -170,7 +170,7 @@
     },
     {
       "id": 5,
-      "type": "SituationPreset",
+      "type": "UtilityNodesSituationPreset",
       "pos": [
         40,
         840
@@ -194,7 +194,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "SituationPreset"
+        "Node name for S&R": "UtilityNodesSituationPreset"
       },
       "widgets_values": [
         "summer_beach",
@@ -203,7 +203,7 @@
     },
     {
       "id": 6,
-      "type": "MetaQuality",
+      "type": "UtilityNodesMetaQuality",
       "pos": [
         40,
         980
@@ -227,7 +227,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "MetaQuality"
+        "Node name for S&R": "UtilityNodesMetaQuality"
       },
       "widgets_values": [
         false,
@@ -254,7 +254,7 @@
     },
     {
       "id": 7,
-      "type": "TagsMerge",
+      "type": "UtilityNodesTagsMerge",
       "pos": [
         420,
         40
@@ -316,7 +316,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "UtilityNodesTagsMerge"
       },
       "widgets_values": [
         ", ",
@@ -326,7 +326,7 @@
     },
     {
       "id": 8,
-      "type": "BadQuality",
+      "type": "UtilityNodesBadQuality",
       "pos": [
         420,
         340
@@ -350,7 +350,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "BadQuality"
+        "Node name for S&R": "UtilityNodesBadQuality"
       },
       "widgets_values": [
         false,
@@ -376,7 +376,7 @@
     },
     {
       "id": 9,
-      "type": "BadGeneral",
+      "type": "UtilityNodesBadGeneral",
       "pos": [
         420,
         780
@@ -400,7 +400,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "BadGeneral"
+        "Node name for S&R": "UtilityNodesBadGeneral"
       },
       "widgets_values": [
         false,
@@ -421,7 +421,7 @@
     },
     {
       "id": 10,
-      "type": "TagsMerge",
+      "type": "UtilityNodesTagsMerge",
       "pos": [
         420,
         1120
@@ -468,7 +468,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "UtilityNodesTagsMerge"
       },
       "widgets_values": [
         ", ",

@@ -46,5 +46,5 @@ class AspectRatioPreset:
         return (w, h)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"AspectRatioPreset": AspectRatioPreset}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"AspectRatioPreset": "Aspect Ratio Preset"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesAspectRatioPreset": AspectRatioPreset}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesAspectRatioPreset": "Aspect Ratio Preset"}

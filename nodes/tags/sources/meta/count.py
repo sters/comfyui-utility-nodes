@@ -69,15 +69,15 @@ class MetaCountOther(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "MetaCountTotal": MetaCountTotal,
-    "MetaCountGirls": MetaCountGirls,
-    "MetaCountBoys": MetaCountBoys,
-    "MetaCountOther": MetaCountOther,
+    "UtilityNodesMetaCountTotal": MetaCountTotal,
+    "UtilityNodesMetaCountGirls": MetaCountGirls,
+    "UtilityNodesMetaCountBoys": MetaCountBoys,
+    "UtilityNodesMetaCountOther": MetaCountOther,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "MetaCountTotal": "Subject Count: Total",
-    "MetaCountGirls": "Subject Count: Girls",
-    "MetaCountBoys": "Subject Count: Boys",
-    "MetaCountOther": "Subject Count: Other",
+    "UtilityNodesMetaCountTotal": "Subject Count: Total",
+    "UtilityNodesMetaCountGirls": "Subject Count: Girls",
+    "UtilityNodesMetaCountBoys": "Subject Count: Boys",
+    "UtilityNodesMetaCountOther": "Subject Count: Other",
 }

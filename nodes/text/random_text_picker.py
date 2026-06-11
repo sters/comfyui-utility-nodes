@@ -34,9 +34,9 @@ class RandomTextPicker:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "RandomTextPicker": RandomTextPicker,
+    "UtilityNodesRandomTextPicker": RandomTextPicker,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "RandomTextPicker": "Random Text Picker",
+    "UtilityNodesRandomTextPicker": "Random Text Picker",
 }

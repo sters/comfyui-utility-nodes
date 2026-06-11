@@ -58,5 +58,5 @@ class TagsSelect:
         return (tuple(items[effective]), label, effective)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsSelect": TagsSelect}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsSelect": "Select"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsSelect": TagsSelect}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsSelect": "Select"}

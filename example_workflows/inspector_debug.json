@@ -9,7 +9,7 @@
   "nodes": [
     {
       "id": 1,
-      "type": "BodyExposure",
+      "type": "UtilityNodesBodyExposure",
       "pos": [
         40,
         40
@@ -33,7 +33,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "BodyExposure"
+        "Node name for S&R": "UtilityNodesBodyExposure"
       },
       "widgets_values": [
         false,
@@ -45,7 +45,7 @@
     },
     {
       "id": 2,
-      "type": "ClothingTops",
+      "type": "UtilityNodesClothingTops",
       "pos": [
         40,
         260
@@ -69,7 +69,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "ClothingTops"
+        "Node name for S&R": "UtilityNodesClothingTops"
       },
       "widgets_values": [
         false,
@@ -79,7 +79,7 @@
     },
     {
       "id": 3,
-      "type": "TagsMerge",
+      "type": "UtilityNodesTagsMerge",
       "pos": [
         400,
         40
@@ -128,7 +128,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "UtilityNodesTagsMerge"
       },
       "widgets_values": [
         ", ",
@@ -137,7 +137,7 @@
     },
     {
       "id": 4,
-      "type": "TagsBundleInspector",
+      "type": "UtilityNodesTagsBundleInspector",
       "pos": [
         760,
         40
@@ -181,7 +181,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsBundleInspector"
+        "Node name for S&R": "UtilityNodesTagsBundleInspector"
       },
       "widgets_values": [
         ""

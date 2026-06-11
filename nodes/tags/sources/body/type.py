@@ -57,11 +57,11 @@ class BodySkin(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "BodyFigure": BodyFigure,
-    "BodySkin": BodySkin,
+    "UtilityNodesBodyFigure": BodyFigure,
+    "UtilityNodesBodySkin": BodySkin,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BodyFigure": "Figure",
-    "BodySkin": "Skin",
+    "UtilityNodesBodyFigure": "Figure",
+    "UtilityNodesBodySkin": "Skin",
 }

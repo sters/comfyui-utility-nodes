@@ -65,5 +65,5 @@ class ClothingFit(TagNodeBase):
     TAGS = _FIT
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"ClothingFit": ClothingFit}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"ClothingFit": "Fit"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesClothingFit": ClothingFit}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesClothingFit": "Fit"}

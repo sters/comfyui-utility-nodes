@@ -60,11 +60,11 @@ class NsfwActOralContact(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "NsfwActPenetrative": NsfwActPenetrative,
-    "NsfwActOralContact": NsfwActOralContact,
+    "UtilityNodesNsfwActPenetrative": NsfwActPenetrative,
+    "UtilityNodesNsfwActOralContact": NsfwActOralContact,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "NsfwActPenetrative": "Act: Penetrative",
-    "NsfwActOralContact": "Act: Oral & Contact",
+    "UtilityNodesNsfwActPenetrative": "Act: Penetrative",
+    "UtilityNodesNsfwActOralContact": "Act: Oral & Contact",
 }

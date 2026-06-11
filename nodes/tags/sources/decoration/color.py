@@ -49,5 +49,5 @@ class ColorPalette(TagNodeBase):
     TAGS = _COLORS
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"ColorPalette": ColorPalette}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"ColorPalette": "Color Palette"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesColorPalette": ColorPalette}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesColorPalette": "Color Palette"}

@@ -130,5 +130,5 @@ class TagsMerge:
         return (prompt, warnings_str, tuple(final))
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsMerge": TagsMerge}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsMerge": "Merge & Validate"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsMerge": TagsMerge}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsMerge": "Merge & Validate"}

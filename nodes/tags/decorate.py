@@ -135,5 +135,5 @@ class TagsDecorate:
         return "\n".join(warnings), bundle
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsDecorate": TagsDecorate}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsDecorate": "Decorate"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsDecorate": TagsDecorate}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsDecorate": "Decorate"}

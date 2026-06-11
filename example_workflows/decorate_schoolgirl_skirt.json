@@ -9,7 +9,7 @@
   "nodes": [
     {
       "id": 1,
-      "type": "CharacterPreset",
+      "type": "UtilityNodesCharacterPreset",
       "pos": [
         40,
         40
@@ -33,7 +33,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "CharacterPreset"
+        "Node name for S&R": "UtilityNodesCharacterPreset"
       },
       "widgets_values": [
         "serafuku_schoolgirl",
@@ -42,7 +42,7 @@
     },
     {
       "id": 2,
-      "type": "TagsMerge",
+      "type": "UtilityNodesTagsMerge",
       "title": "Merge: main",
       "pos": [
         400,
@@ -85,7 +85,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "UtilityNodesTagsMerge"
       },
       "widgets_values": [
         ", ",
@@ -94,7 +94,7 @@
     },
     {
       "id": 3,
-      "type": "ColorPalette",
+      "type": "UtilityNodesColorPalette",
       "title": "Skirt colors (3)",
       "pos": [
         40,
@@ -119,7 +119,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "ColorPalette"
+        "Node name for S&R": "UtilityNodesColorPalette"
       },
       "widgets_values": [
         false,
@@ -158,7 +158,7 @@
     },
     {
       "id": 4,
-      "type": "TagsExplode",
+      "type": "UtilityNodesTagsExplode",
       "title": "Explode skirt colors",
       "pos": [
         400,
@@ -189,13 +189,13 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsExplode"
+        "Node name for S&R": "UtilityNodesTagsExplode"
       },
       "widgets_values": []
     },
     {
       "id": 5,
-      "type": "TagsDecorate",
+      "type": "UtilityNodesTagsDecorate",
       "title": "Stage 1: skirt \u00d7 color (\u00d7 3)",
       "pos": [
         760,
@@ -237,7 +237,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsDecorate"
+        "Node name for S&R": "UtilityNodesTagsDecorate"
       },
       "widgets_values": [
         "clothing.bottoms"
@@ -245,7 +245,7 @@
     },
     {
       "id": 6,
-      "type": "ColorPalette",
+      "type": "UtilityNodesColorPalette",
       "title": "Top colors (3)",
       "pos": [
         40,
@@ -270,7 +270,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "ColorPalette"
+        "Node name for S&R": "UtilityNodesColorPalette"
       },
       "widgets_values": [
         false,
@@ -309,7 +309,7 @@
     },
     {
       "id": 7,
-      "type": "TagsExplode",
+      "type": "UtilityNodesTagsExplode",
       "title": "Explode top colors",
       "pos": [
         400,
@@ -340,13 +340,13 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsExplode"
+        "Node name for S&R": "UtilityNodesTagsExplode"
       },
       "widgets_values": []
     },
     {
       "id": 8,
-      "type": "TagsDecorate",
+      "type": "UtilityNodesTagsDecorate",
       "title": "Stage 2: serafuku \u00d7 color (3 \u00d7 3 = 9)",
       "pos": [
         1200,
@@ -388,7 +388,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsDecorate"
+        "Node name for S&R": "UtilityNodesTagsDecorate"
       },
       "widgets_values": [
         "clothing.uniform"
@@ -648,7 +648,7 @@
     },
     {
       "id": 15,
-      "type": "TagsMerge",
+      "type": "UtilityNodesTagsMerge",
       "pos": [
         1560,
         40
@@ -690,7 +690,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "UtilityNodesTagsMerge"
       },
       "widgets_values": [
         ", ",

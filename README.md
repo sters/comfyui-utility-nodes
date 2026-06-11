@@ -36,6 +36,8 @@ For quick-and-dirty graphs you can also feed a bundle through `Tags: Combinator`
 
 ## Node catalog
 
+> The **Class** column below is the Python class / menu name. The actual registered `class_type` is that name prefixed with `UtilityNodes` (e.g. `TagsMerge` → `UtilityNodesTagsMerge`) so it can't be shadowed by another pack's same-named node. Workflows saved before the prefix auto-upgrade on load — the pack registers a ComfyUI node-replacement (`<bare>` → `UtilityNodes<bare>`) for every node.
+
 ### Tag operations — `UtilityNodes/TagMaster`
 
 These consume/transform `CUUN_TAGS` bundles (or, where noted, a prompt STRING).
@@ -91,7 +93,7 @@ General prompt utilities, independent of the tag bundle system: `Text Concat` (`
 
 ### Image & Util
 
-`Aspect Ratio Preset` (`AspectRatioPreset`, under `UtilityNodes/Image`) and `Seed` (class `SharedSeed`, under `UtilityNodes/Util` — registered under a unique key so it isn't shadowed by other packs' `Seed` node).
+`Aspect Ratio Preset` (`AspectRatioPreset`, under `UtilityNodes/Image`) and `Seed` (`Seed`, under `UtilityNodes/Util`).
 
 ## Development
 

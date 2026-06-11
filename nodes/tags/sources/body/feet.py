@@ -52,11 +52,11 @@ class FeetLegsPose(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "FeetAnatomy": FeetAnatomy,
-    "FeetLegsPose": FeetLegsPose,
+    "UtilityNodesFeetAnatomy": FeetAnatomy,
+    "UtilityNodesFeetLegsPose": FeetLegsPose,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "FeetAnatomy": "Feet: Anatomy",
-    "FeetLegsPose": "Feet: Legs & Pose",
+    "UtilityNodesFeetAnatomy": "Feet: Anatomy",
+    "UtilityNodesFeetLegsPose": "Feet: Legs & Pose",
 }

@@ -117,13 +117,13 @@ class HairDetails(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "HairLengthStyle": HairLengthStyle,
-    "HairColor": HairColor,
-    "HairDetails": HairDetails,
+    "UtilityNodesHairLengthStyle": HairLengthStyle,
+    "UtilityNodesHairColor": HairColor,
+    "UtilityNodesHairDetails": HairDetails,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "HairLengthStyle": "Hair: Length & Style",
-    "HairColor": "Hair: Color",
-    "HairDetails": "Hair: Details",
+    "UtilityNodesHairLengthStyle": "Hair: Length & Style",
+    "UtilityNodesHairColor": "Hair: Color",
+    "UtilityNodesHairDetails": "Hair: Details",
 }

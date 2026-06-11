@@ -73,11 +73,11 @@ class FaceBlushFlush(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "FaceExpression": FaceExpression,
-    "FaceBlushFlush": FaceBlushFlush,
+    "UtilityNodesFaceExpression": FaceExpression,
+    "UtilityNodesFaceBlushFlush": FaceBlushFlush,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "FaceExpression": "Expression",
-    "FaceBlushFlush": "Blush & Flush",
+    "UtilityNodesFaceExpression": "Expression",
+    "UtilityNodesFaceBlushFlush": "Blush & Flush",
 }

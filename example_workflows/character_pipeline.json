@@ -58,7 +58,7 @@
     },
     {
       "id": 2,
-      "type": "CharacterPreset",
+      "type": "UtilityNodesCharacterPreset",
       "pos": [
         40,
         180
@@ -82,7 +82,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "CharacterPreset"
+        "Node name for S&R": "UtilityNodesCharacterPreset"
       },
       "widgets_values": [
         "miko",
@@ -91,7 +91,7 @@
     },
     {
       "id": 3,
-      "type": "PersonalityPreset",
+      "type": "UtilityNodesPersonalityPreset",
       "pos": [
         40,
         320
@@ -115,7 +115,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "PersonalityPreset"
+        "Node name for S&R": "UtilityNodesPersonalityPreset"
       },
       "widgets_values": [
         "genki",
@@ -124,7 +124,7 @@
     },
     {
       "id": 4,
-      "type": "SituationPreset",
+      "type": "UtilityNodesSituationPreset",
       "pos": [
         40,
         460
@@ -148,7 +148,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "SituationPreset"
+        "Node name for S&R": "UtilityNodesSituationPreset"
       },
       "widgets_values": [
         "shrine_visit",
@@ -157,7 +157,7 @@
     },
     {
       "id": 5,
-      "type": "MetaQuality",
+      "type": "UtilityNodesMetaQuality",
       "pos": [
         40,
         600
@@ -181,7 +181,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "MetaQuality"
+        "Node name for S&R": "UtilityNodesMetaQuality"
       },
       "widgets_values": [
         false,
@@ -208,7 +208,7 @@
     },
     {
       "id": 6,
-      "type": "TagsMerge",
+      "type": "UtilityNodesTagsMerge",
       "pos": [
         400,
         40
@@ -265,7 +265,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "UtilityNodesTagsMerge"
       },
       "widgets_values": [
         ", ",
@@ -274,7 +274,7 @@
     },
     {
       "id": 7,
-      "type": "BadGeneral",
+      "type": "UtilityNodesBadGeneral",
       "pos": [
         400,
         260
@@ -298,7 +298,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "BadGeneral"
+        "Node name for S&R": "UtilityNodesBadGeneral"
       },
       "widgets_values": [
         false,
@@ -573,7 +573,7 @@
     },
     {
       "id": 14,
-      "type": "TagsMerge",
+      "type": "UtilityNodesTagsMerge",
       "pos": [
         760,
         260
@@ -615,7 +615,7 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "TagsMerge"
+        "Node name for S&R": "UtilityNodesTagsMerge"
       },
       "widgets_values": [
         ", ",

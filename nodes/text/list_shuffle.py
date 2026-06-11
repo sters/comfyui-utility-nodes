@@ -42,9 +42,9 @@ class ListShuffle:
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "ListShuffle": ListShuffle,
+    "UtilityNodesListShuffle": ListShuffle,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "ListShuffle": "List Shuffle",
+    "UtilityNodesListShuffle": "List Shuffle",
 }

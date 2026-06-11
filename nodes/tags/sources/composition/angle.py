@@ -31,5 +31,5 @@ class CompositionAngle(TagNodeBase):
     TAGS = _ANGLE
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"CompositionAngle": CompositionAngle}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"CompositionAngle": "Angle"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesCompositionAngle": CompositionAngle}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesCompositionAngle": "Angle"}

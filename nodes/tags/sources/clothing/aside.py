@@ -51,5 +51,5 @@ class ClothingAside(TagNodeBase):
     TAGS = _ASIDE
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"ClothingAside": ClothingAside}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"ClothingAside": "Aside & Partial Expose"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesClothingAside": ClothingAside}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesClothingAside": "Aside & Partial Expose"}

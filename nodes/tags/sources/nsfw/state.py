@@ -64,11 +64,11 @@ class NsfwStateAftermathExpression(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "NsfwStateFluids": NsfwStateFluids,
-    "NsfwStateAftermathExpression": NsfwStateAftermathExpression,
+    "UtilityNodesNsfwStateFluids": NsfwStateFluids,
+    "UtilityNodesNsfwStateAftermathExpression": NsfwStateAftermathExpression,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "NsfwStateFluids": "State: Fluids",
-    "NsfwStateAftermathExpression": "State: Aftermath & Expression",
+    "UtilityNodesNsfwStateFluids": "State: Fluids",
+    "UtilityNodesNsfwStateAftermathExpression": "State: Aftermath & Expression",
 }

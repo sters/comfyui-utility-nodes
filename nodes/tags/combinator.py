@@ -93,7 +93,7 @@ class TagsCombinator:
         return "__".join(parts)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsCombinator": TagsCombinator}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsCombinator": TagsCombinator}
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "TagsCombinator": "Combinator",
+    "UtilityNodesTagsCombinator": "Combinator",
 }

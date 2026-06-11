@@ -24,5 +24,5 @@ class CompositionMultiView(TagNodeBase):
     TAGS = _MULTIVIEW
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"CompositionMultiView": CompositionMultiView}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"CompositionMultiView": "Multi-View"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesCompositionMultiView": CompositionMultiView}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesCompositionMultiView": "Multi-View"}

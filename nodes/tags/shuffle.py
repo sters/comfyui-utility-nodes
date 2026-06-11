@@ -59,5 +59,5 @@ class TagsShuffle:
         return (tuple(out),)
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"TagsShuffle": TagsShuffle}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"TagsShuffle": "Shuffle"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsShuffle": TagsShuffle}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsShuffle": "Shuffle"}

@@ -99,13 +99,13 @@ class ClothingNakedX(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "ClothingState": ClothingState,
-    "ClothingLiftPull": ClothingLiftPull,
-    "ClothingNakedX": ClothingNakedX,
+    "UtilityNodesClothingState": ClothingState,
+    "UtilityNodesClothingLiftPull": ClothingLiftPull,
+    "UtilityNodesClothingNakedX": ClothingNakedX,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "ClothingState": "State",
-    "ClothingLiftPull": "Lift & Pull",
-    "ClothingNakedX": "Naked X",
+    "UtilityNodesClothingState": "State",
+    "UtilityNodesClothingLiftPull": "Lift & Pull",
+    "UtilityNodesClothingNakedX": "Naked X",
 }

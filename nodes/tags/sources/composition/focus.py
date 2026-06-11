@@ -26,5 +26,5 @@ class CompositionFocus(TagNodeBase):
     TAGS = _FOCUS
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"CompositionFocus": CompositionFocus}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"CompositionFocus": "Focus"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesCompositionFocus": CompositionFocus}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesCompositionFocus": "Focus"}

@@ -57,11 +57,11 @@ class BodySeating(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "BodyPosture": BodyPosture,
-    "BodySeating": BodySeating,
+    "UtilityNodesBodyPosture": BodyPosture,
+    "UtilityNodesBodySeating": BodySeating,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "BodyPosture": "Posture",
-    "BodySeating": "Seating Style",
+    "UtilityNodesBodyPosture": "Posture",
+    "UtilityNodesBodySeating": "Seating Style",
 }

@@ -105,15 +105,15 @@ class AnimalHorns(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "AnimalEars": AnimalEars,
-    "AnimalTail": AnimalTail,
-    "AnimalWings": AnimalWings,
-    "AnimalHorns": AnimalHorns,
+    "UtilityNodesAnimalEars": AnimalEars,
+    "UtilityNodesAnimalTail": AnimalTail,
+    "UtilityNodesAnimalWings": AnimalWings,
+    "UtilityNodesAnimalHorns": AnimalHorns,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "AnimalEars": "Animal Ears",
-    "AnimalTail": "Animal Tail",
-    "AnimalWings": "Animal Wings",
-    "AnimalHorns": "Animal Horns",
+    "UtilityNodesAnimalEars": "Animal Ears",
+    "UtilityNodesAnimalTail": "Animal Tail",
+    "UtilityNodesAnimalWings": "Animal Wings",
+    "UtilityNodesAnimalHorns": "Animal Horns",
 }

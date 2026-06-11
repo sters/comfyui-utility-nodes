@@ -84,13 +84,13 @@ class SceneParticles(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "SceneTimeOfDay": SceneTimeOfDay,
-    "SceneWeather": SceneWeather,
-    "SceneParticles": SceneParticles,
+    "UtilityNodesSceneTimeOfDay": SceneTimeOfDay,
+    "UtilityNodesSceneWeather": SceneWeather,
+    "UtilityNodesSceneParticles": SceneParticles,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "SceneTimeOfDay": "Time of Day",
-    "SceneWeather": "Weather",
-    "SceneParticles": "Particles & Atmosphere",
+    "UtilityNodesSceneTimeOfDay": "Time of Day",
+    "UtilityNodesSceneWeather": "Weather",
+    "UtilityNodesSceneParticles": "Particles & Atmosphere",
 }

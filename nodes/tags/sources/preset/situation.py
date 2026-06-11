@@ -192,5 +192,5 @@ class SituationPreset(PresetNodeBase):
     LAYER = "situation"
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"SituationPreset": SituationPreset}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"SituationPreset": "Situation"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesSituationPreset": SituationPreset}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesSituationPreset": "Situation"}

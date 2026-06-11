@@ -96,13 +96,13 @@ class FaceEyesDetails(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "FaceEyesColor": FaceEyesColor,
-    "FaceEyesState": FaceEyesState,
-    "FaceEyesDetails": FaceEyesDetails,
+    "UtilityNodesFaceEyesColor": FaceEyesColor,
+    "UtilityNodesFaceEyesState": FaceEyesState,
+    "UtilityNodesFaceEyesDetails": FaceEyesDetails,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "FaceEyesColor": "Eyes: Color",
-    "FaceEyesState": "Eyes: State & Gaze",
-    "FaceEyesDetails": "Eyes: Pupils & Details",
+    "UtilityNodesFaceEyesColor": "Eyes: Color",
+    "UtilityNodesFaceEyesState": "Eyes: State & Gaze",
+    "UtilityNodesFaceEyesDetails": "Eyes: Pupils & Details",
 }

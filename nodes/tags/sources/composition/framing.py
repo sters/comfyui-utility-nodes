@@ -25,5 +25,5 @@ class CompositionFraming(TagNodeBase):
     TAGS = _FRAMING
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"CompositionFraming": CompositionFraming}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"CompositionFraming": "Framing"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesCompositionFraming": CompositionFraming}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesCompositionFraming": "Framing"}

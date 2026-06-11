@@ -40,9 +40,9 @@ class NsfwPosition(TagNodeBase):
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {
-    "NsfwPosition": NsfwPosition,
+    "UtilityNodesNsfwPosition": NsfwPosition,
 }
 
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
-    "NsfwPosition": "Position",
+    "UtilityNodesNsfwPosition": "Position",
 }
