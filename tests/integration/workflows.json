@@ -547,7 +547,7 @@
     "name": "shared_seed_drives_random_pick",
     "description": "Seed emits one INT (with control-after-generate in the UI) wired into TagsRandomPick. Verifies the seed node loads from nodes/util/ and that its INT output drives a downstream seeded node deterministically (seed=7 over miko's 8 tags reproduces the random.Random(7) reference). PreviewAny renders the seed INT and the picked tags.",
     "workflow": {
-      "1": {"class_type": "Seed", "inputs": {"seed": 7}},
+      "1": {"class_type": "SharedSeed", "inputs": {"seed": 7}},
       "2": {"class_type": "CharacterPreset", "inputs": {"preset": "miko"}},
       "3": {
         "class_type": "TagsRandomPick",

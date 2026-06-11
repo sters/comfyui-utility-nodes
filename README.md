@@ -43,9 +43,11 @@ These consume/transform `CUUN_TAGS` bundles (or, where noted, a prompt STRING).
 | Node | Class | Purpose |
 | --- | --- | --- |
 | `Tags: Merge & Validate` | `TagsMerge` | Merge up to 10 bundles, resolve all cross-node conflicts, emit the final prompt + warnings. |
-| `Tags: Combinator` | `TagsCombinator` | Cartesian product over tag axes — emits a list of `prompt`/`label`/`index` for batch/variation runs. |
+| `Tags: Combinator` | `TagsCombinator` | Cartesian product over tag axes — emits a list of `bundle`/`label`/`index` (feed `bundle` into `Merge & Validate`) for batch/variation runs. |
 | `Tags: Decorate` | `TagsDecorate` | Prefix the tags of a chosen category with a decoration phrase (built from another bundle); broadcasts as a cross product for multi-variant runs. |
 | `Tags: Explode` | `TagsExplode` | Split a bundle into one single-tag bundle per tag — feed it into `Combinator` to turn N checked tags into N axis values. |
+| `Tags: Collect` | `TagsCollect` | Gather several whole bundles into one list — feed it into `Combinator` to vary over whole bundles (e.g. multiple characters), one combination per bundle. |
+| `Tags: Select` | `TagsSelect` | Pick one combination out of a `Combinator` list by index (wraps) — drive `index` from `Seed` and queue N runs for memory-safe large sweeps instead of one N-wide Run. |
 | `Tags: Filter` | `TagsFilter` | Drop every tag whose registered category matches a target category. |
 | `Tags: Random Pick` | `TagsRandomPick` | Randomly pick a subset of tags from a bundle. |
 | `Tags: Shuffle` | `TagsShuffle` | Shuffle tag order within a bundle. |
@@ -89,7 +91,7 @@ General prompt utilities, independent of the tag bundle system: `Text Concat` (`
 
 ### Image & Util
 
-`Aspect Ratio Preset` (`AspectRatioPreset`, under `UtilityNodes/Image`) and `Seed` (`Seed`, under `UtilityNodes/Util`).
+`Aspect Ratio Preset` (`AspectRatioPreset`, under `UtilityNodes/Image`) and `Seed` (class `SharedSeed`, under `UtilityNodes/Util` — registered under a unique key so it isn't shadowed by other packs' `Seed` node).
 
 ## Development
 

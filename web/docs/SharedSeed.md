@@ -1,6 +1,6 @@
 # Seed
 
-`UtilityNodes/Util` menu tree. A single shared seed value (issue #20).
+`UtilityNodes/Util` menu tree. A single shared seed value (issue #20). Registered as the class `SharedSeed` (the menu still shows it as **Seed**) so it doesn't collide with the `Seed` node other popular packs register and get dropped from the menu — see [Why the class is `SharedSeed`](#why-the-class-is-sharedseed).
 
 One `seed` INT widget with ComfyUI's **control after generate**
 (fixed / increment / decrement / randomize), wired out to multiple consumers
@@ -27,3 +27,7 @@ Seed (control: randomize) ─┬─► KSampler.seed
                            ├─► TagsShuffle.seed
                            └─► TagsRandomPick.seed
 ```
+
+## Why the class is `SharedSeed`
+
+`Seed` is a `class_type` that several widely-installed packs (rgthree, Impact Pack, …) also register. ComfyUI keeps all custom nodes in one global `NODE_CLASS_MAPPINGS` dict, so duplicate keys silently overwrite each other — whichever pack loads last wins, and the rest disappear from the Add-Node menu (issue #25). Registering under the unique key `SharedSeed` keeps this node always present; the display name stays `Seed` so search still finds it.
