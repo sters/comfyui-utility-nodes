@@ -626,5 +626,35 @@
     "expect": [
       ["6", "serafuku_schoolgirl"]
     ]
+  },
+  {
+    "name": "tags_random_bundle_deterministic",
+    "description": "TagsRandomBundle picks ONE whole wired bundle at random (categories/tags intact, no flattening) using `seed`. With three CharacterPresets and seed=0, random.Random(0).choice picks bundle_2 (blazer_schoolgirl); the chosen bundle is merged and surfaced via PreviewAny.",
+    "workflow": {
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "3": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "4": {"class_type": "UtilityNodesTagsRandomBundle", "inputs": {"seed": 0, "bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
+    },
+    "expect": [
+      ["6", "medium_hair, brown_hair, blazer_uniform, blouse, pleated_skirt, cardigan, pantyhose, loafers"]
+    ]
+  },
+  {
+    "name": "tags_random_bundle_seed_selects_different_bundle",
+    "description": "Same three-candidate TagsRandomBundle wiring as above; only the seed differs. seed=5 selects bundle_3 (serafuku_schoolgirl) instead of bundle_2, confirming the whole-bundle choice is driven by `seed` (and that each candidate is returned intact, not tag-sampled like TagsRandomPick).",
+    "workflow": {
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "3": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "4": {"class_type": "UtilityNodesTagsRandomBundle", "inputs": {"seed": 5, "bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
+    },
+    "expect": [
+      ["6", "long_hair, black_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers"]
+    ]
   }
 ]
