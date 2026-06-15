@@ -682,5 +682,30 @@
     "expect": [
       ["4", "author: sters\nseed: 42"]
     ]
+  },
+  {
+    "name": "metadata_get_value_by_key_roundtrip",
+    "description": "Extends the save→extract round-trip with MetadataGetValue: the extracted dump feeds a key lookup for 'seed', so PreviewAny sees just '42' rather than the whole block. Proves you can pull a single value by key end-to-end.",
+    "workflow": {
+      "1": {"class_type": "EmptyImage", "inputs": {"width": 64, "height": 64, "batch_size": 1, "color": 0}},
+      "2": {"class_type": "UtilityNodesSaveImageWithMetadata", "inputs": {"images": ["1", 0], "filename_prefix": "rt_getval", "metadata": "author=sters\nseed=42", "embed_workflow": false}},
+      "3": {"class_type": "UtilityNodesExtractImageMetadata", "inputs": {"path": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesMetadataGetValue", "inputs": {"metadata": ["3", 0], "key": "seed"}},
+      "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
+    },
+    "expect": [
+      ["5", "42"]
+    ]
+  },
+  {
+    "name": "metadata_get_value_missing_key_default",
+    "description": "MetadataGetValue on a literal dump: a missing key falls back to `default`, confirming the lookup is exact-match and the default path works.",
+    "workflow": {
+      "1": {"class_type": "UtilityNodesMetadataGetValue", "inputs": {"metadata": "author: sters\nseed: 42", "key": "nope", "default": "fallback"}},
+      "2": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}}
+    },
+    "expect": [
+      ["2", "fallback"]
+    ]
   }
 ]

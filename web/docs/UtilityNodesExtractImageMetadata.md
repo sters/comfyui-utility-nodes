@@ -18,3 +18,4 @@
 
 - Works on any format PIL can open (PNG, JPEG, WebP, …). EXIF is most common on JPEG; text chunks on PNG.
 - Wire the output into a `PreviewAny` (or any STRING-consuming node) to read it on the canvas.
+- To pull a single value out by key (e.g. `seed`, `prompt`), feed the output into [Get Metadata Value](UtilityNodesMetadataGetValue.md).

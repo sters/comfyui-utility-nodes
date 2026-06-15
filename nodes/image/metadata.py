@@ -89,6 +89,34 @@ def format_metadata(metadata: dict[str, str]) -> str:
     return "\n".join(f"{k}: {v}" for k, v in metadata.items())
 
 
+def parse_formatted_metadata(text: str) -> dict[str, str]:
+    """Inverse of :func:`format_metadata` — split ``key: value`` lines back into
+    a dict.
+
+    Splits each line on the first ``": "`` (the exact separator
+    ``format_metadata`` writes), so values may freely contain ``:``, ``=`` and
+    further ``": "`` pairs. Lines without the separator are skipped.
+    """
+    out: dict[str, str] = {}
+    for raw in (text or "").splitlines():
+        if ": " in raw:
+            key, _, value = raw.partition(": ")
+            out[key] = value
+    return out
+
+
+def get_metadata_value(metadata: str, key: str, default: str = "") -> tuple[str, bool]:
+    """Look up one ``key`` in a formatted metadata dump.
+
+    Returns ``(value, found)``; ``value`` is ``default`` when the key is absent.
+    """
+    parsed = parse_formatted_metadata(metadata)
+    key = (key or "").strip()
+    if key in parsed:
+        return parsed[key], True
+    return default, False
+
+
 def annotated_output_path(filename: str, subfolder: str) -> str:
     """Build the ``"name [output]"`` annotated path a save result maps to.
 
@@ -400,13 +428,49 @@ class ExtractImageMetadata:
         return _validate_source(image, path)
 
 
+class MetadataGetValue:
+    """Pull a single value out of a formatted metadata dump by key.
+
+    Wire the ``metadata`` STRING from ``LoadImageWithMetadata`` /
+    ``ExtractImageMetadata`` (or paste a dump) and a ``key`` — e.g. ``seed``,
+    ``author``, ``prompt`` — to get just that value, instead of the whole block.
+    ``found`` is ``False`` (and ``value`` falls back to ``default``) when the
+    key is absent.
+    """
+
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "BOOLEAN")
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("value", "found")
+    FUNCTION: ClassVar[str] = "get"
+    CATEGORY: ClassVar[str] = "UtilityNodes/Image"
+
+    @classmethod
+    def INPUT_TYPES(cls) -> dict[str, Any]:
+        return {
+            "required": {
+                "metadata": (
+                    "STRING",
+                    {"multiline": True, "default": "", "tooltip": "A 'key: value' dump from Load/Extract Metadata"},
+                ),
+                "key": ("STRING", {"default": "", "tooltip": "The metadata key to read (exact match)."}),
+            },
+            "optional": {
+                "default": ("STRING", {"default": "", "tooltip": "Returned when the key is absent."}),
+            },
+        }
+
+    def get(self, metadata: str, key: str, default: str = "") -> tuple[str, bool]:
+        return get_metadata_value(metadata, key, default)
+
+
 NODE_CLASS_MAPPINGS: dict[str, type] = {
     "UtilityNodesSaveImageWithMetadata": SaveImageWithMetadata,
     "UtilityNodesLoadImageWithMetadata": LoadImageWithMetadata,
     "UtilityNodesExtractImageMetadata": ExtractImageMetadata,
+    "UtilityNodesMetadataGetValue": MetadataGetValue,
 }
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
     "UtilityNodesSaveImageWithMetadata": "Save Image with Metadata",
     "UtilityNodesLoadImageWithMetadata": "Load Image with Metadata",
     "UtilityNodesExtractImageMetadata": "Extract Image Metadata",
+    "UtilityNodesMetadataGetValue": "Get Metadata Value",
 }

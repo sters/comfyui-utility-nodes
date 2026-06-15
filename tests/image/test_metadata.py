@@ -3,6 +3,8 @@ from nodes.image.metadata import (
     annotated_output_path,
     first_path_line,
     format_metadata,
+    get_metadata_value,
+    parse_formatted_metadata,
     parse_metadata_text,
     stringify_info,
 )
@@ -92,3 +94,47 @@ def test_first_path_line_returns_first_nonblank() -> None:
 def test_first_path_line_empty_when_blank() -> None:
     assert first_path_line("") == ""
     assert first_path_line("   \n  ") == ""
+
+
+def test_parse_formatted_metadata_roundtrips_format() -> None:
+    dump = format_metadata({"author": "sters", "seed": "42"})
+    assert parse_formatted_metadata(dump) == {"author": "sters", "seed": "42"}
+
+
+def test_parse_formatted_metadata_keeps_colons_and_equals_in_value() -> None:
+    # Splits on the first ": " only, so timestamps / formulae survive intact.
+    dump = "created: 2026-06-15T12:30:00\nformula: a=b: c"
+    assert parse_formatted_metadata(dump) == {"created": "2026-06-15T12:30:00", "formula": "a=b: c"}
+
+
+def test_parse_formatted_metadata_skips_separatorless_lines() -> None:
+    assert parse_formatted_metadata("no separator here\nk: v") == {"k": "v"}
+
+
+def test_parse_formatted_metadata_empty_value() -> None:
+    # format_metadata writes "key: " (trailing space) for an empty value.
+    assert parse_formatted_metadata("note: ") == {"note": ""}
+
+
+def test_get_metadata_value_found() -> None:
+    dump = "author: sters\nseed: 42"
+    assert get_metadata_value(dump, "seed") == ("42", True)
+
+
+def test_get_metadata_value_missing_returns_default_and_false() -> None:
+    assert get_metadata_value("author: sters", "seed", default="none") == ("none", False)
+
+
+def test_get_metadata_value_missing_default_is_empty_string() -> None:
+    assert get_metadata_value("author: sters", "seed") == ("", False)
+
+
+def test_get_metadata_value_strips_key_whitespace() -> None:
+    assert get_metadata_value("seed: 42", "  seed  ") == ("42", True)
+
+
+def test_get_metadata_value_after_extract_header() -> None:
+    # The dump ExtractImageMetadata produces — header then chunks — looks up fine.
+    dump = "format: PNG\nsize: 64x64\nmode: RGB\nauthor: sters\nseed: 42"
+    assert get_metadata_value(dump, "author") == ("sters", True)
+    assert get_metadata_value(dump, "size") == ("64x64", True)

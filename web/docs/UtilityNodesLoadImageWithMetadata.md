@@ -17,3 +17,4 @@
 
 - Pairs with [Save Image with Metadata](UtilityNodesSaveImageWithMetadata.md) for a full round-trip.
 - For metadata only (no pixel decode, plus the format/size header), use [Extract Image Metadata](UtilityNodesExtractImageMetadata.md).
+- To pull a single value out of the `metadata` STRING by key (instead of the whole block), feed it into [Get Metadata Value](UtilityNodesMetadataGetValue.md).
