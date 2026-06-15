@@ -1,10 +1,11 @@
 # Extract Image Metadata
 
-`UtilityNodes/Image` category. Reads *every* piece of metadata from a media file in the input folder and emits it as a STRING. Unlike [Load Image with Metadata](UtilityNodesLoadImageWithMetadata.md), it never decodes the pixels into a tensor — it just opens the header — so it's handy for inspecting what a generator wrote, or recovering a prompt from a saved PNG.
+`UtilityNodes/Image` category. Reads *every* piece of metadata from a media file and emits it as a STRING. Unlike [Load Image with Metadata](UtilityNodesLoadImageWithMetadata.md), it never decodes the pixels into a tensor — it just opens the header — so it's handy for inspecting what a generator wrote, or recovering a prompt from a saved PNG.
 
 ## Inputs
 
 - `image` (combo, upload): pick or upload a file from the input directory.
+- `path` (STRING, optional): an annotated filepath such as `foo.png [output]`. When set it **overrides** `image` — e.g. wire it from the `filenames` output of [Save Image with Metadata](UtilityNodesSaveImageWithMetadata.md) to inspect a file you just saved.
 
 ## Outputs
 

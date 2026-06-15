@@ -7,17 +7,22 @@ one derived locally. Verifies the ComfyUI plumbing (node registration, menu
 category, socket types, executor) works end-to-end — complementing the
 offline pytest suite, which only exercises the Python objects.
 
-This pack's own nodes are **pure data nodes** — none set `OUTPUT_NODE`, so a
-graph of only our nodes has no terminator and ComfyUI won't execute it. Each
-text-assertion workflow therefore ends in a built-in **`PreviewAny`** node
-(`"class_type": "PreviewAny"`, single `source` input of ANY type) wired to
-the STRING/INT output under test. `PreviewAny` is the OUTPUT_NODE that drives
-execution and stringifies the value into `outputs.text`. Bundle-only outputs
-(`CUUN_TAGS`) are routed through `TagsMerge` first to get a flat prompt
-STRING.
+Almost all of this pack's nodes are **pure data nodes** — they don't set
+`OUTPUT_NODE` (the one exception is `SaveImageWithMetadata`, which writes a
+file), so a graph of only our nodes has no terminator and ComfyUI won't
+execute it. Each text-assertion workflow therefore ends in a built-in
+**`PreviewAny`** node (`"class_type": "PreviewAny"`, single `source` input of
+ANY type) wired to the STRING/INT output under test. `PreviewAny` is the
+OUTPUT_NODE that drives execution and stringifies the value into
+`outputs.text`. Bundle-only outputs (`CUUN_TAGS`) are routed through
+`TagsMerge` first to get a flat prompt STRING.
 
-Scope is **text nodes only** (no KSampler / model loading). Intended to
-run locally on demand, not in CI.
+Scope is mostly **text nodes** (no KSampler / model loading), plus a
+metadata round-trip for the image nodes: a built-in `EmptyImage` feeds
+`SaveImageWithMetadata`, whose `filenames` output is wired into
+`ExtractImageMetadata` / `LoadImageWithMetadata` (the data dependency forces
+save-before-read), and the recovered metadata STRING is asserted through
+`PreviewAny`. Intended to run locally on demand, not in CI.
 
 ## Run
 

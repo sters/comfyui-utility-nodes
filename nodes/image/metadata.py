@@ -4,13 +4,19 @@ Three nodes that round-trip arbitrary metadata through media files:
 
 - ``SaveImageWithMetadata`` — write an IMAGE to the output folder with
   user-supplied key/value pairs embedded as PNG text chunks (alongside the
-  usual ``prompt`` / workflow chunks, unless ComfyUI was started with
-  ``--disable-metadata``).
+  usual ``prompt`` / workflow chunks, unless ``embed_workflow`` is off or
+  ComfyUI was started with ``--disable-metadata``). It also emits the saved
+  file path(s) as a STRING so they can be wired straight into the load/extract
+  nodes below.
 - ``LoadImageWithMetadata`` — load an image and emit IMAGE + MASK plus the
   metadata it carries as a STRING.
 - ``ExtractImageMetadata`` — read *every* piece of metadata from a media file
   (PNG text chunks, EXIF, format/size/mode) as a STRING, without decoding the
   pixels into a tensor.
+
+Both loaders accept either an ``image`` picked from the input folder or an
+explicit ``path`` (an annotated filepath such as ``"foo.png [output]"``), so a
+just-saved file can be read back in the same graph.
 
 PIL / numpy / torch / folder_paths are ComfyUI-runtime modules, so they are
 imported lazily inside the methods — the module stays importable (and the pure
@@ -83,6 +89,26 @@ def format_metadata(metadata: dict[str, str]) -> str:
     return "\n".join(f"{k}: {v}" for k, v in metadata.items())
 
 
+def annotated_output_path(filename: str, subfolder: str) -> str:
+    """Build the ``"name [output]"`` annotated path a save result maps to.
+
+    ``folder_paths.get_annotated_filepath`` understands a trailing
+    ``[output]`` / ``[input]`` / ``[temp]`` tag and a ``subfolder/`` prefix —
+    this is the exact form the load/extract nodes can resolve straight back.
+    """
+    name = f"{subfolder}/{filename}" if subfolder else filename
+    return f"{name} [output]"
+
+
+def first_path_line(path: str) -> str:
+    """First non-blank line of a (possibly multi-file) path string."""
+    for raw in (path or "").splitlines():
+        line = raw.strip()
+        if line:
+            return line
+    return ""
+
+
 def _collect_image_metadata(img: Any) -> dict[str, str]:
     """Gather PNG text chunks, ``img.info`` and decoded EXIF from a PIL image.
 
@@ -110,16 +136,63 @@ def _collect_image_metadata(img: Any) -> dict[str, str]:
     return collected
 
 
+def _resolve_filepath(image: str | None, path: str) -> str:
+    """Resolve the load source: an explicit ``path`` wins over the ``image`` pick."""
+    import folder_paths
+
+    chosen = first_path_line(path) or (image or "")
+    if not chosen:
+        raise ValueError("provide an `image` (input folder) or a `path`")
+    return folder_paths.get_annotated_filepath(chosen)  # type: ignore[no-any-return]
+
+
+def _file_digest(image: str | None, path: str) -> str:
+    """Content hash for IS_CHANGED; falls back to the raw value if unresolvable
+    (e.g. a linked `path` not visible at validation time — ComfyUI re-runs on
+    upstream change anyway)."""
+    import hashlib
+
+    target = first_path_line(path) or (image or "")
+    if not target:
+        return ""
+    try:
+        import folder_paths
+
+        resolved = folder_paths.get_annotated_filepath(target)
+        digest = hashlib.sha256()
+        with open(resolved, "rb") as f:
+            digest.update(f.read())
+        return digest.hexdigest()
+    except Exception:
+        return target
+
+
+def _validate_source(image: str | None, path: str) -> bool | str:
+    """VALIDATE_INPUTS body shared by both loaders. Lenient when neither value
+    is a literal (a linked `path` isn't passed at validation time)."""
+    if first_path_line(path):
+        return True
+    if image:
+        import folder_paths
+
+        if not folder_paths.exists_annotated_filepath(image):
+            return f"Invalid image file: {image}"
+    return True
+
+
 class SaveImageWithMetadata:
     """Save an IMAGE to the output folder with custom metadata embedded.
 
     Mirrors the built-in ``SaveImage`` (same filename counter / output preview)
     but adds every ``key=value`` from the ``metadata`` field as a PNG text
     chunk, so the data round-trips through the file and can later be read back
-    with ``LoadImageWithMetadata`` / ``ExtractImageMetadata``.
+    with ``LoadImageWithMetadata`` / ``ExtractImageMetadata``. The ``filenames``
+    output carries the saved path(s) so they can be wired straight into those
+    nodes.
     """
 
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = ()
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING",)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("filenames",)
     FUNCTION: ClassVar[str] = "save"
     OUTPUT_NODE: ClassVar[bool] = True
     CATEGORY: ClassVar[str] = "UtilityNodes/Image"
@@ -139,6 +212,15 @@ class SaveImageWithMetadata:
                     },
                 ),
             },
+            "optional": {
+                "embed_workflow": (
+                    "BOOLEAN",
+                    {
+                        "default": True,
+                        "tooltip": "Also embed the prompt/workflow chunks (like Save Image). Off = only your metadata.",
+                    },
+                ),
+            },
             "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
         }
 
@@ -147,6 +229,7 @@ class SaveImageWithMetadata:
         images: Any,
         filename_prefix: str,
         metadata: str,
+        embed_workflow: bool = True,
         prompt: Any = None,
         extra_pnginfo: Any = None,
     ) -> dict[str, Any]:
@@ -173,12 +256,13 @@ class SaveImageWithMetadata:
         )
 
         results: list[dict[str, str]] = []
+        saved_paths: list[str] = []
         for image in images:
             array = 255.0 * image.cpu().numpy()
             img = Image.fromarray(np.clip(array, 0, 255).astype(np.uint8))
 
             png_info = PngInfo()
-            if not disable_metadata:
+            if embed_workflow and not disable_metadata:
                 if prompt is not None:
                     png_info.add_text("prompt", json.dumps(prompt))
                 if extra_pnginfo is not None:
@@ -190,9 +274,10 @@ class SaveImageWithMetadata:
             file = f"{filename}_{counter:05}_.png"
             img.save(os.path.join(full_output_folder, file), pnginfo=png_info, compress_level=4)
             results.append({"filename": file, "subfolder": subfolder, "type": "output"})
+            saved_paths.append(annotated_output_path(file, subfolder))
             counter += 1
 
-        return {"ui": {"images": results}}
+        return {"ui": {"images": results}, "result": ("\n".join(saved_paths),)}
 
 
 class LoadImageWithMetadata:
@@ -200,7 +285,8 @@ class LoadImageWithMetadata:
 
     The image-decode path matches the built-in ``LoadImage`` (EXIF transpose,
     RGB tensor, alpha → mask); the third output is the file's metadata rendered
-    as ``key: value`` lines.
+    as ``key: value`` lines. Source is an ``image`` from the input folder, or an
+    explicit ``path`` (which wins) — e.g. wired from ``SaveImageWithMetadata``.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("IMAGE", "MASK", "STRING")
@@ -216,16 +302,24 @@ class LoadImageWithMetadata:
 
         input_dir = folder_paths.get_input_directory()
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
-        return {"required": {"image": (sorted(files), {"image_upload": True})}}
+        return {
+            "required": {},
+            "optional": {
+                "image": (sorted(files), {"image_upload": True}),
+                "path": (
+                    "STRING",
+                    {"default": "", "tooltip": "Annotated filepath, e.g. 'foo.png [output]'. Overrides image."},
+                ),
+            },
+        }
 
-    def load(self, image: str) -> tuple[Any, Any, str]:
-        import folder_paths
+    def load(self, image: str | None = None, path: str = "") -> tuple[Any, Any, str]:
         import numpy as np
         import torch
         from PIL import Image, ImageOps
 
-        path = folder_paths.get_annotated_filepath(image)
-        img = Image.open(path)
+        resolved = _resolve_filepath(image, path)
+        img = Image.open(resolved)
         metadata = format_metadata(_collect_image_metadata(img))
 
         img = ImageOps.exif_transpose(img)
@@ -242,24 +336,12 @@ class LoadImageWithMetadata:
         return (tensor, mask.unsqueeze(0), metadata)
 
     @classmethod
-    def IS_CHANGED(cls, image: str) -> str:
-        import hashlib
-
-        import folder_paths
-
-        path = folder_paths.get_annotated_filepath(image)
-        digest = hashlib.sha256()
-        with open(path, "rb") as f:
-            digest.update(f.read())
-        return digest.hexdigest()
+    def IS_CHANGED(cls, image: str | None = None, path: str = "") -> str:
+        return _file_digest(image, path)
 
     @classmethod
-    def VALIDATE_INPUTS(cls, image: str) -> bool | str:
-        import folder_paths
-
-        if not folder_paths.exists_annotated_filepath(image):
-            return f"Invalid image file: {image}"
-        return True
+    def VALIDATE_INPUTS(cls, image: str | None = None, path: str = "") -> bool | str:
+        return _validate_source(image, path)
 
 
 class ExtractImageMetadata:
@@ -268,7 +350,8 @@ class ExtractImageMetadata:
     Unlike ``LoadImageWithMetadata`` this never decodes the pixels — it just
     opens the file and dumps PNG text chunks, EXIF, and the format/size/mode
     header. Useful for inspecting what a generator wrote into an image, or
-    recovering a prompt from a saved PNG.
+    recovering a prompt from a saved PNG. Source is an ``image`` from the input
+    folder, or an explicit ``path`` (which wins).
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING",)
@@ -284,14 +367,22 @@ class ExtractImageMetadata:
 
         input_dir = folder_paths.get_input_directory()
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
-        return {"required": {"image": (sorted(files), {"image_upload": True})}}
+        return {
+            "required": {},
+            "optional": {
+                "image": (sorted(files), {"image_upload": True}),
+                "path": (
+                    "STRING",
+                    {"default": "", "tooltip": "Annotated filepath, e.g. 'foo.png [output]'. Overrides image."},
+                ),
+            },
+        }
 
-    def extract(self, image: str) -> tuple[str]:
-        import folder_paths
+    def extract(self, image: str | None = None, path: str = "") -> tuple[str]:
         from PIL import Image
 
-        path = folder_paths.get_annotated_filepath(image)
-        with Image.open(path) as img:
+        resolved = _resolve_filepath(image, path)
+        with Image.open(resolved) as img:
             header = {
                 "format": str(img.format),
                 "size": f"{img.width}x{img.height}",
@@ -301,24 +392,12 @@ class ExtractImageMetadata:
         return (format_metadata(collected),)
 
     @classmethod
-    def IS_CHANGED(cls, image: str) -> str:
-        import hashlib
-
-        import folder_paths
-
-        path = folder_paths.get_annotated_filepath(image)
-        digest = hashlib.sha256()
-        with open(path, "rb") as f:
-            digest.update(f.read())
-        return digest.hexdigest()
+    def IS_CHANGED(cls, image: str | None = None, path: str = "") -> str:
+        return _file_digest(image, path)
 
     @classmethod
-    def VALIDATE_INPUTS(cls, image: str) -> bool | str:
-        import folder_paths
-
-        if not folder_paths.exists_annotated_filepath(image):
-            return f"Invalid image file: {image}"
-        return True
+    def VALIDATE_INPUTS(cls, image: str | None = None, path: str = "") -> bool | str:
+        return _validate_source(image, path)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {

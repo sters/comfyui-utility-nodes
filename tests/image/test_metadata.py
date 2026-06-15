@@ -1,5 +1,7 @@
 from nodes.image.metadata import (
     _to_str,
+    annotated_output_path,
+    first_path_line,
     format_metadata,
     parse_metadata_text,
     stringify_info,
@@ -73,3 +75,20 @@ def test_format_metadata_empty_is_empty_string() -> None:
 def test_parse_then_format_roundtrip_is_stable() -> None:
     pairs = parse_metadata_text("author=sters\nseed=42")
     assert format_metadata(pairs) == "author: sters\nseed: 42"
+
+
+def test_annotated_output_path_without_subfolder() -> None:
+    assert annotated_output_path("ComfyUI_meta_00001_.png", "") == "ComfyUI_meta_00001_.png [output]"
+
+
+def test_annotated_output_path_with_subfolder() -> None:
+    assert annotated_output_path("img_00001_.png", "batch_a") == "batch_a/img_00001_.png [output]"
+
+
+def test_first_path_line_returns_first_nonblank() -> None:
+    assert first_path_line("\n  a.png [output]\nb.png [output]\n") == "a.png [output]"
+
+
+def test_first_path_line_empty_when_blank() -> None:
+    assert first_path_line("") == ""
+    assert first_path_line("   \n  ") == ""
