@@ -34,6 +34,12 @@ strict = true
 files = ["nodes", "tests"]
 explicit_package_bases = true
 
+# ComfyUI-runtime-only modules — present when ComfyUI loads the pack, not in the
+# offline test/lint env. Image nodes import them lazily inside methods.
+[[tool.mypy.overrides]]
+module = ["folder_paths", "PIL.*", "torch", "numpy", "comfy.*"]
+ignore_missing_imports = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 pythonpath = ["."]
