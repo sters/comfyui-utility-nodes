@@ -3,6 +3,68 @@ from typing import Any, ClassVar
 
 from ._base import TAGS_TYPE, TaggedSelection
 
+Axis = list[tuple[TaggedSelection, ...]]
+
+
+def collect_axes(kwargs: dict[str, Any], max_axes: int) -> list[Axis]:
+    """Pull `axis_1..axis_max_axes` out of a combinator-shaped kwargs dict.
+
+    Drops empty bundles (e.g. `TagsExplode` on a node with no checked tags
+    emits a single empty tuple as a sentinel) and axes left entirely empty.
+    """
+    axes: list[Axis] = []
+    for i in range(1, max_axes + 1):
+        v = kwargs.get(f"axis_{i}")
+        if not v:
+            continue
+        non_empty = [b for b in v if b]
+        if not non_empty:
+            continue
+        axes.append(non_empty)
+    return axes
+
+
+def expand_axes(axes: list[Axis]) -> tuple[list[tuple[TaggedSelection, ...]], list[str], list[int]]:
+    """Cartesian-product expansion over combinator axes.
+
+    Each combination's axis bundles are concatenated in axis order; conflict
+    resolution is deferred to a downstream `TagsMerge`.
+    """
+    if not axes:
+        return ([], [], [])
+
+    bundles: list[tuple[TaggedSelection, ...]] = []
+    labels: list[str] = []
+    indices: list[int] = []
+    for idx, combo in enumerate(product(*axes)):
+        merged = tuple(sel for bundle in combo for sel in bundle)
+        bundles.append(merged)
+        labels.append(label_combo(combo))
+        indices.append(idx)
+    return (bundles, labels, indices)
+
+
+def label_combo(combo: tuple[tuple[TaggedSelection, ...], ...]) -> str:
+    """Build a human-readable label for one cartesian-product combination.
+
+    Shared by ``TagsCombinator`` and ``TagsBuildFromRules`` — both expand axes
+    of bundles the same way, so both combos are labeled the same way.
+    """
+    parts: list[str] = []
+    for bundle in combo:
+        non_extra = [s for s in bundle if s.category != "extra"]
+        if not non_extra:
+            parts.append("anon")
+            continue
+        sel = non_extra[0]
+        if len(sel.tags) == 1:
+            parts.append(sel.tags[0])
+        elif "." in sel.category:
+            parts.append(sel.category.rsplit(".", 1)[-1])
+        else:
+            parts.append(sel.tags[0])
+    return "__".join(parts)
+
 
 class TagsCombinator:
     """Cartesian product over axes of CUUN_TAGS bundles.
@@ -46,51 +108,7 @@ class TagsCombinator:
         self,
         **kwargs: Any,
     ) -> tuple[list[tuple[TaggedSelection, ...]], list[str], list[int]]:
-        axes: list[list[tuple[TaggedSelection, ...]]] = []
-        for i in range(1, self._MAX_AXES + 1):
-            v = kwargs.get(f"axis_{i}")
-            if not v:
-                continue
-            # Drop empty bundles (e.g. TagsExplode on a node with no
-            # checked tags emits a single empty tuple as a sentinel).
-            non_empty = [b for b in v if b]
-            if not non_empty:
-                continue
-            axes.append(non_empty)
-
-        if not axes:
-            return ([], [], [])
-
-        bundles: list[tuple[TaggedSelection, ...]] = []
-        labels: list[str] = []
-        indices: list[int] = []
-
-        for idx, combo in enumerate(product(*axes)):
-            # Concatenate the chosen axis bundles in axis order; conflict
-            # resolution is deferred to a downstream TagsMerge.
-            merged = tuple(sel for bundle in combo for sel in bundle)
-            bundles.append(merged)
-            labels.append(self._label(combo))
-            indices.append(idx)
-
-        return (bundles, labels, indices)
-
-    @staticmethod
-    def _label(combo: tuple[tuple[TaggedSelection, ...], ...]) -> str:
-        parts: list[str] = []
-        for bundle in combo:
-            non_extra = [s for s in bundle if s.category != "extra"]
-            if not non_extra:
-                parts.append("anon")
-                continue
-            sel = non_extra[0]
-            if len(sel.tags) == 1:
-                parts.append(sel.tags[0])
-            elif "." in sel.category:
-                parts.append(sel.category.rsplit(".", 1)[-1])
-            else:
-                parts.append(sel.tags[0])
-        return "__".join(parts)
+        return expand_axes(collect_axes(kwargs, self._MAX_AXES))
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsCombinator": TagsCombinator}

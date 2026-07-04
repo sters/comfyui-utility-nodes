@@ -595,6 +595,23 @@
     ]
   },
   {
+    "name": "rules_to_json_build_from_rules_roundtrip",
+    "description": "Issue #27: RulesToJson serializes a preset base axis x an exploded HairColor axis to a JSON `rules` STRING; BuildFromRules expands that STRING back into the same concatenated CUUN_TAGS combinations TagsCombinator would produce directly (same wiring as combinator_preset_override_axis, routed through JSON in between). TagsMerge resolves the hair MUTEX_GROUP last-wins and PreviewAny collects both prompts.",
+    "workflow": {
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesHairColor", "inputs": {"red_hair": true, "blue_hair": true}},
+      "3": {"class_type": "UtilityNodesTagsExplode", "inputs": {"bundle": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesTagsRulesToJson", "inputs": {"axis_1": ["1", 0], "axis_2": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsBuildFromRules", "inputs": {"rules": ["4", 0]}},
+      "6": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["5", 0]}},
+      "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}}
+    },
+    "expect": [
+      ["7", "long_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers, blue_hair"],
+      ["7", "long_hair, bangs, hair_ribbon, serafuku, sailor_collar, pleated_skirt, thighhighs, loafers, red_hair"]
+    ]
+  },
+  {
     "name": "combinator_select_one_by_index",
     "description": "Memory-safe sweep: TagsSelect (INPUT_IS_LIST) picks ONE combination out of the TagsCombinator list by index, so the downstream pipeline is width 1 instead of fanning out all combinations. index=1 selects the second character; the picked label and the merged single prompt are surfaced via PreviewAny.",
     "workflow": {
