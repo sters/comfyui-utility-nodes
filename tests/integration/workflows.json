@@ -659,28 +659,32 @@
   },
   {
     "name": "metadata_save_extract_roundtrip",
-    "description": "Full metadata round-trip in one graph: a built-in EmptyImage stands in for a dummy image, SaveImageWithMetadata writes it to the output folder with two custom PNG text chunks (embed_workflow off so the prompt chunk doesn't pollute the dump), and its `filenames` output feeds ExtractImageMetadata's `path` (the data dependency forces save-before-read). The extracted STRING — header + the two chunks, verbatim — is asserted via PreviewAny. Proves Save→Extract works end-to-end on a real ComfyUI/PIL.",
+    "description": "Full metadata round-trip in one graph: a built-in EmptyImage stands in for a dummy image, two chained MetadataSet nodes build a CUUN_METADATA bundle, SaveImageWithMetadata writes it to the output folder with those two custom PNG text chunks (embed_workflow off so the prompt chunk doesn't pollute the dump), and its `filenames` output feeds ExtractImageMetadata's `path` (the data dependency forces save-before-read). The extracted STRING — header + the two chunks, verbatim — is asserted via PreviewAny. Proves MetadataSet→Save→Extract works end-to-end on a real ComfyUI/PIL.",
     "workflow": {
       "1": {"class_type": "EmptyImage", "inputs": {"width": 64, "height": 64, "batch_size": 1, "color": 0}},
-      "2": {"class_type": "UtilityNodesSaveImageWithMetadata", "inputs": {"images": ["1", 0], "filename_prefix": "rt_extract", "metadata": "author=sters\nseed=42", "embed_workflow": false}},
-      "3": {"class_type": "UtilityNodesExtractImageMetadata", "inputs": {"path": ["2", 0]}},
-      "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
+      "2": {"class_type": "UtilityNodesMetadataSet", "inputs": {"key": "author", "value": "sters"}},
+      "3": {"class_type": "UtilityNodesMetadataSet", "inputs": {"key": "seed", "value": "42", "metadata": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesSaveImageWithMetadata", "inputs": {"images": ["1", 0], "filename_prefix": "rt_extract", "metadata": ["3", 0], "embed_workflow": false}},
+      "5": {"class_type": "UtilityNodesExtractImageMetadata", "inputs": {"path": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
-      ["4", "format: PNG\nsize: 64x64\nmode: RGB\nauthor: sters\nseed: 42"]
+      ["6", "format: PNG\nsize: 64x64\nmode: RGB\nauthor: sters\nseed: 42"]
     ]
   },
   {
     "name": "metadata_save_load_roundtrip",
-    "description": "Same EmptyImage→Save round-trip, but the saved path feeds LoadImageWithMetadata's `path` and its `metadata` output (3rd socket) is asserted. Load doesn't add the format/size header, so the dump is just the two chunks. Confirms Save→Load (image decode + metadata read) works end-to-end.",
+    "description": "Same EmptyImage→MetadataSet→Save round-trip, but the saved path feeds LoadImageWithMetadata's `path` and its `metadata` output (3rd socket) is asserted. Load doesn't add the format/size header, so the dump is just the two chunks. Confirms MetadataSet→Save→Load (image decode + metadata read) works end-to-end.",
     "workflow": {
       "1": {"class_type": "EmptyImage", "inputs": {"width": 64, "height": 64, "batch_size": 1, "color": 0}},
-      "2": {"class_type": "UtilityNodesSaveImageWithMetadata", "inputs": {"images": ["1", 0], "filename_prefix": "rt_load", "metadata": "author=sters\nseed=42", "embed_workflow": false}},
-      "3": {"class_type": "UtilityNodesLoadImageWithMetadata", "inputs": {"path": ["2", 0]}},
-      "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 2]}}
+      "2": {"class_type": "UtilityNodesMetadataSet", "inputs": {"key": "author", "value": "sters"}},
+      "3": {"class_type": "UtilityNodesMetadataSet", "inputs": {"key": "seed", "value": "42", "metadata": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesSaveImageWithMetadata", "inputs": {"images": ["1", 0], "filename_prefix": "rt_load", "metadata": ["3", 0], "embed_workflow": false}},
+      "5": {"class_type": "UtilityNodesLoadImageWithMetadata", "inputs": {"path": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 2]}}
     },
     "expect": [
-      ["4", "author: sters\nseed: 42"]
+      ["6", "author: sters\nseed: 42"]
     ]
   },
   {
@@ -688,13 +692,15 @@
     "description": "Extends the save→extract round-trip with MetadataGetValue: the extracted dump feeds a key lookup for 'seed', so PreviewAny sees just '42' rather than the whole block. Proves you can pull a single value by key end-to-end.",
     "workflow": {
       "1": {"class_type": "EmptyImage", "inputs": {"width": 64, "height": 64, "batch_size": 1, "color": 0}},
-      "2": {"class_type": "UtilityNodesSaveImageWithMetadata", "inputs": {"images": ["1", 0], "filename_prefix": "rt_getval", "metadata": "author=sters\nseed=42", "embed_workflow": false}},
-      "3": {"class_type": "UtilityNodesExtractImageMetadata", "inputs": {"path": ["2", 0]}},
-      "4": {"class_type": "UtilityNodesMetadataGetValue", "inputs": {"metadata": ["3", 0], "key": "seed"}},
-      "5": {"class_type": "PreviewAny", "inputs": {"source": ["4", 0]}}
+      "2": {"class_type": "UtilityNodesMetadataSet", "inputs": {"key": "author", "value": "sters"}},
+      "3": {"class_type": "UtilityNodesMetadataSet", "inputs": {"key": "seed", "value": "42", "metadata": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesSaveImageWithMetadata", "inputs": {"images": ["1", 0], "filename_prefix": "rt_getval", "metadata": ["3", 0], "embed_workflow": false}},
+      "5": {"class_type": "UtilityNodesExtractImageMetadata", "inputs": {"path": ["4", 0]}},
+      "6": {"class_type": "UtilityNodesMetadataGetValue", "inputs": {"metadata": ["5", 0], "key": "seed"}},
+      "7": {"class_type": "PreviewAny", "inputs": {"source": ["6", 0]}}
     },
     "expect": [
-      ["5", "42"]
+      ["7", "42"]
     ]
   },
   {

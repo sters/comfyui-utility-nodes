@@ -94,7 +94,9 @@ General prompt utilities, independent of the tag bundle system: `Text Concat` (`
 
 ### Image & Util
 
-`Aspect Ratio Preset` (`AspectRatioPreset`, under `UtilityNodes/Image`) and `Seed` (`Seed`, under `UtilityNodes/Util`).
+`Aspect Ratio Preset` (`AspectRatioPreset`) and the metadata round-trip nodes — `Save Image with Metadata` (`SaveImageWithMetadata`), `Set Metadata` (`MetadataSet`, builds the `CUUN_METADATA` bundle `SaveImageWithMetadata` embeds), `Load Image with Metadata` (`LoadImageWithMetadata`), `Extract Image Metadata` (`ExtractImageMetadata`), `Get Metadata Value` (`MetadataGetValue`) — all under `UtilityNodes/Image`.
+
+`Seed` (`Seed`, under `UtilityNodes/Util`).
 
 ## Development
 

@@ -1,14 +1,12 @@
 # Save Image with Metadata
 
-`UtilityNodes/Image` category. Saves an `IMAGE` to the output folder exactly like the built-in **Save Image**, but embeds your own key/value pairs as PNG text chunks so they travel with the file. Read them back later with [Load Image with Metadata](UtilityNodesLoadImageWithMetadata.md) or [Extract Image Metadata](UtilityNodesExtractImageMetadata.md).
+`UtilityNodes/Image` category. Saves an `IMAGE` to the output folder exactly like the built-in **Save Image**, but embeds a `CUUN_METADATA` bundle as PNG text chunks so it travels with the file. Read them back later with [Load Image with Metadata](UtilityNodesLoadImageWithMetadata.md) or [Extract Image Metadata](UtilityNodesExtractImageMetadata.md).
 
 ## Inputs
 
 - `images` (IMAGE): the batch to save.
 - `filename_prefix` (STRING, default `ComfyUI_meta`): output filename prefix (supports the usual `%date%` / subfolder tokens that Save Image accepts).
-- `metadata` (STRING, multiline): the data to embed. Two formats are accepted:
-  - **lines** — `key=value` or `key: value`, one per line. `=` wins over `:`, so values may contain colons (timestamps, URLs). Blank lines and `#` comments are ignored.
-  - **JSON object** — e.g. `{"author": "sters", "seed": 42}`.
+- `metadata` (CUUN_METADATA, optional): the data to embed, built by chaining one or more [Set Metadata](UtilityNodesMetadataSet.md) nodes. Each pair becomes a PNG text chunk.
 - `embed_workflow` (BOOLEAN, default `true`): also write the standard `prompt` / workflow chunks (keeps the image re-openable in ComfyUI). Turn it off to embed *only* your metadata.
 
 ## Outputs

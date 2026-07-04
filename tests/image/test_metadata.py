@@ -1,54 +1,42 @@
 from nodes.image.metadata import (
+    MetadataSet,
     _to_str,
     annotated_output_path,
     first_path_line,
     format_metadata,
     get_metadata_value,
+    metadata_pairs_to_dict,
     parse_formatted_metadata,
-    parse_metadata_text,
     stringify_info,
 )
 
 
-def test_parse_key_equals_value() -> None:
-    assert parse_metadata_text("author=sters\nrating=5") == {"author": "sters", "rating": "5"}
+def test_metadata_pairs_to_dict_empty() -> None:
+    assert metadata_pairs_to_dict(None) == {}
+    assert metadata_pairs_to_dict(()) == {}
 
 
-def test_parse_key_colon_value() -> None:
-    assert parse_metadata_text("author: sters\nnote: hi there") == {"author": "sters", "note": "hi there"}
+def test_metadata_pairs_to_dict_preserves_order_and_last_write_wins() -> None:
+    assert metadata_pairs_to_dict((("author", "sters"), ("seed", "1"), ("seed", "2"))) == {
+        "author": "sters",
+        "seed": "2",
+    }
 
 
-def test_parse_equals_wins_over_colon_so_values_keep_colons() -> None:
-    # A timestamp value contains colons — `=` must be the separator, not `:`.
-    assert parse_metadata_text("created=2026-06-15T12:30:00") == {"created": "2026-06-15T12:30:00"}
+def test_metadata_set_appends_to_upstream_bundle() -> None:
+    (first,) = MetadataSet().set("author", "sters")
+    (second,) = MetadataSet().set("seed", "42", metadata=first)
+    assert second == (("author", "sters"), ("seed", "42"))
 
 
-def test_parse_json_object() -> None:
-    assert parse_metadata_text('{"author": "sters", "seed": 42}') == {"author": "sters", "seed": "42"}
+def test_metadata_set_overrides_duplicate_key_last_write_wins() -> None:
+    (first,) = MetadataSet().set("seed", "1")
+    (second,) = MetadataSet().set("seed", "2", metadata=first)
+    assert metadata_pairs_to_dict(second) == {"seed": "2"}
 
 
-def test_parse_skips_blank_and_comment_and_separatorless_lines() -> None:
-    text = "\n# a comment\nauthor=sters\n\nbare line with no separator\nrating=5\n"
-    assert parse_metadata_text(text) == {"author": "sters", "rating": "5"}
-
-
-def test_parse_empty_and_whitespace_is_empty_dict() -> None:
-    assert parse_metadata_text("") == {}
-    assert parse_metadata_text("   \n  \n") == {}
-
-
-def test_parse_malformed_json_falls_back_to_lines() -> None:
-    # Leading `{` triggers a JSON attempt; on failure we fall through to line
-    # parsing, which finds no separator and yields nothing.
-    assert parse_metadata_text("{not valid json") == {}
-
-
-def test_parse_strips_surrounding_whitespace_on_key_and_value() -> None:
-    assert parse_metadata_text("  author  =   sters  ") == {"author": "sters"}
-
-
-def test_parse_later_duplicate_key_wins() -> None:
-    assert parse_metadata_text("k=1\nk=2") == {"k": "2"}
+def test_metadata_set_with_no_upstream_metadata() -> None:
+    assert MetadataSet().set("author", "sters") == ((("author", "sters"),),)
 
 
 def test_to_str_handles_bytes_tuple_int() -> None:
@@ -72,11 +60,6 @@ def test_format_metadata_one_line_per_pair_in_order() -> None:
 
 def test_format_metadata_empty_is_empty_string() -> None:
     assert format_metadata({}) == ""
-
-
-def test_parse_then_format_roundtrip_is_stable() -> None:
-    pairs = parse_metadata_text("author=sters\nseed=42")
-    assert format_metadata(pairs) == "author: sters\nseed: 42"
 
 
 def test_annotated_output_path_without_subfolder() -> None:

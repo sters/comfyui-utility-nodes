@@ -1,12 +1,15 @@
-"""Image metadata nodes (issue #26).
+"""Image metadata nodes (issue #26, #29).
 
-Three nodes that round-trip arbitrary metadata through media files:
+Four nodes that round-trip arbitrary metadata through media files:
 
-- ``SaveImageWithMetadata`` — write an IMAGE to the output folder with
-  user-supplied key/value pairs embedded as PNG text chunks (alongside the
-  usual ``prompt`` / workflow chunks, unless ``embed_workflow`` is off or
-  ComfyUI was started with ``--disable-metadata``). It also emits the saved
-  file path(s) as a STRING so they can be wired straight into the load/extract
+- ``MetadataSet`` — build a ``CUUN_METADATA`` bundle one key/value pair at a
+  time, optionally extending an upstream bundle (last-write-wins on
+  duplicate keys). This is what feeds ``SaveImageWithMetadata.metadata``.
+- ``SaveImageWithMetadata`` — write an IMAGE to the output folder with a
+  ``CUUN_METADATA`` bundle embedded as PNG text chunks (alongside the usual
+  ``prompt`` / workflow chunks, unless ``embed_workflow`` is off or ComfyUI
+  was started with ``--disable-metadata``). It also emits the saved file
+  path(s) as a STRING so they can be wired straight into the load/extract
   nodes below.
 - ``LoadImageWithMetadata`` — load an image and emit IMAGE + MASK plus the
   metadata it carries as a STRING.
@@ -28,6 +31,8 @@ from __future__ import annotations
 import json
 from typing import Any, ClassVar
 
+METADATA_TYPE = "CUUN_METADATA"
+
 
 def _to_str(value: object) -> str:
     """Coerce an arbitrary metadata value to a display string.
@@ -40,43 +45,6 @@ def _to_str(value: object) -> str:
     if isinstance(value, bytes):
         return value.decode("utf-8", errors="replace")
     return str(value)
-
-
-def parse_metadata_text(text: str) -> dict[str, str]:
-    """Parse the user's ``metadata`` field into ordered key/value pairs.
-
-    Accepts either a JSON object, or newline-separated ``key=value`` /
-    ``key: value`` lines. ``=`` takes precedence over ``:`` so values may
-    contain colons (timestamps, URLs). Blank lines and ``#`` comments are
-    ignored; lines with no separator are skipped.
-    """
-    text = (text or "").strip()
-    if not text:
-        return {}
-
-    if text[0] == "{":
-        try:
-            obj = json.loads(text)
-        except (ValueError, TypeError):
-            obj = None
-        if isinstance(obj, dict):
-            return {str(k): _to_str(v) for k, v in obj.items()}
-
-    out: dict[str, str] = {}
-    for raw in text.splitlines():
-        line = raw.strip()
-        if not line or line.startswith("#"):
-            continue
-        if "=" in line:
-            key, _, value = line.partition("=")
-        elif ":" in line:
-            key, _, value = line.partition(":")
-        else:
-            continue
-        key = key.strip()
-        if key:
-            out[key] = value.strip()
-    return out
 
 
 def stringify_info(info: dict[Any, Any]) -> dict[str, str]:
@@ -103,6 +71,15 @@ def parse_formatted_metadata(text: str) -> dict[str, str]:
             key, _, value = raw.partition(": ")
             out[key] = value
     return out
+
+
+def metadata_pairs_to_dict(metadata: tuple[tuple[str, str], ...] | None) -> dict[str, str]:
+    """Flatten a ``CUUN_METADATA`` bundle (ordered key/value pairs) into a dict.
+
+    Later entries win on duplicate keys, matching ``MetadataSet``'s
+    last-write-wins semantics.
+    """
+    return dict(metadata or ())
 
 
 def get_metadata_value(metadata: str, key: str, default: str = "") -> tuple[str, bool]:
@@ -212,9 +189,10 @@ class SaveImageWithMetadata:
     """Save an IMAGE to the output folder with custom metadata embedded.
 
     Mirrors the built-in ``SaveImage`` (same filename counter / output preview)
-    but adds every ``key=value`` from the ``metadata`` field as a PNG text
-    chunk, so the data round-trips through the file and can later be read back
-    with ``LoadImageWithMetadata`` / ``ExtractImageMetadata``. The ``filenames``
+    but adds every pair from an incoming ``CUUN_METADATA`` bundle (built with
+    one or more ``MetadataSet`` nodes) as a PNG text chunk, so the data
+    round-trips through the file and can later be read back with
+    ``LoadImageWithMetadata`` / ``ExtractImageMetadata``. The ``filenames``
     output carries the saved path(s) so they can be wired straight into those
     nodes.
     """
@@ -231,16 +209,12 @@ class SaveImageWithMetadata:
             "required": {
                 "images": ("IMAGE",),
                 "filename_prefix": ("STRING", {"default": "ComfyUI_meta"}),
-                "metadata": (
-                    "STRING",
-                    {
-                        "multiline": True,
-                        "default": "",
-                        "tooltip": "JSON object, or key=value / key: value lines. Each becomes a PNG text chunk.",
-                    },
-                ),
             },
             "optional": {
+                "metadata": (
+                    METADATA_TYPE,
+                    {"tooltip": "A CUUN_METADATA bundle built with MetadataSet. Each pair becomes a PNG text chunk."},
+                ),
                 "embed_workflow": (
                     "BOOLEAN",
                     {
@@ -256,7 +230,7 @@ class SaveImageWithMetadata:
         self,
         images: Any,
         filename_prefix: str,
-        metadata: str,
+        metadata: tuple[tuple[str, str], ...] | None = None,
         embed_workflow: bool = True,
         prompt: Any = None,
         extra_pnginfo: Any = None,
@@ -276,7 +250,7 @@ class SaveImageWithMetadata:
         except Exception:
             pass
 
-        pairs = parse_metadata_text(metadata)
+        pairs = metadata_pairs_to_dict(metadata)
         output_dir = folder_paths.get_output_directory()
         height, width = int(images[0].shape[0]), int(images[0].shape[1])
         full_output_folder, filename, counter, subfolder, _ = folder_paths.get_save_image_path(
@@ -462,15 +436,49 @@ class MetadataGetValue:
         return get_metadata_value(metadata, key, default)
 
 
+class MetadataSet:
+    """Build a ``CUUN_METADATA`` bundle one key/value pair at a time (issue #29).
+
+    Chain several of these — each takes an optional upstream ``metadata``
+    bundle and appends its own ``key``/``value`` pair — to build up the set
+    that ``SaveImageWithMetadata`` embeds. Duplicate keys resolve last-write-
+    wins (the pair closest to ``SaveImageWithMetadata`` in the chain wins).
+    """
+
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (METADATA_TYPE,)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("metadata",)
+    FUNCTION: ClassVar[str] = "set"
+    CATEGORY: ClassVar[str] = "UtilityNodes/Image"
+
+    @classmethod
+    def INPUT_TYPES(cls) -> dict[str, Any]:
+        return {
+            "required": {
+                "key": ("STRING", {"default": ""}),
+                "value": ("STRING", {"default": ""}),
+            },
+            "optional": {
+                "metadata": (METADATA_TYPE, {"tooltip": "An upstream CUUN_METADATA bundle to extend."}),
+            },
+        }
+
+    def set(
+        self, key: str, value: str, metadata: tuple[tuple[str, str], ...] | None = None
+    ) -> tuple[tuple[tuple[str, str], ...]]:
+        return ((*(metadata or ()), (key, value)),)
+
+
 NODE_CLASS_MAPPINGS: dict[str, type] = {
     "UtilityNodesSaveImageWithMetadata": SaveImageWithMetadata,
     "UtilityNodesLoadImageWithMetadata": LoadImageWithMetadata,
     "UtilityNodesExtractImageMetadata": ExtractImageMetadata,
     "UtilityNodesMetadataGetValue": MetadataGetValue,
+    "UtilityNodesMetadataSet": MetadataSet,
 }
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {
     "UtilityNodesSaveImageWithMetadata": "Save Image with Metadata",
     "UtilityNodesLoadImageWithMetadata": "Load Image with Metadata",
     "UtilityNodesExtractImageMetadata": "Extract Image Metadata",
     "UtilityNodesMetadataGetValue": "Get Metadata Value",
+    "UtilityNodesMetadataSet": "Set Metadata",
 }
