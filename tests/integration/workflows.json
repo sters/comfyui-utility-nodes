@@ -455,14 +455,14 @@
   },
   {
     "name": "tags_random_pick_deterministic",
-    "description": "TagsRandomPick flattens every non-extra selection and samples `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output (flattened via TagsMerge, rendered by PreviewAny).",
+    "description": "TagsRandomPick describes a tag_pick spec (count/seed/pool); TagsMerge (the pipeline's terminal build step) resolves it by flattening every non-extra selection and sampling `count` tags using `seed`. CharacterPreset(miko)'s 8 tags with count=3, seed=7 must produce Python's random.Random(7).sample(...) reference output, rendered by PreviewAny.",
     "workflow": {
       "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
       "2": {
         "class_type": "UtilityNodesTagsRandomPick",
         "inputs": {"count": 3, "seed": 7, "bundle": ["1", 0]}
       },
-      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["2", 0]}},
+      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["2", 0]}},
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
@@ -545,7 +545,7 @@
   },
   {
     "name": "shared_seed_drives_random_pick",
-    "description": "Seed emits one INT (with control-after-generate in the UI) wired into TagsRandomPick. Verifies the seed node loads from nodes/util/ and that its INT output drives a downstream seeded node deterministically (seed=7 over miko's 8 tags reproduces the random.Random(7) reference). PreviewAny renders the seed INT and the picked tags.",
+    "description": "Seed emits one INT (with control-after-generate in the UI) wired into TagsRandomPick, whose spec is resolved by TagsMerge (the pipeline's terminal build step). Verifies the seed node loads from nodes/util/ and that its INT output drives a downstream seeded node deterministically (seed=7 over miko's 8 tags reproduces the random.Random(7) reference). PreviewAny renders the seed INT and the picked tags.",
     "workflow": {
       "1": {"class_type": "UtilityNodesSeed", "inputs": {"seed": 7}},
       "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
@@ -554,7 +554,7 @@
         "inputs": {"count": 3, "seed": ["1", 0], "bundle": ["2", 0]}
       },
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
-      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["3", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -629,13 +629,13 @@
   },
   {
     "name": "tags_random_bundle_deterministic",
-    "description": "TagsRandomBundle picks ONE whole wired bundle at random (categories/tags intact, no flattening) using `seed`. With three CharacterPresets and seed=0, random.Random(0).choice picks bundle_2 (blazer_schoolgirl); the chosen bundle is merged and surfaced via PreviewAny.",
+    "description": "TagsRandomBundle describes a bundle_choice spec over the wired candidates; TagsMerge (the pipeline's terminal build step) resolves it by picking ONE whole bundle at random (categories/tags intact, no flattening) using `seed`. With three CharacterPresets and seed=0, random.Random(0).choice picks bundle_2 (blazer_schoolgirl); the chosen bundle is surfaced via PreviewAny.",
     "workflow": {
       "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "miko"}},
       "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
       "3": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "4": {"class_type": "UtilityNodesTagsRandomBundle", "inputs": {"seed": 0, "bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}},
-      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["4", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -650,7 +650,7 @@
       "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
       "3": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "4": {"class_type": "UtilityNodesTagsRandomBundle", "inputs": {"seed": 5, "bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}},
-      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["4", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [

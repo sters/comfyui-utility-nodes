@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, TaggedSelection
+from ._base import RANDOM_SPEC_TYPE, TAGS_TYPE, TaggedSelection, resolve_random_spec
 from ._conflicts import MUTEX_GROUPS, TAG_CONFLICTS
 
 _MAX_INPUTS = 10
@@ -8,6 +8,16 @@ _EXTRA_CATEGORY = "extra"
 
 
 class TagsMerge:
+    """The pipeline's terminal build step: resolves random specs, then applies
+    cross-bundle conflict rules, and flattens everything into a prompt.
+
+    Accepts already-resolved `bundle_i` inputs (from tag-toggle nodes,
+    presets, `TagsCombinator`, etc.) and unresolved `spec_i` inputs (from
+    `TagsRandomPick` / `TagsRandomBundle`). Specs are resolved first — using
+    each spec's own `seed` — then their resulting selections are merged
+    alongside the `bundle_i` inputs through the same mutex/conflict pipeline.
+    """
+
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "warnings", "bundle")
     FUNCTION: ClassVar[str] = "merge"
@@ -20,6 +30,8 @@ class TagsMerge:
         }
         for i in range(1, _MAX_INPUTS + 1):
             optional[f"bundle_{i}"] = (TAGS_TYPE,)
+        for i in range(1, _MAX_INPUTS + 1):
+            optional[f"spec_{i}"] = (RANDOM_SPEC_TYPE,)
         return {
             "required": {
                 "separator": ("STRING", {"multiline": False, "default": ", "}),
@@ -31,8 +43,17 @@ class TagsMerge:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         warnings: list[str] = []
 
-        # 1. Collect all incoming selections in input order.
+        # 1. Collect all incoming selections in input order: specs resolved
+        #    via their own seed first, then already-resolved bundles. Specs
+        #    going first means an explicit `bundle_i` override (e.g. a
+        #    HairColor node) wins over a random pick via the usual
+        #    last-occurrence-wins MUTEX_GROUPS rule below.
         selections: list[TaggedSelection] = []
+        for i in range(1, _MAX_INPUTS + 1):
+            spec = kwargs.get(f"spec_{i}")
+            if spec is None:
+                continue
+            selections.extend(resolve_random_spec(spec))
         for i in range(1, _MAX_INPUTS + 1):
             bundle = kwargs.get(f"bundle_{i}")
             if not bundle:

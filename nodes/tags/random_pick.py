@@ -1,14 +1,19 @@
-import random
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, TaggedSelection
+from ._base import RANDOM_SPEC_TYPE, TAGS_TYPE, RandomSpec, TaggedSelection
 
 
 class TagsRandomPick:
-    """Pick N random tags out of a CUUN_TAGS bundle.
+    """Describe a random sample of tags out of a CUUN_TAGS bundle, resolved later.
 
-    Flattens every non-`extra` selection's tags into one pool, samples
-    `count` of them without replacement using `seed`, and emits the
+    Packages `count`, `seed`, and the bundle to sample from into a
+    `RandomSpec` — no randomness happens here. Wire the `spec` output into
+    one of `TagsMerge`'s `spec_i` inputs; that's the pipeline's terminal
+    build step, and it resolves specs alongside the usual conflict
+    resolution.
+
+    Resolution flattens every non-`extra` selection's tags into one pool,
+    samples `count` of them without replacement using `seed`, and emits the
     chosen tags as a single new `TaggedSelection` at category
     `random_pick`. The original categorisation is lost on purpose —
     the use case is "I want some random subset of these tags in the
@@ -18,8 +23,8 @@ class TagsRandomPick:
     shuffled order). `extra` selections are passed through as-is.
     """
 
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (RANDOM_SPEC_TYPE,)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("spec",)
     FUNCTION: ClassVar[str] = "pick"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
@@ -40,33 +45,8 @@ class TagsRandomPick:
         count: int,
         seed: int,
         bundle: tuple[TaggedSelection, ...] = (),
-    ) -> tuple[tuple[TaggedSelection, ...]]:
-        rng = random.Random(seed)
-
-        pool: list[str] = []
-        extras: list[TaggedSelection] = []
-        for sel in bundle or ():
-            if sel.category == "extra":
-                extras.append(sel)
-            else:
-                pool.extend(sel.tags)
-
-        n = min(count, len(pool))
-        picked = rng.sample(pool, n) if n else []
-
-        out: list[TaggedSelection] = []
-        if picked:
-            out.append(
-                TaggedSelection(
-                    category="random_pick",
-                    layer="random",
-                    tags=tuple(picked),
-                    mutex_within=False,
-                )
-            )
-        out.extend(extras)
-
-        return (tuple(out),)
+    ) -> tuple[RandomSpec]:
+        return (RandomSpec(kind="tag_pick", seed=seed, pool=tuple(bundle or ()), count=count),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsRandomPick": TagsRandomPick}

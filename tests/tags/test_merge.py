@@ -18,7 +18,7 @@ from typing import Any
 import pytest
 
 import nodes.tags
-from nodes.tags._base import TaggedSelection
+from nodes.tags._base import RandomSpec, TaggedSelection
 from nodes.tags.merge import TagsMerge
 
 # --------------------------------------------------------------------------
@@ -474,3 +474,58 @@ def test_unknown_tags_pass_through() -> None:
     # Tags not registered with any node land in an "_unknown" bucket and
     # survive as-is.
     assert _scenario("hand_made_super_special_tag_xyz, smile") == ("hand_made_super_special_tag_xyz, smile")
+
+
+# --------------------------------------------------------------------------
+# Random spec resolution (TagsRandomPick / TagsRandomBundle land here as
+# unresolved CUUN_TAG_SPEC inputs; TagsMerge is the pipeline's terminal
+# build step and resolves them before running conflict resolution).
+# --------------------------------------------------------------------------
+
+
+def test_merge_resolves_tag_pick_spec() -> None:
+    spec = RandomSpec(kind="tag_pick", seed=42, pool=(_sel("x", ("a", "b", "c", "d", "e")),), count=3)
+    prompt, _, bundle = _run(spec_1=spec)
+    assert len(prompt.split(", ")) == 3
+    assert bundle[0].category == "random_pick"
+
+
+def test_merge_resolves_tag_pick_flattening_across_selections() -> None:
+    spec = RandomSpec(
+        kind="tag_pick",
+        seed=7,
+        pool=(_sel("hair.color", ("red", "blue")), _sel("clothing.tops", ("shirt", "blouse"))),
+        count=4,
+    )
+    _, _, bundle = _run(spec_1=spec)
+    assert set(bundle[0].tags) == {"red", "blue", "shirt", "blouse"}
+
+
+def test_merge_resolves_tag_pick_preserves_extra() -> None:
+    spec = RandomSpec(kind="tag_pick", seed=1, pool=(_sel("x", ("a", "b", "c")), _sel("extra", ("freeform",))), count=1)
+    _, _, bundle = _run(spec_1=spec)
+    assert bundle[-1].category == "extra"
+    assert bundle[-1].tags == ("freeform",)
+
+
+def test_merge_resolves_bundle_choice_spec_intact() -> None:
+    a = (_sel("character.a", ("long_hair", "serafuku")),)
+    b = (_sel("character.b", ("short_hair", "blazer")),)
+    spec = RandomSpec(kind="bundle_choice", seed=0, bundles=(a, b))
+    _, _, bundle = _run(spec_1=spec)
+    assert bundle in (a, b)
+
+
+def test_merge_combines_specs_and_bundles() -> None:
+    # Specs are resolved before bundles, so the resolved spec's tags lead.
+    spec = RandomSpec(kind="tag_pick", seed=1, pool=(_sel("x", ("a",)),), count=1)
+    prompt, _, _ = _run(bundle_1=(_sel("y", ("z",)),), spec_1=spec)
+    assert prompt == "a, z"
+
+
+def test_merge_resolved_spec_participates_in_conflict_resolution() -> None:
+    # A spec resolving to "long_hair" should still lose to an explicit
+    # short_hair bundle via the usual MUTEX_GROUPS last-wins rule.
+    spec = RandomSpec(kind="bundle_choice", seed=0, bundles=((_sel("hair.length", ("long_hair",)),),))
+    prompt, _, _ = _run(spec_1=spec, bundle_1=(_sel("hair.length", ("short_hair",)),))
+    assert prompt == "short_hair"

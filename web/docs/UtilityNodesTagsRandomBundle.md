@@ -1,6 +1,6 @@
 # Tags: Random Bundle
 
-`UtilityNodes/TagMaster` menu tree. Picks **one whole CUUN_TAGS bundle** at random out of several wired alternatives and returns it intact. The bundle-level counterpart to [Random Pick](UtilityNodesTagsRandomPick.md): Random Pick samples *tags* out of one bundle's flattened pool; Random Bundle treats each wired input as one indivisible candidate and returns exactly one of them, with categories / layers / `mutex_within` preserved.
+`UtilityNodes/TagMaster` menu tree. Describes a choice of **one whole CUUN_TAGS bundle** out of several wired alternatives — the actual choice is deferred to [Merge & Validate](UtilityNodesTagsMerge.md), the pipeline's terminal build step, which resolves it intact. The bundle-level counterpart to [Random Pick](UtilityNodesTagsRandomPick.md): Random Pick samples *tags* out of one bundle's flattened pool; Random Bundle treats each wired input as one indivisible candidate and resolves to exactly one of them, with categories / layers / `mutex_within` preserved.
 
 ## Inputs
 
@@ -9,22 +9,22 @@
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): one of the wired inputs, returned unchanged. If nothing is wired, an empty bundle.
+- `spec` (CUUN_TAG_SPEC): an unresolved `bundle_choice` spec carrying `seed` and the candidate bundles. Wire it into one of [Merge & Validate](UtilityNodesTagsMerge.md)'s `spec_i` inputs to resolve it.
 
 ## Behavior
 
-- Selection is uniform over the non-empty wired inputs.
-- The chosen bundle is passed through untouched — no flattening, no category loss, no merging.
+- No randomness happens in this node — it only packages the wired candidates and `seed` into a spec. [Merge & Validate](UtilityNodesTagsMerge.md) does the actual choosing, uniformly over the non-empty wired inputs.
+- The chosen bundle's selections are merged like any other input — no flattening or category loss, but it does go through the same mutex/conflict resolution as everything else once wired in.
 - This is the node for "pick one of these N alternatives each run". Do **not** feed a [Collect](UtilityNodesTagsCollect.md) list into [Random Pick](UtilityNodesTagsRandomPick.md) for this — Random Pick does not consume a list, so ComfyUI broadcasts it per element and keeps every candidate. Random Bundle takes the candidates as discrete inputs and collapses them to one.
 
 ## Typical use
 
-Random-one-per-run prompts need no [Combinator](UtilityNodesTagsCombinator.md) / [Select](UtilityNodesTagsSelect.md): each axis emits one bundle, and a final [Merge & Validate](UtilityNodesTagsMerge.md) combines them.
+Random-one-per-run prompts need no [Combinator](UtilityNodesTagsCombinator.md) / [Select](UtilityNodesTagsSelect.md): each axis emits one bundle or spec, and a final [Merge & Validate](UtilityNodesTagsMerge.md) combines them.
 
 ```
 CharacterPreset A ─┐
 CharacterPreset B ─┤
-CharacterPreset C ─┼─► TagsRandomBundle(seed=…, randomize) ─► one random character per run
+CharacterPreset C ─┼─► TagsRandomBundle(seed=…, randomize) ─► TagsMerge.spec_1 ─► one random character per run
 CharacterPreset D ─┘
 ```
 

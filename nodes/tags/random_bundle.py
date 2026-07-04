@@ -1,20 +1,23 @@
-import random
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, TaggedSelection
+from ._base import RANDOM_SPEC_TYPE, TAGS_TYPE, RandomSpec, TaggedSelection
 
 _MAX_INPUTS = 10
 
 
 class TagsRandomBundle:
-    """Pick one whole CUUN_TAGS bundle at random out of several wired alternatives.
+    """Describe a choice of one whole CUUN_TAGS bundle out of several alternatives, resolved later.
 
     The bundle-level counterpart to `TagsRandomPick`: where `TagsRandomPick`
-    flattens one bundle's tags into a pool and samples *tags*, this node treats
-    each wired input as one indivisible candidate and returns exactly one of
-    them **intact** — categories, layers and `mutex_within` preserved. Use it
-    for "pick one of these N alternatives each run": one of several
-    `CharacterPreset`s, one of several pre-composed scene/NSFW bundles, etc.
+    flattens one bundle's tags into a pool and samples *tags*, this node
+    treats each wired input as one indivisible candidate. No randomness
+    happens here — it packages the candidates and `seed` into a
+    `RandomSpec`. Wire the `spec` output into one of `TagsMerge`'s `spec_i`
+    inputs; that's the pipeline's terminal build step, and it resolves the
+    choice to exactly one of the wired bundles **intact** — categories,
+    layers and `mutex_within` preserved. Use it for "pick one of these N
+    alternatives each run": one of several `CharacterPreset`s, one of
+    several pre-composed scene/NSFW bundles, etc.
 
     This is the node to reach for instead of feeding a `TagsCollect` list into
     `TagsRandomPick` — `TagsRandomPick` does not consume a list (ComfyUI would
@@ -26,8 +29,8 @@ class TagsRandomBundle:
     set to `randomize`, every run re-rolls a fresh choice.
     """
 
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (RANDOM_SPEC_TYPE,)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("spec",)
     FUNCTION: ClassVar[str] = "pick"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
@@ -43,7 +46,7 @@ class TagsRandomBundle:
             "optional": optional,
         }
 
-    def pick(self, seed: int, **kwargs: Any) -> tuple[tuple[TaggedSelection, ...]]:
+    def pick(self, seed: int, **kwargs: Any) -> tuple[RandomSpec]:
         candidates: list[tuple[TaggedSelection, ...]] = []
         for i in range(1, _MAX_INPUTS + 1):
             bundle = kwargs.get(f"bundle_{i}")
@@ -51,11 +54,7 @@ class TagsRandomBundle:
                 continue
             candidates.append(tuple(bundle))
 
-        if not candidates:
-            return ((),)
-
-        chosen = random.Random(seed).choice(candidates)
-        return (chosen,)
+        return (RandomSpec(kind="bundle_choice", seed=seed, bundles=tuple(candidates)),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsRandomBundle": TagsRandomBundle}

@@ -1,10 +1,12 @@
-from dataclasses import dataclass
-from typing import Any, ClassVar
+import random
+from dataclasses import dataclass, field
+from typing import Any, ClassVar, Literal
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {}
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
 
 TAGS_TYPE = "CUUN_TAGS"
+RANDOM_SPEC_TYPE = "CUUN_TAG_SPEC"
 
 # tag string -> CATEGORY_ID of the TagNodeBase subclass that declares it.
 # Populated by TagNodeBase.__init_subclass__ at import time. A tag declared by
@@ -67,6 +69,48 @@ class TaggedSelection:
     layer: str
     tags: tuple[str, ...]
     mutex_within: bool = False
+
+
+@dataclass(frozen=True)
+class RandomSpec:
+    """An unresolved random choice, held as data until TagsMerge resolves it.
+
+    `kind="bundle_choice"` picks one whole bundle out of `bundles`.
+    `kind="tag_pick"` samples `count` tags out of `pool`'s flattened,
+    non-`extra` tags (mirroring `TagsRandomPick`'s old behavior); `pool`'s
+    `extra` selections pass through untouched.
+    """
+
+    kind: Literal["bundle_choice", "tag_pick"]
+    seed: int
+    bundles: tuple[tuple[TaggedSelection, ...], ...] = ()
+    pool: tuple[TaggedSelection, ...] = field(default_factory=tuple)
+    count: int = 1
+
+
+def resolve_random_spec(spec: RandomSpec) -> tuple[TaggedSelection, ...]:
+    """Roll the dice for one `RandomSpec`. The single place randomness is resolved — called by `TagsMerge`."""
+    rng = random.Random(spec.seed)
+
+    if spec.kind == "bundle_choice":
+        return rng.choice(spec.bundles) if spec.bundles else ()
+
+    pool: list[str] = []
+    extras: list[TaggedSelection] = []
+    for sel in spec.pool:
+        if sel.category == "extra":
+            extras.append(sel)
+        else:
+            pool.extend(sel.tags)
+
+    n = min(spec.count, len(pool))
+    picked = rng.sample(pool, n) if n else []
+
+    out: list[TaggedSelection] = []
+    if picked:
+        out.append(TaggedSelection(category="random_pick", layer="random", tags=tuple(picked), mutex_within=False))
+    out.extend(extras)
+    return tuple(out)
 
 
 class TagNodeBase:
