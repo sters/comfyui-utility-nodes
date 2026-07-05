@@ -1,6 +1,6 @@
 # NSFW Scene Preset
 
-`UtilityNodes/TagMaster` menu tree. Emits a curated NSFW scene bundle covering act / position / state / aftermath cues in one click. Designed to layer with `Character Preset` and `Personality Preset` through `TagsMerge`.
+`UtilityNodes/TagMaster` menu tree. Emits a curated NSFW scene bundle covering act / position / state / aftermath cues in one click. Designed to layer with `Character Preset` and `Personality Preset` through `TagsBuild`.
 
 ## Inputs
 
@@ -9,6 +9,6 @@
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): wire into `TagsMerge`. Clothing / nude triggers in the preset interact with regular tag nodes through `TAG_CONFLICTS` automatically.
+- `bundle` (CUUN_TAGS): wire into `TagsBuild`. Clothing / nude triggers in the preset interact with regular tag nodes through `TAG_CONFLICTS` automatically.
 
 The flat tuples live in `nodes/tags/nsfw_preset.py`.

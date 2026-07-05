@@ -5,7 +5,7 @@
 ## Inputs
 
 - `target_category` (COMBO): pick the category whose tags should be decorated. The list is populated from every `TagNodeBase` subclass registered in this pack — e.g. `clothing.bottoms`, `clothing.legwear`, `clothing.headwear`, `body.hair.color`, ... `(none)` is a no-op (pass-through).
-- `bundle` (CUUN_TAGS, optional): the main bundle to decorate. Typically the output of `TagsMerge`.
+- `bundle` (CUUN_TAGS, optional): the main bundle to decorate. Typically the output of `TagsBuild`.
 - `decoration` (CUUN_TAGS, optional): bundle whose tags are joined with spaces and used as the prefix. Underscores become spaces (`light_blue` → `light blue`).
 
 Both `bundle` and `decoration` accept a list, and `TagsDecorate` takes the **Cartesian product** internally (see "Variant generation" below).
@@ -13,7 +13,7 @@ Both `bundle` and `decoration` accept a list, and `TagsDecorate` takes the **Car
 ## Outputs (lists, `OUTPUT_IS_LIST=True`)
 
 - `warnings` (STRING list): per-pair warnings — "no tags matched target_category" or "decoration provided but no category selected".
-- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagsDecorate` or `TagsMerge` to multiply variants further.
+- `bundle` (CUUN_TAGS list): per-pair decorated bundle, feed into another `TagsDecorate` or `TagsBuild` to multiply variants further.
 
 ## Variant generation
 
@@ -43,17 +43,17 @@ Any `CUUN_TAGS` bundle works as `decoration`. The natural fits in this pack:
 - **`ClothingPattern`** — `plaid`, `checkered`, `floral_print`, ...
 - **`ClothingMaterial`** — `silk`, `lace`, `denim`, ...
 
-Merge multiple decoration sources through `TagsMerge` before wiring into `decoration`.
+Merge multiple decoration sources through `TagsBuild` before wiring into `decoration`.
 
 ## Example: red and green plaid skirt on a school-uniform preset
 
 ```
 CharacterPreset(serafuku_schoolgirl) ─┐
-                                      ├─► TagsMerge ─► TagsDecorate ─► prompt
+                                      ├─► TagsBuild ─► TagsDecorate ─► prompt
 [other nodes...]                    ──┘                ▲ target_category: clothing.bottoms
                                                        │
 ColorPalette(red, green) ─┐                            │
-                          ├─► TagsMerge ───────────────┘ decoration
+                          ├─► TagsBuild ───────────────┘ decoration
 ClothingPattern(plaid)  ──┘
 ```
 

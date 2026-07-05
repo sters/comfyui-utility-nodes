@@ -2,9 +2,9 @@ import re
 from typing import Any, ClassVar
 
 # Pull subject-count tags back out of an already-assembled
-# prompt STRING (e.g. the output of TagsMerge). The motivating use case is
+# prompt STRING (e.g. the output of TagsBuild). The motivating use case is
 # feeding a person count into a downstream detector/segmenter such as SAM3
-# (issue #19): wire TagsMerge.prompt -> this node -> `total` (INT).
+# (issue #19): wire TagsBuild.prompt -> this node -> `total` (INT).
 #
 # Recognised forms:
 #   - numbered gendered:  1girl, 2girls, 3boys, 6+girls, 1other, 4others

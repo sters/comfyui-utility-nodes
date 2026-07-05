@@ -254,7 +254,7 @@
     },
     {
       "id": 7,
-      "type": "UtilityNodesTagsMerge",
+      "type": "UtilityNodesTagsBuild",
       "pos": [
         420,
         40
@@ -316,10 +316,11 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "UtilityNodesTagsMerge"
+        "Node name for S&R": "UtilityNodesTagsBuild"
       },
       "widgets_values": [
         ", ",
+        0,
         ""
       ],
       "title": "Merge positive"
@@ -421,7 +422,7 @@
     },
     {
       "id": 10,
-      "type": "UtilityNodesTagsMerge",
+      "type": "UtilityNodesTagsBuild",
       "pos": [
         420,
         1120
@@ -468,10 +469,11 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "UtilityNodesTagsMerge"
+        "Node name for S&R": "UtilityNodesTagsBuild"
       },
       "widgets_values": [
         ", ",
+        0,
         ""
       ],
       "title": "Merge negative"

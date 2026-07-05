@@ -2,7 +2,7 @@ from ._base import PresetNodeBase
 
 # SFW situation/scene presets. Each bundle combines location + time-of-day +
 # atmosphere + composition + action cues for a coherent scene. Designed to
-# layer on top of CharacterPreset / PersonalityPreset via TagsMerge — the
+# layer on top of CharacterPreset / PersonalityPreset via TagsBuild — the
 # scene tags rarely conflict with character tags, so layering is usually
 # clean. NSFW counterparts live in nsfw_preset.py.
 #

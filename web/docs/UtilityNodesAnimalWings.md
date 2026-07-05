@@ -1,7 +1,7 @@
 # Body: Animal Wings
 
 Tag-toggle node in the `UtilityNodes/TagMaster` menu tree.
-**Mutex node** — only one of the toggled tags survives after `TagsMerge`.
+**Mutex node** — only one of the toggled tags survives after `TagsBuild`.
 Internal layer / category: `anatomy` / `body.animal.wings`.
 
 ## Inputs
@@ -12,7 +12,7 @@ Internal layer / category: `anatomy` / `body.animal.wings`.
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): structured selection for `TagsMerge` (carries category + mutex metadata).
+- `bundle` (CUUN_TAGS): structured selection for `TagsBuild` (carries category + mutex metadata).
 
 ## Tags
 
@@ -31,4 +31,4 @@ Internal layer / category: `anatomy` / `body.animal.wings`.
 
 ## Notes
 
-- For consistent prompts across multiple tag nodes, prefer wiring the `bundle` output through `TagsMerge` (it resolves cross-node conflicts via `MUTEX_GROUPS` and `TAG_CONFLICTS`).
+- For consistent prompts across multiple tag nodes, prefer wiring the `bundle` output through `TagsBuild` (it resolves cross-node conflicts via `MUTEX_GROUPS` and `TAG_CONFLICTS`).

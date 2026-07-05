@@ -1,5 +1,5 @@
 from nodes.tags._base import Spec
-from nodes.tags.merge import TagsMerge
+from nodes.tags.build import TagsBuild
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.situation import SITUATION_PRESETS, SituationPreset
 
@@ -25,7 +25,7 @@ def test_summer_beach_emits_expected_tags() -> None:
 def test_character_plus_situation_layers_cleanly() -> None:
     miko = CharacterPreset().build("miko")[0]
     shrine = _build_situation("shrine_visit")
-    out = TagsMerge().merge(", ", bundle_1=miko, bundle_2=shrine)
+    out = TagsBuild().build(", ", bundle_1=miko, bundle_2=shrine)
     tokens = str(out[0]).split(", ")
     for t in ("miko", "hakama", "shrine"):
         assert t in tokens
@@ -43,7 +43,7 @@ def test_situation_extra_appended() -> None:
 def test_all_situation_tags_exist_in_some_tag_node() -> None:
     """Every situation tag should be registered somewhere in the tag
     index — otherwise the model may not recognise it."""
-    from tests.tags.test_merge import _TAG_INDEX
+    from tests.tags.test_build import _TAG_INDEX
 
     unknown: dict[str, list[str]] = {}
     for name, tags in SITUATION_PRESETS.items():

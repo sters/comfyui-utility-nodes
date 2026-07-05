@@ -47,7 +47,7 @@ def expand_axes(axes: list[Axis]) -> tuple[list[tuple[TaggedSelection, ...]], li
     """Cartesian-product expansion over combinator axes.
 
     Each combination's axis Specs are concatenated in axis order; conflict
-    resolution is deferred to a downstream `TagsMerge`.
+    resolution is deferred to a downstream `TagsBuild`.
     """
     if not axes:
         return ([], [], [])
@@ -132,13 +132,13 @@ class TagsCombinator:
     each as a resolved bundle via `bundle` — it does *not* merge or resolve
     conflicts itself. Any deferred axes are folded into the `deferred_bundle`
     output (composited together if there's more than one). Wire both
-    `bundle` and `deferred_bundle` into two different `TagsMerge`
-    ("Merge & Validate") `bundle_i` slots; ComfyUI broadcasts that node over
+    `bundle` and `deferred_bundle` into two different `TagsBuild`
+    `bundle_i` slots; ComfyUI broadcasts that node over
     the output lists, so it runs once per combination and produces the
     per-combo prompt / warnings, with each combo's deferred axes independently
     resolved.
 
-    Axis order is the priority order — `TagsMerge`'s MUTEX_GROUPS is
+    Axis order is the priority order — `TagsBuild`'s MUTEX_GROUPS is
     last-wins, so put base / fixed axes earlier and override axes later
     (a later HairColor red_hair will defeat an earlier preset's
     brown_hair once merged).

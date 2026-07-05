@@ -24,19 +24,19 @@ Ready-made example graphs are bundled as ComfyUI [Workflow Templates](https://do
 The core idea: instead of hand-typing tags, you toggle them on dedicated nodes, then merge everything through a single node that resolves conflicts and emits the final prompt string.
 
 ```
-Tag-source nodes  ──►  bundle (CUUN_TAGS)  ──►  Tags: Merge & Validate  ──►  prompt (STRING)
+Tag-source nodes  ──►  bundle (CUUN_TAGS)  ──►  Tags: Build  ──►  prompt (STRING)
   (checkbox UIs)        structured tags          conflict resolution        + warnings + bundle
 ```
 
 - **Tag-source nodes** (`Hair: ...`, `Body: ...`, `Clothing: ...`, `Scene: ...`, `NSFW ...`, etc.) are boolean-checkbox UIs. Their single output is `bundle`, a structured `CUUN_TAGS` value that carries each selection's category, layer, and mutex metadata. The flattened tag text is shown as a preview on the node, but it is **not** a separate output socket — wire `bundle` onward to get a STRING.
 - Each source also has an `invert` toggle (flips every checkbox at once — handy for "everything except a few" on large nodes) and an optional free-form `extra` text field that is appended verbatim.
-- **`Tags: Merge & Validate`** (`TagsMerge`) accepts up to 10 `CUUN_TAGS` bundles and applies the conflict rules defined in `nodes/tags/_conflicts.py` (`MUTEX_GROUPS` and `TAG_CONFLICTS`). It resolves things like `nude` vs. clothing, `topless` vs. bras, `barefoot` vs. legwear, or `long_hair` vs. `short_hair` automatically. It returns three outputs: `prompt` (the joined STRING), `warnings` (what was dropped and why), and `bundle` (the merged structured result for further chaining).
+- **`Tags: Build`** (`TagsBuild`) accepts up to 20 `CUUN_TAGS` inputs — each either an already-resolved bundle or a still-unresolved one from `Random Pick`/`Random Bundle`/`Combinator`'s `deferred_bundle` — resolves any unresolved ones using its own `seed`, and applies the conflict rules defined in `nodes/tags/_conflicts.py` (`MUTEX_GROUPS` and `TAG_CONFLICTS`). It resolves things like `nude` vs. clothing, `topless` vs. bras, `barefoot` vs. legwear, or `long_hair` vs. `short_hair` automatically. It returns three outputs: `prompt` (the joined STRING), `warnings` (what was dropped and why), and `bundle` (the merged structured result for further chaining).
 
-For quick-and-dirty graphs you can also feed a bundle through `Tags: Combinator` / `Tags: Decorate` / `Tags: Filter` and friends without a full merge — but `Merge & Validate` is the node that guarantees a coherent, conflict-free prompt.
+For quick-and-dirty graphs you can also feed a bundle through `Tags: Combinator` / `Tags: Decorate` / `Tags: Filter` and friends without a full merge — but `Build` is the node that guarantees a coherent, conflict-free prompt.
 
 ## Node catalog
 
-> The **Class** column below is the Python class / menu name. The actual registered `class_type` is that name prefixed with `UtilityNodes` (e.g. `TagsMerge` → `UtilityNodesTagsMerge`) so it can't be shadowed by another pack's same-named node. Workflows saved before the prefix auto-upgrade on load — the pack registers a ComfyUI node-replacement (`<bare>` → `UtilityNodes<bare>`) for every node.
+> The **Class** column below is the Python class / menu name. The actual registered `class_type` is that name prefixed with `UtilityNodes` (e.g. `TagsBuild` → `UtilityNodesTagsBuild`) so it can't be shadowed by another pack's same-named node. Workflows saved before the prefix auto-upgrade on load — the pack registers a ComfyUI node-replacement (`<bare>` → `UtilityNodes<bare>`) for every node.
 
 ### Tag operations — `UtilityNodes/TagMaster`
 
@@ -44,8 +44,8 @@ These consume/transform `CUUN_TAGS` bundles (or, where noted, a prompt STRING).
 
 | Node | Class | Purpose |
 | --- | --- | --- |
-| `Tags: Merge & Validate` | `TagsMerge` | The pipeline's terminal build step — merge up to 10 bundles and resolve up to 10 random specs, resolve all cross-node conflicts, emit the final prompt + warnings. |
-| `Tags: Combinator` | `TagsCombinator` | Cartesian product over tag axes — emits a list of `bundle`/`label`/`index` (feed `bundle` into `Merge & Validate`) for batch/variation runs. |
+| `Tags: Build` | `TagsBuild` | The pipeline's terminal build step — merge up to 20 bundles (resolved or not, own `seed`), resolve all cross-node conflicts, emit the final prompt + warnings. |
+| `Tags: Combinator` | `TagsCombinator` | Cartesian product over tag axes — emits a list of `bundle`/`label`/`index`/`deferred_bundle` (feed `bundle` and `deferred_bundle` into two `Build` slots) for batch/variation runs. |
 | `Tags: Decorate` | `TagsDecorate` | Prefix the tags of a chosen category with a decoration phrase (built from another bundle); broadcasts as a cross product for multi-variant runs. |
 | `Tags: Explode` | `TagsExplode` | Split a bundle into one single-tag bundle per tag — feed it into `Combinator` to turn N checked tags into N axis values. |
 | `Tags: Collect` | `TagsCollect` | Gather several whole bundles into one list — feed it into `Combinator` to vary over whole bundles (e.g. multiple characters), one combination per bundle. |
@@ -53,8 +53,8 @@ These consume/transform `CUUN_TAGS` bundles (or, where noted, a prompt STRING).
 | `Rules to JSON` | `TagsRulesToJson` | Serialize `Combinator`-shaped axes (the candidates, not the expansion) to a JSON STRING — run once, save/preview it, and drop the source graph. |
 | `Build from Rules` | `TagsBuildFromRules` | Expand a `Rules to JSON` STRING back into `Combinator`-identical combination bundles, without the original toggle/preset nodes wired up. |
 | `Tags: Filter` | `TagsFilter` | Drop every tag whose registered category matches a target category. |
-| `Tags: Random Pick` | `TagsRandomPick` | Describe a random subset-of-tags pick from a bundle (resolved by `Merge & Validate`). |
-| `Tags: Random Bundle` | `TagsRandomBundle` | Describe a random whole-bundle choice among several alternatives (resolved by `Merge & Validate`). |
+| `Tags: Random Pick` | `TagsRandomPick` | Describe a random subset-of-tags pick from a bundle (resolved by `Build`). |
+| `Tags: Random Bundle` | `TagsRandomBundle` | Describe a random whole-bundle choice among several alternatives (resolved by `Build`). |
 | `Tags: Shuffle` | `TagsShuffle` | Shuffle tag order within a bundle. |
 | `Tags: Extract Subject Count` | `TagsExtractSubjectCount` | Parse a prompt STRING and extract a person/subject count as an INT. |
 | `Tags: Bundle Inspector` | `TagsBundleInspector` | Debug helper — surface the structured contents of a `CUUN_TAGS` bundle. |

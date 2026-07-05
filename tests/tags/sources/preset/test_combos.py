@@ -9,7 +9,7 @@ from typing import Any
 
 import pytest
 
-from nodes.tags.merge import TagsMerge
+from nodes.tags.build import TagsBuild
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.nsfw_scene import NsfwScenePreset
 from nodes.tags.sources.preset.personality import PersonalityPreset
@@ -37,7 +37,7 @@ def _combo(
             continue
         bundles[f"bundle_{i}"] = _bundle(cls, name)
         i += 1
-    out = TagsMerge().merge(", ", extra=extra, **bundles)
+    out = TagsBuild().build(", ", extra=extra, **bundles)
     prompt = str(out[0])
     return prompt.split(", ") if prompt else []
 

@@ -208,7 +208,7 @@
     },
     {
       "id": 6,
-      "type": "UtilityNodesTagsMerge",
+      "type": "UtilityNodesTagsBuild",
       "pos": [
         400,
         40
@@ -265,10 +265,11 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "UtilityNodesTagsMerge"
+        "Node name for S&R": "UtilityNodesTagsBuild"
       },
       "widgets_values": [
         ", ",
+        0,
         ""
       ]
     },
@@ -330,7 +331,7 @@
       "flags": {},
       "order": 7,
       "mode": 0,
-      "title": "Positive (from TagsMerge)",
+      "title": "Positive (from TagsBuild)",
       "inputs": [
         {
           "name": "clip",
@@ -573,7 +574,7 @@
     },
     {
       "id": 14,
-      "type": "UtilityNodesTagsMerge",
+      "type": "UtilityNodesTagsBuild",
       "pos": [
         760,
         260
@@ -615,13 +616,14 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "UtilityNodesTagsMerge"
+        "Node name for S&R": "UtilityNodesTagsBuild"
       },
       "widgets_values": [
         ", ",
+        0,
         ""
       ],
-      "title": "Merge \u2192 STRING"
+      "title": "Merge → STRING"
     }
   ],
   "links": [

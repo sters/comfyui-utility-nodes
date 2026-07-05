@@ -79,7 +79,7 @@
     },
     {
       "id": 3,
-      "type": "UtilityNodesTagsMerge",
+      "type": "UtilityNodesTagsBuild",
       "pos": [
         400,
         40
@@ -128,10 +128,11 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "UtilityNodesTagsMerge"
+        "Node name for S&R": "UtilityNodesTagsBuild"
       },
       "widgets_values": [
         ", ",
+        0,
         ""
       ]
     },

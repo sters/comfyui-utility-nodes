@@ -1,4 +1,4 @@
-"""Tag-level conflict rules for TagsMerge.
+"""Tag-level conflict rules for TagsBuild.
 
 Each entry maps a trigger tag to the set of tags it suppresses. When the
 trigger tag is present anywhere in the merged bundle, the suppressed tags

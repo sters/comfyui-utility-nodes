@@ -13,7 +13,7 @@ class TagsRandomBundle:
     treats each wired input as one indivisible candidate. No randomness
     happens here, and no seed lives on this node either — it packages the
     candidates into an unresolved bundle. Wire the `bundle` output
-    into one of `TagsMerge`'s `bundle_i` inputs (or a
+    into one of `TagsBuild`'s `bundle_i` inputs (or a
     `TagsCombinator`/`TagsBuildFromRules` `axis_i`, where it becomes a
     deferred axis); that's where the choice gets resolved — using whichever
     seed the actual build step owns — to exactly one of the wired bundles

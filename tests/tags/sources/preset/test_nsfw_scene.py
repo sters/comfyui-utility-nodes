@@ -1,5 +1,5 @@
 from nodes.tags._base import Spec, TaggedSelection
-from nodes.tags.merge import TagsMerge
+from nodes.tags.build import TagsBuild
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.nsfw_scene import NSFW_SCENE_PRESETS, NsfwScenePreset
 from nodes.tags.sources.preset.personality import PersonalityPreset
@@ -27,7 +27,7 @@ def test_nude_preset_drops_layered_clothing() -> None:
     # NSFW preset with `nude` should drop a separately-added shirt.
     nsfw = _build("mating_press")
     shirt_sel = Spec(kind="fixed", pool=(TaggedSelection("clothing.tops", "clothing", ("shirt",), False),))
-    out = TagsMerge().merge(", ", bundle_1=nsfw, bundle_2=shirt_sel)
+    out = TagsBuild().build(", ", bundle_1=nsfw, bundle_2=shirt_sel)
     tokens = str(out[0]).split(", ")
     assert "nude" in tokens
     assert "shirt" not in tokens
@@ -36,7 +36,7 @@ def test_nude_preset_drops_layered_clothing() -> None:
 def test_lingerie_preset_does_not_drop_its_own_underwear() -> None:
     # lingerie_tease has no `nude`, so bra/panties/garter_belt survive.
     bundle = _build("lingerie_tease")
-    out = TagsMerge().merge(", ", bundle_1=bundle)
+    out = TagsBuild().build(", ", bundle_1=bundle)
     tokens = str(out[0]).split(", ")
     for t in ("lingerie", "bra", "panties", "garter_belt", "thighhighs"):
         assert t in tokens
@@ -47,7 +47,7 @@ def test_character_plus_nsfw_drops_outfit() -> None:
     # character traits like hair stay.
     girl = CharacterPreset().build("serafuku_schoolgirl")[0]
     sex = _build("first_time_shy")
-    out = TagsMerge().merge(", ", bundle_1=girl, bundle_2=sex)
+    out = TagsBuild().build(", ", bundle_1=girl, bundle_2=sex)
     tokens = str(out[0]).split(", ")
     assert "nude" in tokens
     assert "serafuku" not in tokens  # uniform dropped by nude
@@ -61,7 +61,7 @@ def test_personality_layered_with_nsfw_scene() -> None:
     # yandere personality + bondage shibari → smirk + ahegao + bound
     p = PersonalityPreset().build("yandere")[0]
     s = _build("shibari_suspension")
-    out = TagsMerge().merge(", ", bundle_1=p, bundle_2=s)
+    out = TagsBuild().build(", ", bundle_1=p, bundle_2=s)
     tokens = str(out[0]).split(", ")
     for t in ("yandere", "smirk", "shibari", "rope", "suspension_bondage"):
         assert t in tokens
@@ -70,7 +70,7 @@ def test_personality_layered_with_nsfw_scene() -> None:
 def test_all_nsfw_preset_tags_exist_in_some_tag_node() -> None:
     """Every tag in every NSFW preset should be registered in one of
     the tag nodes — otherwise it's a typo or invented tag."""
-    from tests.tags.test_merge import _TAG_INDEX
+    from tests.tags.test_build import _TAG_INDEX
 
     unknown: dict[str, list[str]] = {}
     for name, tags in NSFW_SCENE_PRESETS.items():

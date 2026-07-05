@@ -76,7 +76,7 @@ class Spec:
 
     `kind="fixed"` is already-resolved data — `pool` is returned unchanged
     (order preserved, no dice roll). Every other kind is unresolved and only
-    `resolve_spec` (called by `TagsMerge`) rolls the dice for it:
+    `resolve_spec` (called by `TagsBuild`) rolls the dice for it:
 
     - `kind="bundle_choice"` picks one whole candidate out of `bundles`.
     - `kind="tag_pick"` samples `count` tags out of `pool`'s flattened,
@@ -96,7 +96,7 @@ class Spec:
 
 
 def resolve_spec(spec: Spec) -> tuple[TaggedSelection, ...]:
-    """Roll the dice for one `Spec`. The single place randomness is resolved — called by `TagsMerge`."""
+    """Roll the dice for one `Spec`. The single place randomness is resolved — called by `TagsBuild`."""
     if spec.kind == "fixed":
         return spec.pool
 
@@ -133,7 +133,7 @@ def mix_seed(spec: Spec, salt: int) -> Spec:
     """Return a copy of `spec` with `salt` XOR-mixed into its seed(s).
 
     `TagsRandomPick`/`TagsRandomBundle` no longer carry their own seed — the
-    only seed input lives at the actual build step (`TagsMerge`'s `seed`,
+    only seed input lives at the actual build step (`TagsBuild`'s `seed`,
     or a `TagsCombinator`/`TagsBuildFromRules` combo's `index`), and gets
     mixed in here so multiple unresolved specs in one call still diverge.
     Recurses into `composite` children so each mixes independently instead

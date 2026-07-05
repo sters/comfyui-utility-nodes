@@ -9,6 +9,6 @@
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): wire into `TagsMerge`. Layer with `Character Preset` and a Scene preset for character × mood × scene workflows.
+- `bundle` (CUUN_TAGS): wire into `TagsBuild`. Layer with `Character Preset` and a Scene preset for character × mood × scene workflows.
 
 The flat tuples live in `nodes/tags/personality.py`.

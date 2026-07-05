@@ -8,7 +8,7 @@ class TagsRandomPick:
 
     Packages `count` and the bundle to sample from into an unresolved
     bundle — no randomness happens here, and no seed lives on this node
-    either. Wire the `bundle` output into one of `TagsMerge`'s `bundle_i`
+    either. Wire the `bundle` output into one of `TagsBuild`'s `bundle_i`
     inputs (or a `TagsCombinator`/`TagsBuildFromRules` `axis_i`, where it
     becomes a deferred axis); that's where it gets resolved, alongside the
     usual conflict resolution, using whichever seed the actual build step

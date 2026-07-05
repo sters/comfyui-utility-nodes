@@ -15,7 +15,7 @@ execute it. Each text-assertion workflow therefore ends in a built-in
 ANY type) wired to the STRING/INT output under test. `PreviewAny` is the
 OUTPUT_NODE that drives execution and stringifies the value into
 `outputs.text`. Bundle-only outputs (`CUUN_TAGS`) are routed through
-`TagsMerge` first to get a flat prompt STRING.
+`TagsBuild` first to get a flat prompt STRING.
 
 Scope is mostly **text nodes** (no KSampler / model loading), plus a
 metadata round-trip for the image nodes: a built-in `EmptyImage` feeds
@@ -69,7 +69,7 @@ that the exact string equals one of the elements of the named node's
 pack's nodes are not OUTPUT_NODEs, the asserted node is almost always a
 trailing `PreviewAny` (which stringifies whatever you wire to its
 `source`). Wire the STRING you care about straight into `PreviewAny`;
-for a `CUUN_TAGS` bundle, route it through `TagsMerge` first so the
+for a `CUUN_TAGS` bundle, route it through `TagsBuild` first so the
 flattened prompt — not the dataclass repr — is what gets stringified.
 
 ### Input defaulting
@@ -97,10 +97,10 @@ text list:
 
 - For a single-prompt result, write the full prompt string.
 - For a list output (e.g. a `TagsDecorate` bundle list flowing through a
-  `TagsMerge` that runs once per element), `PreviewAny` collects one text
+  `TagsBuild` that runs once per element), `PreviewAny` collects one text
   per element — write one expectation per variant you care about. Each
   must equal one of the texts in the list verbatim.
 
-For nodes that take a `separator` (`TagsMerge`, `TagsCombinator`,
+For nodes that take a `separator` (`TagsBuild`, `TagsCombinator`,
 `TextConcat`), if `inputs.separator` is omitted the default `", "` is
 used, so the expectation should also use `, ` as the joiner.

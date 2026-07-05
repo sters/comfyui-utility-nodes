@@ -12,7 +12,7 @@ Feeding a `TagsCombinator` list straight into the image pipeline fans **all** co
 Seed(control_after_generate=increment) ─► index
                                             │
 Combinator.bundle (list) ──────────────────┤
-Combinator.label  (list) ──────────────► TagsSelect ─► bundle ─► TagsMerge ─► CLIP ─► KSampler ─► … (width 1)
+Combinator.label  (list) ──────────────► TagsSelect ─► bundle ─► TagsBuild ─► CLIP ─► KSampler ─► … (width 1)
                                                      ─► label  ─► (SaveImage filename_prefix)
 ```
 
@@ -26,7 +26,7 @@ Queue the prompt N times. `index` increments 0, 1, 2, …; each Run resolves to 
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): the single selected bundle — wire into `TagsMerge`.
+- `bundle` (CUUN_TAGS): the single selected bundle — wire into `TagsBuild`.
 - `label` (STRING): the selected combination's label (empty if `labels` is unwired). Handy for `SaveImage` `filename_prefix`.
 - `index` (INT): the **effective** (wrapped) index actually used.
 

@@ -21,5 +21,5 @@ Workflow A (build once):
   BodyFigure ─→ TagsExplode ─────────┘
 
 Workflow B (generate any time, no source graph needed):
-  BuildFromRules(rules) ─→ TagsMerge ─→ ...
+  BuildFromRules(rules) ─→ TagsBuild ─→ ...
 ```

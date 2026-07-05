@@ -8,7 +8,7 @@
 
 ## Outputs
 
-- `bundles` (CUUN_TAGS list, `OUTPUT_IS_LIST=True`): one single-tag bundle per tag in the input. The original `category` / `layer` / `mutex_within` metadata is preserved on each emitted selection, so `TagsMerge` still enforces conflict rules per value downstream.
+- `bundles` (CUUN_TAGS list, `OUTPUT_IS_LIST=True`): one single-tag bundle per tag in the input. The original `category` / `layer` / `mutex_within` metadata is preserved on each emitted selection, so `TagsBuild` still enforces conflict rules per value downstream.
 
 ## Behavior
 

@@ -12,7 +12,7 @@ Internal layer / category: `bad` / `bad.body`.
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): structured selection for `TagsMerge` (carries category + mutex metadata).
+- `bundle` (CUUN_TAGS): structured selection for `TagsBuild` (carries category + mutex metadata).
 
 ## Tags
 
@@ -25,4 +25,4 @@ Internal layer / category: `bad` / `bad.body`.
 
 ## Notes
 
-- For consistent prompts across multiple tag nodes, prefer wiring the `bundle` output through `TagsMerge` (it resolves cross-node conflicts via `MUTEX_GROUPS` and `TAG_CONFLICTS`).
+- For consistent prompts across multiple tag nodes, prefer wiring the `bundle` output through `TagsBuild` (it resolves cross-node conflicts via `MUTEX_GROUPS` and `TAG_CONFLICTS`).

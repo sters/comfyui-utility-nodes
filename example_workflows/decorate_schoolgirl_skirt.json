@@ -42,7 +42,7 @@
     },
     {
       "id": 2,
-      "type": "UtilityNodesTagsMerge",
+      "type": "UtilityNodesTagsBuild",
       "title": "Merge: main",
       "pos": [
         400,
@@ -85,10 +85,11 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "UtilityNodesTagsMerge"
+        "Node name for S&R": "UtilityNodesTagsBuild"
       },
       "widgets_values": [
         ", ",
+        0,
         ""
       ]
     },
@@ -196,7 +197,7 @@
     {
       "id": 5,
       "type": "UtilityNodesTagsDecorate",
-      "title": "Stage 1: skirt \u00d7 color (\u00d7 3)",
+      "title": "Stage 1: skirt × color (× 3)",
       "pos": [
         760,
         40
@@ -347,7 +348,7 @@
     {
       "id": 8,
       "type": "UtilityNodesTagsDecorate",
-      "title": "Stage 2: serafuku \u00d7 color (3 \u00d7 3 = 9)",
+      "title": "Stage 2: serafuku × color (3 × 3 = 9)",
       "pos": [
         1200,
         40
@@ -648,7 +649,7 @@
     },
     {
       "id": 15,
-      "type": "UtilityNodesTagsMerge",
+      "type": "UtilityNodesTagsBuild",
       "pos": [
         1560,
         40
@@ -690,13 +691,14 @@
         }
       ],
       "properties": {
-        "Node name for S&R": "UtilityNodesTagsMerge"
+        "Node name for S&R": "UtilityNodesTagsBuild"
       },
       "widgets_values": [
         ", ",
+        0,
         ""
       ],
-      "title": "Merge \u2192 STRING"
+      "title": "Merge → STRING"
     }
   ],
   "links": [

@@ -2,7 +2,7 @@ from ._base import PresetNodeBase
 
 # NSFW scene presets — bundle act/position/state/expression/setting tags
 # that frequently appear together. Designed to layer on top of
-# CharacterPreset (visuals) and PersonalityPreset (mood) via TagsMerge.
+# CharacterPreset (visuals) and PersonalityPreset (mood) via TagsBuild.
 # Conflicts with non-NSFW clothing presets are resolved automatically
 # (e.g. `nude`-containing presets drop competing outfit tags).
 NSFW_SCENE_PRESETS: dict[str, tuple[str, ...]] = {

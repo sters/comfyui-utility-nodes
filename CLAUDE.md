@@ -11,7 +11,7 @@ Dependencies are managed by `uv`. All commands go through the Makefile:
 - `make lint` / `make fmt` / `make fmt-check` / `make typecheck` — ruff + mypy (strict)
 - `make check` — lint + fmt-check + typecheck + test (run before committing)
 - `make fix` — ruff `--fix` + format
-- Run a single test: `uv run pytest tests/tags/test_merge.py::test_name -v`
+- Run a single test: `uv run pytest tests/tags/test_build.py::test_name -v`
 - `make integration` — end-to-end check. Builds a CPU-only ComfyUI Docker image, starts it with this repo mounted as a custom node, posts workflows to `/prompt`, asserts text outputs from `/history`, tears down. Stdlib-only runner. See `tests/integration/README.md`. Intentionally not part of `make check` (first-build Docker cost).
 
 **Both are cheap to run — don't hesitate to run them.** `make check` is a sub-second offline suite (~360 pytest cases plus ruff/mypy). `make integration` only pays the Docker build once (cached after, ~1.5 GB); every run after that is just container-up → ~25 HTTP workflow checks → teardown, a handful of seconds. If you only changed an integration `workflows.json` expectation and the container is already up, you can skip the rebuild and re-run just the runner: `uv run python -m tests.integration.run`. Run them liberally to verify changes — especially `make integration` after touching any node I/O surface or `workflows.json`.
@@ -32,7 +32,7 @@ ComfyUI custom-node docs: https://docs.comfy.org/custom-nodes/walkthrough (and t
 
 Two halves under `nodes/tags/`:
 
-- `nodes/tags/` (top level) — **tag operations**: `merge.py`, `decorate.py`, `explode.py`, `combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them. The one outlier is `count_extract.py` (`TagsExtractSubjectCount`), which *consumes* a prompt STRING (typically `TagsMerge.prompt`) and extracts an INT person count — it still belongs here as a tag operation, not under `sources/`, because it does not emit a CUUN_TAGS bundle.
+- `nodes/tags/` (top level) — **tag operations**: `build.py`, `decorate.py`, `explode.py`, `combinator.py`, plus the shared `_base.py` / `_conflicts.py`. These take CUUN_TAGS bundles and transform/combine them. The one outlier is `count_extract.py` (`TagsExtractSubjectCount`), which *consumes* a prompt STRING (typically `TagsBuild.prompt`) and extracts an INT person count — it still belongs here as a tag operation, not under `sources/`, because it does not emit a CUUN_TAGS bundle.
 - `nodes/tags/sources/` — **tag sources** (every `TagNodeBase` subclass): the boolean-toggle nodes (`body/`, `clothing/`, `scene/`, `composition/`, `meta/` [including `bad.py` negative-quality and `pony.py` model template], `nsfw/`, `decoration/`) and the flat-tuple preset nodes under `preset/` (`character.py`, `personality.py`, `situation.py`, `nsfw_scene.py`).
 
 Auto-discovery walks both via `pkgutil.walk_packages`, so dropping a file under either path is enough to register it.
@@ -68,16 +68,16 @@ The repo directory name (`comfyui-utility-nodes`) is invalid as a Python identif
 The bulk of the repo is "tag nodes" — boolean-checkbox UIs that emit tag tuples. Data flows:
 
 ```
-TagNodeBase subclass  ──►  bundle: tuple[TaggedSelection, ...]  ──►  TagsMerge  ──►  prompt
+TagNodeBase subclass  ──►  bundle: tuple[TaggedSelection, ...]  ──►  TagsBuild  ──►  prompt
                                   (CUUN_TAGS socket)
 ```
 
 Key types in `nodes/tags/_base.py`:
 
 - `TaggedSelection(category, layer, tags, mutex_within)` — one categorized chunk.
-- `TagNodeBase` — base class. Subclasses declare `TAGS`, `CATEGORY_ID`, `LAYER`, `MUTEX_WITHIN`. The base auto-builds the boolean `INPUT_TYPES`, exposes an `invert` BOOLEAN that flips every checkbox, and emits one `TaggedSelection` (plus an optional `extra` selection for free-form text). The only output socket is `bundle` (a tuple of `TaggedSelection`) — wire it through `TagsMerge` (or `TagsCombinator`) when you need a STRING. Every node in this pack is a **pure data node**: `build`/`merge`/etc. return their result tuple directly, and **none set `OUTPUT_NODE`** (there is no in-canvas text preview — that was dropped because rendering `ui.text` needs a frontend JS widget the pack doesn't ship). A graph of only these nodes therefore needs a real terminator (a sampler, or a built-in `PreviewAny`) to execute.
+- `TagNodeBase` — base class. Subclasses declare `TAGS`, `CATEGORY_ID`, `LAYER`, `MUTEX_WITHIN`. The base auto-builds the boolean `INPUT_TYPES`, exposes an `invert` BOOLEAN that flips every checkbox, and emits one `TaggedSelection` (plus an optional `extra` selection for free-form text). The only output socket is `bundle` (a tuple of `TaggedSelection`) — wire it through `TagsBuild` (or `TagsCombinator`) when you need a STRING. Every node in this pack is a **pure data node**: `build`/`merge`/etc. return their result tuple directly, and **none set `OUTPUT_NODE`** (there is no in-canvas text preview — that was dropped because rendering `ui.text` needs a frontend JS widget the pack doesn't ship). A graph of only these nodes therefore needs a real terminator (a sampler, or a built-in `PreviewAny`) to execute.
 
-`TagsMerge` (`nodes/tags/merge.py`) accepts up to 10 `CUUN_TAGS` inputs and applies, in order:
+`TagsBuild` (`nodes/tags/build.py`) accepts up to 10 `CUUN_TAGS` inputs and applies, in order:
 
 1. **`mutex_within`** — for selections marked mutex, keep only the first selection per `category` and only its first tag.
 2. **`MUTEX_GROUPS`** (in `_conflicts.py`) — cross-category sets where at most one member survives (e.g. `long_hair` vs `short_hair`). First occurrence in input order wins.
@@ -102,19 +102,19 @@ nodes/tags/sources/sub/X.py ←→  tests/tags/sources/sub/test_X.py
 nodes/text/X.py             ←→  tests/text/test_X.py
 ```
 
-**Plain `TagNodeBase` toggle sources are intentionally not unit-tested.** The boolean-checkbox source modules (`body/`, `clothing/`, `scene/`, `composition/`, `nsfw/`, `decoration/`) are pure declarative `TAGS` tuples with zero per-node logic — the base class is what's tested (`tests/tags/test_base.py`), and the tags themselves are exercised end-to-end through `TagsMerge` / the preset-combo fixture. **Do not add a one-test-per-toggle-source file** to "complete" the mirror; that's churn with no coverage gain. Only add a test when a source has non-trivial behavior (e.g. `count_extract` parses a prompt) — and then it goes at the mirror path. If you split or move a *tested* module, move its test the same way.
+**Plain `TagNodeBase` toggle sources are intentionally not unit-tested.** The boolean-checkbox source modules (`body/`, `clothing/`, `scene/`, `composition/`, `nsfw/`, `decoration/`) are pure declarative `TAGS` tuples with zero per-node logic — the base class is what's tested (`tests/tags/test_base.py`), and the tags themselves are exercised end-to-end through `TagsBuild` / the preset-combo fixture. **Do not add a one-test-per-toggle-source file** to "complete" the mirror; that's churn with no coverage gain. Only add a test when a source has non-trivial behavior (e.g. `count_extract` parses a prompt) — and then it goes at the mirror path. If you split or move a *tested* module, move its test the same way.
 
-`tests/tags/sources/preset/test_combos.py` is the one cross-cutting fixture: it exercises preset × preset × scene combinations through `TagsMerge` end-to-end and is the canonical place to add a regression when a conflict rule changes.
+`tests/tags/sources/preset/test_combos.py` is the one cross-cutting fixture: it exercises preset × preset × scene combinations through `TagsBuild` end-to-end and is the canonical place to add a regression when a conflict rule changes.
 
 ### Naming conventions
 
 Four surfaces must stay in lockstep — folder path, file name, class name, and ComfyUI display name. Rules in force:
 
 - **Class prefix follows the source folder.** Body sources are `Body*` (`BodyPosture`, `BodySeating` — note: not `Whole*`), clothing `Clothing*`, scene `Scene*`, composition `Composition*`, face `Face*` (with `FaceEyes*` / `FaceMouth*` sub-groups), nsfw `Nsfw*`. The `meta/` folder is the one folder hosting **two** prefixes by design: `Meta*` (`MetaQuality`, `MetaPony`, `MetaCount*`) for the template/quality/count nodes and `Bad*` (`BadBody`, `BadNsfw`, …) for the negative-quality "Bad: X" family — keep that split, don't unify them.
-- **Tag *operations* (`nodes/tags/` top level) are `Tags*` plural** — `TagsMerge`, `TagsExplode`, `TagsDecorate`, `TagsFilter`, `TagsCombinator`, `TagsExtractSubjectCount`, etc. (No singular `Tag*`.)
+- **Tag *operations* (`nodes/tags/` top level) are `Tags*` plural** — `TagsBuild`, `TagsExplode`, `TagsDecorate`, `TagsFilter`, `TagsCombinator`, `TagsExtractSubjectCount`, etc. (No singular `Tag*`.)
 - **No abbreviations in class names** — spell words out (`SceneBackgroundType`, not `SceneBgType`).
 - **Acronyms are mixed-case in class names, UPPERCASE in display names** — class `BadNsfw` / `NsfwSolo`, display `"Bad: NSFW"` / category `NSFW`. Keep class-name acronym casing as `Nsfw` / `Bdsm` everywhere; the all-caps form only appears in the human-facing display string.
-- **The registered key (`class_type`) is `UtilityNodes` + the class name** — every key in `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS` carries the `UtilityNodes` prefix (`TagsMerge` → key `UtilityNodesTagsMerge`), so a same-named node from another pack can never shadow ours in ComfyUI's single global mapping (issue #25). The **Python class name stays unprefixed** (`TagsMerge`) and so does the **display name**; only the registration key gets the prefix. The **`web/docs/<class_type>.md` filename equals the prefixed key** (`UtilityNodesTagsMerge.md`), because ComfyUI resolves help pages by `class_type`. Renaming a class means renaming its doc file (prefixed), both mapping keys (prefixed), any `class_type` in `tests/integration/workflows.json`, the `type` / `Node name for S&R` in `example_workflows/*.json`, and the test references. `__init__.py` also registers an `old_id -> new_id` ComfyUI **node replacement** for every node (bare name → prefixed) so legacy saved workflows auto-upgrade on load; that registration is derived automatically from the prefix, no per-node step.
+- **The registered key (`class_type`) is `UtilityNodes` + the class name** — every key in `NODE_CLASS_MAPPINGS` / `NODE_DISPLAY_NAME_MAPPINGS` carries the `UtilityNodes` prefix (`TagsBuild` → key `UtilityNodesTagsBuild`), so a same-named node from another pack can never shadow ours in ComfyUI's single global mapping (issue #25). The **Python class name stays unprefixed** (`TagsBuild`) and so does the **display name**; only the registration key gets the prefix. The **`web/docs/<class_type>.md` filename equals the prefixed key** (`UtilityNodesTagsBuild.md`), because ComfyUI resolves help pages by `class_type`. Renaming a class means renaming its doc file (prefixed), both mapping keys (prefixed), any `class_type` in `tests/integration/workflows.json`, the `type` / `Node name for S&R` in `example_workflows/*.json`, and the test references. `__init__.py` also registers an `old_id -> new_id` ComfyUI **node replacement** for every node (bare name → prefixed) so legacy saved workflows auto-upgrade on load; that registration is derived automatically from the prefix, no per-node step.
 - **Display names drop the folder prefix the category already conveys** (`BodyAction` → `Action`) but **keep an in-folder sub-group prefix with a colon** (`HairColor` → `Hair: Color`, `FaceEyesColor` → `Eyes: Color`), and carry no default/behavior parentheticals.
 
 ## Adding a new tag node

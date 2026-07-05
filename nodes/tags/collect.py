@@ -16,7 +16,7 @@ class TagsCollect:
 
     This is the multi-bundle counterpart to `TagsExplode` (which splits a
     single bundle into per-tag axis values). The route that *doesn't* work —
-    `TagsMerge` then `TagsExplode` — flattens the characters together and then
+    `TagsBuild` then `TagsExplode` — flattens the characters together and then
     re-splits per tag; `TagsCollect` is the node that preserves each bundle as
     one discrete axis value.
 

@@ -2,7 +2,7 @@ from ._base import PresetNodeBase
 
 # Each personality preset is a bundle of expression / gaze / mouth / pose
 # tags that together evoke an archetype. Designed to layer on top of
-# CharacterPreset (or hand-built character bundles) via TagsMerge — the
+# CharacterPreset (or hand-built character bundles) via TagsBuild — the
 # merge resolves any conflicting expressions through MUTEX_GROUPS.
 PERSONALITY_PRESETS: dict[str, tuple[str, ...]] = {
     "tsundere": (

@@ -20,14 +20,14 @@
 
 ```
 ColorPalette(red, green) ─┐
-                          ├─► TagsMerge ─► TagsDecorate.decoration
+                          ├─► TagsBuild ─► TagsDecorate.decoration
 ClothingPattern(plaid)  ──┘                 ▲ target_category: clothing.bottoms
                                             │
-[preset / clothing nodes] ─► TagsMerge ─────┘ bundle
+[preset / clothing nodes] ─► TagsBuild ─────┘ bundle
 ```
 
 The downstream `pleated_skirt` becomes `red green plaid pleated skirt`. See `TagsDecorate` for the full pipeline.
 
 ## Tips
 
-- Don't wire `ColorPalette` directly into the main `TagsMerge` — the bare colors will appear as standalone tags in your prompt. Route it through `TagsDecorate`'s `decoration` input.
+- Don't wire `ColorPalette` directly into the main `TagsBuild` — the bare colors will appear as standalone tags in your prompt. Route it through `TagsDecorate`'s `decoration` input.

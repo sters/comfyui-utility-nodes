@@ -1,7 +1,7 @@
 from typing import Any
 
 from nodes.tags._base import Spec, TaggedSelection
-from nodes.tags.merge import TagsMerge
+from nodes.tags.build import TagsBuild
 from nodes.tags.sources.preset.character import PRESETS, CharacterPreset
 
 
@@ -36,7 +36,7 @@ def test_preset_extra_appended_as_separate_selection() -> None:
 
 def test_preset_pipes_through_tagsmerge_cleanly() -> None:
     _, bundle = _build("miko")
-    out = TagsMerge().merge(", ", bundle_1=bundle)
+    out = TagsBuild().build(", ", bundle_1=bundle)
     assert out[0] == ", ".join(PRESETS["miko"])
 
 
@@ -46,7 +46,7 @@ def test_two_presets_with_conflicts_get_resolved() -> None:
     # gets deduped via mutex_group (hair length).
     _, nun_bundle = _build("nun")
     _, maid_bundle = _build("maid")
-    out = TagsMerge().merge(", ", bundle_1=nun_bundle, bundle_2=maid_bundle)
+    out = TagsBuild().build(", ", bundle_1=nun_bundle, bundle_2=maid_bundle)
     prompt = str(out[0])
     tokens = prompt.split(", ")
     # long_hair appears in both presets and is kept (duplicates are
@@ -62,7 +62,7 @@ def test_preset_layered_with_nude_drops_clothing() -> None:
     # drops the preset's clothing tags.
     _, miko_bundle = _build("miko")
     nude_sel = Spec(kind="fixed", pool=(TaggedSelection("body.exposure", "exposure", ("nude",), False),))
-    out = TagsMerge().merge(", ", bundle_1=nude_sel, bundle_2=miko_bundle)
+    out = TagsBuild().build(", ", bundle_1=nude_sel, bundle_2=miko_bundle)
     prompt = str(out[0])
     tokens = prompt.split(", ")
     assert "nude" in tokens

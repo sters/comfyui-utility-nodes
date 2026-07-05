@@ -1,11 +1,11 @@
-# Tags: Merge & Validate
+# Tags: Build
 
 `UtilityNodes/TagMaster` menu tree. The pipeline's terminal **build** step: accepts up to 20 `CUUN_TAGS` inputs — each is a bundle, either already-resolved (from tag-toggle nodes/presets) or still-unresolved (from [Random Pick](UtilityNodesTagsRandomPick.md) / [Random Bundle](UtilityNodesTagsRandomBundle.md), or a `deferred_bundle` output from [Combinator](UtilityNodesTagsCombinator.md) / [Build from Rules](UtilityNodesTagsBuildFromRules.md)) — resolves cross-node conflicts (and any unresolved bundles), and emits a final STRING.
 
 ## Inputs
 
 - `separator` (STRING).
-- `seed` (INT): the **only** seed in the whole tag pipeline — `TagsRandomPick`/`TagsRandomBundle` carry none of their own. XOR-mixed with each unresolved input's own `bundle_i` slot index before resolving, so multiple unresolved bundles wired into one `TagsMerge` still diverge from each other even though they share this one seed.
+- `seed` (INT): the **only** seed in the whole tag pipeline — `TagsRandomPick`/`TagsRandomBundle` carry none of their own. XOR-mixed with each unresolved input's own `bundle_i` slot index before resolving, so multiple unresolved bundles wired into one `TagsBuild` still diverge from each other even though they share this one seed.
 - `bundle_1` ... `bundle_20` (CUUN_TAGS, optional): wire any tag node's `bundle` output here — resolved or unresolved, they all ride the same socket.
 - `extra` (STRING, multiline, optional): appended verbatim after the resolved tags. Never dropped by conflict rules.
 
@@ -13,7 +13,7 @@
 
 - `prompt` (STRING): final prompt.
 - `warnings` (STRING): log of every tag dropped during resolution. Useful for debugging "why did my tag vanish?".
-- `bundle` (CUUN_TAGS): the resolved bundle. Re-routable into another `TagsMerge` if you want to layer.
+- `bundle` (CUUN_TAGS): the resolved bundle. Re-routable into another `TagsBuild` if you want to layer.
 
 ## Resolution order
 
@@ -32,5 +32,5 @@
 
 ## Tips
 
-- For consistent prompts, route **every tag node's bundle** through one `TagsMerge` rather than concatenating their `prompt` outputs with `TextConcat` — only the merge path enforces the conflict rules.
+- For consistent prompts, route **every tag node's bundle** through one `TagsBuild` rather than concatenating their `prompt` outputs with `TextConcat` — only the merge path enforces the conflict rules.
 - Read `warnings` once to confirm the resolution did what you expected; many silent drops can hide a wiring mistake.

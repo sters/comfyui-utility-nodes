@@ -26,9 +26,9 @@ CharacterPreset(serafuku_schoolgirl) ─► TagsFilter(clothing.legwear) ─► 
 #         sailor_collar, pleated_skirt, loafers
 ```
 
-To swap the dropped aspect for your own choice, feed the result and a fresh source node into `TagsMerge`:
+To swap the dropped aspect for your own choice, feed the result and a fresh source node into `TagsBuild`:
 
 ```
 CharacterPreset ─► TagsFilter(clothing.legwear) ─┐
-ClothingLegwear(bare_legs)                     ─┼─► TagsMerge
+ClothingLegwear(bare_legs)                     ─┼─► TagsBuild
 ```

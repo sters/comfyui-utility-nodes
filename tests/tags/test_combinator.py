@@ -1,7 +1,7 @@
 from nodes.tags._base import Spec, TaggedSelection
+from nodes.tags.build import TagsBuild
 from nodes.tags.combinator import TagsCombinator
 from nodes.tags.explode import TagsExplode
-from nodes.tags.merge import TagsMerge
 from nodes.tags.random_bundle import TagsRandomBundle
 from nodes.tags.random_pick import TagsRandomPick
 from nodes.tags.sources.preset.character import CharacterPreset
@@ -21,8 +21,8 @@ def _make_explode_axis(category: str, tags: tuple[str, ...], mutex: bool = False
 
 
 def _prompt(bundle: Spec) -> str:
-    # Combinator now emits Specs; merging is the downstream TagsMerge's job.
-    prompt, _, _ = TagsMerge().merge(", ", bundle_1=bundle)
+    # Combinator now emits Specs; merging is the downstream TagsBuild's job.
+    prompt, _, _ = TagsBuild().build(", ", bundle_1=bundle)
     return str(prompt)
 
 

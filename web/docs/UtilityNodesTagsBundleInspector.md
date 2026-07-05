@@ -1,11 +1,11 @@
 # Tags: Bundle Inspector
 
-`UtilityNodes/TagMaster` menu tree. Pass-through visualizer for a `CUUN_TAGS` bundle. Drop it between `TagsMerge` and `CLIPTextEncode` to see what survived the merge — and, optionally, what got dropped — in one UI box.
+`UtilityNodes/TagMaster` menu tree. Pass-through visualizer for a `CUUN_TAGS` bundle. Drop it between `TagsBuild` and `CLIPTextEncode` to see what survived the merge — and, optionally, what got dropped — in one UI box.
 
 ## Inputs
 
 - `bundle` (CUUN_TAGS): the merged bundle to inspect.
-- `warnings` (STRING, optional): wire `TagsMerge.warnings` here to render the drop log under the kept tags.
+- `warnings` (STRING, optional): wire `TagsBuild.warnings` here to render the drop log under the kept tags.
 
 ## Outputs
 
@@ -26,4 +26,4 @@ mutex_group: kept 'long_skirt', dropped ['skirt']
 conflict: dropped ['bottomless'] from 'outfit' (triggered by ['school_uniform'])
 ```
 
-Selections are grouped by `layer` in first-seen order; within a layer, selections appear in input order so the listing mirrors the flatten order `TagsMerge` produces.
+Selections are grouped by `layer` in first-seen order; within a layer, selections appear in input order so the listing mirrors the flatten order `TagsBuild` produces.

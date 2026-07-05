@@ -1,7 +1,7 @@
 from typing import Any
 
 from nodes.tags._base import Spec, TaggedSelection
-from nodes.tags.merge import TagsMerge
+from nodes.tags.build import TagsBuild
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.personality import PERSONALITY_PRESETS, PersonalityPreset
 
@@ -33,7 +33,7 @@ def test_character_plus_personality_layers_cleanly() -> None:
     # to the otherwise neutral miko bundle.
     miko = _build_character("miko")
     tsundere = _build_personality("tsundere")
-    out = TagsMerge().merge(", ", bundle_1=miko, bundle_2=tsundere)
+    out = TagsBuild().build(", ", bundle_1=miko, bundle_2=tsundere)
     tokens = str(out[0]).split(", ")
     # miko visuals
     for t in ("miko", "hakama", "long_hair", "black_hair"):
@@ -49,7 +49,7 @@ def test_genki_and_tsundere_conflict_resolves() -> None:
     # frown override genki's smile/grin.
     genki = _build_personality("genki")
     tsundere = _build_personality("tsundere")
-    out = TagsMerge().merge(", ", bundle_1=genki, bundle_2=tsundere)
+    out = TagsBuild().build(", ", bundle_1=genki, bundle_2=tsundere)
     tokens = str(out[0]).split(", ")
     assert "frown" in tokens
     assert "smile" not in tokens
@@ -64,7 +64,7 @@ def test_kuudere_expressionless_drops_active_expression() -> None:
     # Put the smile bundle first to keep expressionless.
     kuudere = _build_personality("kuudere")
     smile_bundle = Spec(kind="fixed", pool=(TaggedSelection("ext", "ext", ("smile",), False),))
-    out = TagsMerge().merge(", ", bundle_1=smile_bundle, bundle_2=kuudere)
+    out = TagsBuild().build(", ", bundle_1=smile_bundle, bundle_2=kuudere)
     tokens = str(out[0]).split(", ")
     assert "expressionless" in tokens
     assert "smile" not in tokens
@@ -83,7 +83,7 @@ def test_all_personality_tags_exist_in_some_tag_node() -> None:
     """Sanity: every personality tag should be registered somewhere
     in the tag index (or be acceptable free-text). Otherwise the
     intent is unclear and AI may not recognise it."""
-    from tests.tags.test_merge import _TAG_INDEX
+    from tests.tags.test_build import _TAG_INDEX
 
     unknown: dict[str, list[str]] = {}
     for name, tags in PERSONALITY_PRESETS.items():

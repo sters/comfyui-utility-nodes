@@ -9,7 +9,7 @@ class TagsExplode:
     Designed to feed `TagsCombinator` — wire a tag-toggle node (e.g.
     `HairColor` with 4 colors checked) through `TagsExplode` to get 4
     axis values. Each output Spec preserves the original selection's
-    category / layer / mutex_within so downstream `TagsMerge` still
+    category / layer / mutex_within so downstream `TagsBuild` still
     enforces cross-bundle conflict rules per value.
 
     The input must already be resolved (`kind="fixed"`) — you can't explode

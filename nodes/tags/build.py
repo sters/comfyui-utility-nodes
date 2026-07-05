@@ -7,17 +7,17 @@ _MAX_INPUTS = 20
 _EXTRA_CATEGORY = "extra"
 
 
-class TagsMerge:
-    """The pipeline's terminal build step: resolves any unresolved specs, then
+class TagsBuild:
+    """The pipeline's terminal build step: resolves any unresolved bundles, then
     applies cross-bundle conflict rules, and flattens everything into a prompt.
 
     Every `bundle_i` input is a `Spec` — either already-resolved
     (`kind="fixed"`, from tag-toggle nodes, presets, `TagsCombinator`, etc.)
     or still-unresolved (from `TagsRandomPick` / `TagsRandomBundle`, or a
-    `TagsCombinator`/`TagsBuildFromRules` `deferred_spec` output). This is the
+    `TagsCombinator`/`TagsBuildFromRules` `deferred_bundle` output). This is the
     only node in the pipeline with a `seed` — `TagsRandomPick`/`TagsRandomBundle`
-    carry none of their own. Each unresolved spec is resolved here using
-    `seed` XOR-mixed with its own slot index (so multiple unresolved specs on
+    carry none of their own. Each unresolved input is resolved here using
+    `seed` XOR-mixed with its own slot index (so multiple unresolved inputs on
     one call still diverge), then their resulting selections are merged
     alongside the already-fixed inputs through the same mutex/conflict
     pipeline.
@@ -25,7 +25,7 @@ class TagsMerge:
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("prompt", "warnings", "bundle")
-    FUNCTION: ClassVar[str] = "merge"
+    FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
     @classmethod
@@ -43,7 +43,7 @@ class TagsMerge:
             "optional": optional,
         }
 
-    def merge(self, separator: str, seed: int = 0, extra: str = "", **kwargs: Any) -> tuple[str, str, Spec]:
+    def build(self, separator: str, seed: int = 0, extra: str = "", **kwargs: Any) -> tuple[str, str, Spec]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         warnings: list[str] = []
 
@@ -158,5 +158,5 @@ class TagsMerge:
         return (prompt, warnings_str, Spec(kind="fixed", pool=tuple(final)))
 
 
-NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsMerge": TagsMerge}
-NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsMerge": "Merge & Validate"}
+NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsBuild": TagsBuild}
+NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {"UtilityNodesTagsBuild": "Build"}

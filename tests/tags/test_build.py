@@ -1,4 +1,4 @@
-"""Integration tests for TagsMerge.
+"""Integration tests for TagsBuild.
 
 Most scenarios fit a simple shape: "given this comma-separated tag list,
 expect this comma-separated output." `_scenario(input)` auto-categorizes
@@ -19,7 +19,7 @@ import pytest
 
 import nodes.tags
 from nodes.tags._base import Spec, TaggedSelection
-from nodes.tags.merge import TagsMerge
+from nodes.tags.build import TagsBuild
 
 # --------------------------------------------------------------------------
 # Helpers
@@ -57,19 +57,19 @@ _TAG_INDEX = _build_tag_index()
 
 
 def _scenario(tags_str: str, *, extra: str = "") -> str:
-    """Run TagsMerge for a comma-separated tag list, returning the prompt.
+    """Run TagsBuild for a comma-separated tag list, returning the prompt.
 
     Each tag becomes its own ``TaggedSelection``, so output preserves
     input order while same-category mutex / cross-tag conflicts still fire.
     """
     if not tags_str.strip():
-        return str(TagsMerge().merge(", ", extra=extra)[0])
+        return str(TagsBuild().build(", ", extra=extra)[0])
     tags = [t.strip() for t in tags_str.split(",") if t.strip()]
     selections: list[TaggedSelection] = []
     for t in tags:
         cat, layer, mutex = _TAG_INDEX.get(t, ("_unknown", "unknown", False))
         selections.append(TaggedSelection(category=cat, layer=layer, tags=(t,), mutex_within=mutex))
-    out = TagsMerge().merge(", ", extra=extra, bundle_1=Spec(kind="fixed", pool=tuple(selections)))
+    out = TagsBuild().build(", ", extra=extra, bundle_1=Spec(kind="fixed", pool=tuple(selections)))
     return str(out[0])
 
 
@@ -378,7 +378,7 @@ def test_scenario(tags_in: str, expected: object) -> None:
 
 
 def _run(**kwargs: Any) -> tuple[str, str, tuple[TaggedSelection, ...]]:
-    out = TagsMerge().merge(", ", **kwargs)
+    out = TagsBuild().build(", ", **kwargs)
     return (str(out[0]), str(out[1]), out[2].pool)
 
 
@@ -436,7 +436,7 @@ def test_mutex_within_collapses_multi_tag_selection() -> None:
 
 
 def test_separator_escape_sequence_decoded() -> None:
-    out = TagsMerge().merge(r"\n", bundle_1=_fixed(_sel("a", ("x", "y"))))
+    out = TagsBuild().build(r"\n", bundle_1=_fixed(_sel("a", ("x", "y"))))
     assert out[0] == "x\ny"
 
 
@@ -483,7 +483,7 @@ def test_unknown_tags_pass_through() -> None:
 # --------------------------------------------------------------------------
 # Unresolved spec resolution (TagsRandomPick / TagsRandomBundle land here as
 # unresolved `Spec` inputs on the same `bundle_i` slots as already-fixed
-# ones; TagsMerge is the pipeline's terminal build step and resolves them
+# ones; TagsBuild is the pipeline's terminal build step and resolves them
 # before running conflict resolution).
 # --------------------------------------------------------------------------
 

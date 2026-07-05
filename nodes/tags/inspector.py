@@ -6,7 +6,7 @@ from ._base import TAGS_TYPE, Spec, TaggedSelection, require_fixed
 class TagsBundleInspector:
     """Pass-through visualizer for a merged CUUN_TAGS bundle.
 
-    Sits between `TagsMerge` and downstream consumers. Renders the
+    Sits between `TagsBuild` and downstream consumers. Renders the
     surviving selections grouped by layer/category, and optionally
     appends the merge `warnings` string so kept and dropped tags are
     visible in one UI box.
@@ -37,7 +37,7 @@ def _format_report(bundle: tuple[TaggedSelection, ...], warnings: str) -> str:
     else:
         # Group selections by layer in first-seen order, preserving the
         # selection order within each layer so the report mirrors the
-        # flatten order TagsMerge would produce.
+        # flatten order TagsBuild would produce.
         by_layer: dict[str, list[TaggedSelection]] = {}
         for sel in bundle:
             by_layer.setdefault(sel.layer or "(no layer)", []).append(sel)

@@ -1,6 +1,6 @@
 # Situation Preset
 
-`UtilityNodes/TagMaster` menu tree. Emits an SFW scene bundle (location + time-of-day + atmosphere + costume + simple action) for a coherent everyday situation. Designed to layer with `Character Preset` and `Personality Preset` through `TagsMerge`.
+`UtilityNodes/TagMaster` menu tree. Emits an SFW scene bundle (location + time-of-day + atmosphere + costume + simple action) for a coherent everyday situation. Designed to layer with `Character Preset` and `Personality Preset` through `TagsBuild`.
 
 ## Inputs
 
@@ -9,6 +9,6 @@
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): wire into `TagsMerge`. Outfit-bearing presets (e.g. `summer_beach` → `swimsuit`) trigger `TAG_CONFLICTS` against character-bundle clothing automatically.
+- `bundle` (CUUN_TAGS): wire into `TagsBuild`. Outfit-bearing presets (e.g. `summer_beach` → `swimsuit`) trigger `TAG_CONFLICTS` against character-bundle clothing automatically.
 
 The flat tuples live in `nodes/tags/situation_preset.py`. NSFW counterparts are in `NsfwScenePreset`.

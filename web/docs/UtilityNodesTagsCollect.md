@@ -10,7 +10,7 @@
 
 - `bundles` (CUUN_TAGS list, `OUTPUT_IS_LIST=True`): the wired bundles, in input order, each preserved whole.
 
-## Why not `TagsMerge` → `TagsExplode`?
+## Why not `TagsBuild` → `TagsExplode`?
 
 To vary over multiple characters you might reach for:
 
@@ -18,7 +18,7 @@ To vary over multiple characters you might reach for:
 Merge(Character(blazer), Character(serafuku)) ─→ Explode ─→ Combinator
 ```
 
-This does **not** do what you want: `TagsMerge` flattens both characters into one bundle (resolving conflicts between them), then `TagsExplode` re-splits that bundle **per tag** — so you get a combinatorial blow-up of individual tags, not one row per character.
+This does **not** do what you want: `TagsBuild` flattens both characters into one bundle (resolving conflicts between them), then `TagsExplode` re-splits that bundle **per tag** — so you get a combinatorial blow-up of individual tags, not one row per character.
 
 `TagsCollect` is the right primitive — it keeps each character as one discrete axis value:
 

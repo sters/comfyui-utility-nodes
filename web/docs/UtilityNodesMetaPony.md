@@ -11,4 +11,4 @@
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): selected tags as a single `TaggedSelection` at category `meta.pony`, layer `meta`, in the order `score → rating → source`, with any `extra` appended as its own `extra` selection. Wire it into `TagsMerge` alongside `CharacterPreset` / `MetaQuality` / etc. so the standard merge / conflict / decoration pipeline keeps working downstream.
+- `bundle` (CUUN_TAGS): selected tags as a single `TaggedSelection` at category `meta.pony`, layer `meta`, in the order `score → rating → source`, with any `extra` appended as its own `extra` selection. Wire it into `TagsBuild` alongside `CharacterPreset` / `MetaQuality` / etc. so the standard merge / conflict / decoration pipeline keeps working downstream.

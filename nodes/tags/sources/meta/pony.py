@@ -13,7 +13,7 @@ class MetaPony:
     A meta / template node (not a character or scene preset): the Pony
     Diffusion model needs its own score / rating / source prefix on
     every prompt the same way `MetaQuality` adds generic quality
-    descriptors. Wire its `bundle` output through `TagsMerge` together
+    descriptors. Wire its `bundle` output through `TagsBuild` together
     with the rest of the pipeline.
 
     Rating/source tags aren't in the tag-category registry, so

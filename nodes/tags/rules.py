@@ -138,7 +138,7 @@ class TagsBuildFromRules:
     Performs the identical cartesian-product expansion (plus deferred-axis
     resolution) `TagsCombinator` does, sourcing candidates from the JSON
     instead of live upstream nodes — wire `bundle` and `deferred_bundle` into
-    two different `TagsMerge` `bundle_i` slots, exactly like
+    two different `TagsBuild` `bundle_i` slots, exactly like
     `TagsCombinator`'s.
     """
 

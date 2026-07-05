@@ -12,18 +12,32 @@ NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
 # the human-facing display names stay unprefixed.
 _KEY_PREFIX = "UtilityNodes"
 
+# Renames of an *already-prefixed* class_type (as opposed to the bare->prefixed
+# migration below, which is derived automatically) need an explicit entry here
+# so already-saved workflows still auto-upgrade instead of showing "undefined
+# node". Add one line per such rename; never remove an old entry once shipped.
+_LEGACY_RENAMES = {
+    "UtilityNodesTagsMerge": "UtilityNodesTagsBuild",
+}
+
 
 def _register_node_replacements() -> None:
-    """Tell ComfyUI that the old bare class_types were renamed to the prefixed
-    ones, so already-saved workflows auto-upgrade on load instead of showing
-    "undefined node".
+    """Tell ComfyUI that old class_types were renamed, so already-saved
+    workflows auto-upgrade on load instead of showing "undefined node".
 
-    The rename is pure (only the class_type string changed; inputs/outputs are
-    identical), so each replacement is just old_id -> new_id. The loader treats
-    V1 NODE_CLASS_MAPPINGS and the V3 `comfy_entrypoint` as mutually exclusive
-    (`if ... elif ...`), so we can't register via a ComfyExtension while keeping
-    our V1 mappings — instead we call the (synchronous) NodeReplaceManager
-    directly, exactly as `ComfyAPI().node_replacement.register` does internally.
+    Two sources of renames, both pure (only the class_type string changed;
+    inputs/outputs are identical), so each replacement is just old_id ->
+    new_id:
+
+    1. Bare -> prefixed (derived automatically from every current
+       `NODE_CLASS_MAPPINGS` key — see `_KEY_PREFIX`).
+    2. Prefixed -> prefixed (explicit, see `_LEGACY_RENAMES`).
+
+    The loader treats V1 NODE_CLASS_MAPPINGS and the V3 `comfy_entrypoint` as
+    mutually exclusive (`if ... elif ...`), so we can't register via a
+    ComfyExtension while keeping our V1 mappings — instead we call the
+    (synchronous) NodeReplaceManager directly, exactly as
+    `ComfyAPI().node_replacement.register` does internally.
 
     Guarded end-to-end: on a ComfyUI too old to have the manager (or before the
     server instance exists), this is a silent no-op and the nodes still load.
@@ -38,10 +52,12 @@ def _register_node_replacements() -> None:
     except Exception:  # ComfyUI lacks the API, or the server isn't up yet.
         return
 
+    _renames = dict(_LEGACY_RENAMES)
     for _new_id in NODE_CLASS_MAPPINGS:
-        if not _new_id.startswith(_KEY_PREFIX):
-            continue
-        _old_id = _new_id[len(_KEY_PREFIX) :]
+        if _new_id.startswith(_KEY_PREFIX):
+            _renames[_new_id[len(_KEY_PREFIX) :]] = _new_id
+
+    for _old_id, _new_id in _renames.items():
         try:
             manager.register(io.NodeReplace(old_node_id=_old_id, new_node_id=_new_id))
         except Exception as _e:  # never let one bad mapping break node loading

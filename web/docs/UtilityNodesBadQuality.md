@@ -17,7 +17,7 @@ side. Distinct from **Bad: General** and friends, which cover `bad_anatomy`-styl
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): structured selection for `TagsMerge` (carries category + mutex metadata).
+- `bundle` (CUUN_TAGS): structured selection for `TagsBuild` (carries category + mutex metadata).
 
 ## Tags
 
@@ -40,5 +40,5 @@ side. Distinct from **Bad: General** and friends, which cover `bad_anatomy`-styl
 
 ## Notes
 
-- Wire `bundle` into the **negative** `TagsMerge` (alongside `Bad: General` etc.), then that `TagsMerge`'s `prompt` into your negative `CLIPTextEncode`.
-- For consistent prompts across multiple tag nodes, prefer wiring the `bundle` output through `TagsMerge` (it resolves cross-node conflicts via `MUTEX_GROUPS` and `TAG_CONFLICTS`).
+- Wire `bundle` into the **negative** `TagsBuild` (alongside `Bad: General` etc.), then that `TagsBuild`'s `prompt` into your negative `CLIPTextEncode`.
+- For consistent prompts across multiple tag nodes, prefer wiring the `bundle` output through `TagsBuild` (it resolves cross-node conflicts via `MUTEX_GROUPS` and `TAG_CONFLICTS`).
