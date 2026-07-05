@@ -64,7 +64,7 @@ def test_build_from_rules_empty_rules_yields_no_combinations() -> None:
 def test_deferred_axis_round_trips_through_json_without_expanding() -> None:
     # A random_pick axis serializes as one compact Spec, not N candidates.
     pool = _fixed(_sel("hair.color", ("red_hair", "blue_hair", "green_hair")))
-    (pick_spec,) = TagsRandomPick().pick(count=1, seed=7, bundle=pool)
+    (pick_spec,) = TagsRandomPick().pick(count=1, bundle=pool)
 
     (rules,) = TagsRulesToJson().build(axis_1=[pick_spec])
     rule_bundles, rule_labels, rule_indices, rule_deferred = TagsBuildFromRules().build(rules)

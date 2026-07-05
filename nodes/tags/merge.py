@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, Spec, TaggedSelection, resolve_spec
+from ._base import TAGS_TYPE, Spec, TaggedSelection, mix_seed, resolve_spec
 from ._conflicts import MUTEX_GROUPS, TAG_CONFLICTS
 
 _MAX_INPUTS = 20
@@ -14,10 +14,13 @@ class TagsMerge:
     Every `bundle_i` input is a `Spec` — either already-resolved
     (`kind="fixed"`, from tag-toggle nodes, presets, `TagsCombinator`, etc.)
     or still-unresolved (from `TagsRandomPick` / `TagsRandomBundle`, or a
-    `TagsCombinator`/`TagsBuildFromRules` `deferred_spec` output). Unresolved
-    specs are resolved first — using each spec's own `seed` — then their
-    resulting selections are merged alongside the already-fixed inputs
-    through the same mutex/conflict pipeline.
+    `TagsCombinator`/`TagsBuildFromRules` `deferred_spec` output). This is the
+    only node in the pipeline with a `seed` — `TagsRandomPick`/`TagsRandomBundle`
+    carry none of their own. Each unresolved spec is resolved here using
+    `seed` XOR-mixed with its own slot index (so multiple unresolved specs on
+    one call still diverge), then their resulting selections are merged
+    alongside the already-fixed inputs through the same mutex/conflict
+    pipeline.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
@@ -35,30 +38,32 @@ class TagsMerge:
         return {
             "required": {
                 "separator": ("STRING", {"multiline": False, "default": ", "}),
+                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
             },
             "optional": optional,
         }
 
-    def merge(self, separator: str, extra: str = "", **kwargs: Any) -> tuple[str, str, Spec]:
+    def merge(self, separator: str, seed: int = 0, extra: str = "", **kwargs: Any) -> tuple[str, str, Spec]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         warnings: list[str] = []
 
         # 1. Collect all incoming selections in input order: unresolved specs
-        #    resolved via their own seed first, then already-fixed ones.
-        #    Unresolved specs going first means an explicit `bundle_i`
-        #    override (e.g. a HairColor node) wins over a random pick via the
-        #    usual last-occurrence-wins MUTEX_GROUPS rule below.
+        #    resolved (mixing this node's `seed` with each one's own slot
+        #    index) first, then already-fixed ones. Unresolved specs going
+        #    first means an explicit `bundle_i` override (e.g. a HairColor
+        #    node) wins over a random pick via the usual
+        #    last-occurrence-wins MUTEX_GROUPS rule below.
         selections: list[TaggedSelection] = []
-        specs: list[Spec] = []
+        specs: list[tuple[int, Spec]] = []
         for i in range(1, _MAX_INPUTS + 1):
             spec = kwargs.get(f"bundle_{i}")
             if spec is None:
                 continue
-            specs.append(spec)
-        for spec in specs:
+            specs.append((i, spec))
+        for i, spec in specs:
             if spec.kind != "fixed":
-                selections.extend(resolve_spec(spec))
-        for spec in specs:
+                selections.extend(resolve_spec(mix_seed(spec, seed ^ i)))
+        for _i, spec in specs:
             if spec.kind == "fixed":
                 selections.extend(spec.pool)
 

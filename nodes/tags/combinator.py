@@ -1,8 +1,7 @@
-from dataclasses import replace
 from itertools import product
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, Spec, TaggedSelection
+from ._base import TAGS_TYPE, Spec, TaggedSelection, mix_seed
 
 Axis = list[Spec]
 
@@ -86,17 +85,6 @@ def label_combo(combo: tuple[Spec, ...]) -> str:
     return "__".join(parts)
 
 
-def _mix_seed(spec: Spec, idx: int) -> Spec:
-    """Derive a per-combo variant of a deferred spec by XOR-mixing its seed(s) with `idx`.
-
-    Recurses into `composite` children so each independently varies per
-    combo instead of every combo resolving to the identical pick.
-    """
-    if spec.kind == "composite":
-        return replace(spec, children=tuple(_mix_seed(c, idx) for c in spec.children))
-    return replace(spec, seed=spec.seed ^ idx)
-
-
 def combine_axes(axes: list[Axis], deferred: list[Spec]) -> tuple[list[Spec], list[str], list[int], list[Spec]]:
     """Expand the enumerable axes and attach the deferred (random) axes to every combo.
 
@@ -121,7 +109,7 @@ def combine_axes(axes: list[Axis], deferred: list[Spec]) -> tuple[list[Spec], li
         base_deferred = Spec(kind="composite", children=tuple(deferred))
 
     deferred_specs = (
-        [_mix_seed(base_deferred, idx) for idx in indices]
+        [mix_seed(base_deferred, idx) for idx in indices]
         if base_deferred is not None
         else [Spec(kind="fixed", pool=()) for _ in indices]
     )

@@ -1,5 +1,5 @@
 import random
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any, ClassVar, Literal
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {}
@@ -127,6 +127,21 @@ def resolve_spec(spec: Spec) -> tuple[TaggedSelection, ...]:
         out.append(TaggedSelection(category="random_pick", layer="random", tags=tuple(picked), mutex_within=False))
     out.extend(extras)
     return tuple(out)
+
+
+def mix_seed(spec: Spec, salt: int) -> Spec:
+    """Return a copy of `spec` with `salt` XOR-mixed into its seed(s).
+
+    `TagsRandomPick`/`TagsRandomBundle` no longer carry their own seed — the
+    only seed input lives at the actual build step (`TagsMerge`'s `seed`,
+    or a `TagsCombinator`/`TagsBuildFromRules` combo's `index`), and gets
+    mixed in here so multiple unresolved specs in one call still diverge.
+    Recurses into `composite` children so each mixes independently instead
+    of collapsing to one shared value.
+    """
+    if spec.kind == "composite":
+        return replace(spec, children=tuple(mix_seed(c, salt) for c in spec.children))
+    return replace(spec, seed=spec.seed ^ salt)
 
 
 def require_fixed(spec: "Spec", node_name: str) -> tuple[TaggedSelection, ...]:

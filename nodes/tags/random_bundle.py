@@ -11,14 +11,15 @@ class TagsRandomBundle:
     The bundle-level counterpart to `TagsRandomPick`: where `TagsRandomPick`
     flattens one bundle's tags into a pool and samples *tags*, this node
     treats each wired input as one indivisible candidate. No randomness
-    happens here — it packages the candidates and `seed` into a
-    `Spec(kind="bundle_choice")`. Wire the `spec` output into one of
-    `TagsMerge`'s `bundle_i` inputs (or a `TagsCombinator`/`TagsBuildFromRules`
-    `axis_i`, where it becomes a deferred axis); that's where the choice gets
-    resolved to exactly one of the wired bundles **intact** — categories,
-    layers and `mutex_within` preserved. Use it for "pick one of these N
-    alternatives each run": one of several `CharacterPreset`s, one of
-    several pre-composed scene/NSFW bundles, etc.
+    happens here, and no seed lives on this node either — it packages the
+    candidates into a `Spec(kind="bundle_choice")`. Wire the `spec` output
+    into one of `TagsMerge`'s `bundle_i` inputs (or a
+    `TagsCombinator`/`TagsBuildFromRules` `axis_i`, where it becomes a
+    deferred axis); that's where the choice gets resolved — using whichever
+    seed the actual build step owns — to exactly one of the wired bundles
+    **intact**: categories, layers and `mutex_within` preserved. Use it for
+    "pick one of these N alternatives each run": one of several
+    `CharacterPreset`s, one of several pre-composed scene/NSFW bundles, etc.
 
     This is the node to reach for instead of feeding a `TagsCollect` list into
     `TagsRandomPick` — `TagsRandomPick` does not consume a list (ComfyUI would
@@ -26,9 +27,8 @@ class TagsRandomBundle:
     candidates as discrete inputs and collapses them to one bundle, so no
     `TagsCombinator` / `TagsSelect` is needed for the random-one-per-run case.
 
-    Empty / unwired inputs are ignored. With `seed`'s `control_after_generate`
-    set to `randomize`, every run re-rolls a fresh choice. Every wired
-    candidate must already be resolved (`kind="fixed"`).
+    Empty / unwired inputs are ignored. Every wired candidate must already be
+    resolved (`kind="fixed"`).
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
@@ -41,14 +41,9 @@ class TagsRandomBundle:
         optional: dict[str, Any] = {}
         for i in range(1, _MAX_INPUTS + 1):
             optional[f"bundle_{i}"] = (TAGS_TYPE,)
-        return {
-            "required": {
-                "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
-            },
-            "optional": optional,
-        }
+        return {"required": {}, "optional": optional}
 
-    def pick(self, seed: int, **kwargs: Any) -> tuple[Spec]:
+    def pick(self, **kwargs: Any) -> tuple[Spec]:
         candidates: list[tuple[TaggedSelection, ...]] = []
         for i in range(1, _MAX_INPUTS + 1):
             bundle = kwargs.get(f"bundle_{i}")
@@ -59,7 +54,7 @@ class TagsRandomBundle:
                 continue
             candidates.append(pool)
 
-        return (Spec(kind="bundle_choice", seed=seed, bundles=tuple(candidates)),)
+        return (Spec(kind="bundle_choice", bundles=tuple(candidates)),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsRandomBundle": TagsRandomBundle}

@@ -114,22 +114,19 @@ def test_combinator_deferred_axis_rides_along_without_multiplying() -> None:
     # A TagsRandomPick output wired directly into axis_i is a length-1,
     # unresolved axis: not cross-multiplied, carried through to every combo.
     hair = _make_explode_axis("hair.color", ("red_hair", "blue_hair"))
-    (spec,) = TagsRandomPick().pick(count=1, seed=1, bundle=_fixed(_sel("eyes.color", ("blue_eyes", "red_eyes"))))
+    (spec,) = TagsRandomPick().pick(count=1, bundle=_fixed(_sel("eyes.color", ("blue_eyes", "red_eyes"))))
     bundles, labels, indices, deferred = TagsCombinator().combine(axis_1=hair, axis_2=[spec])
     assert len(bundles) == 2
     assert len(deferred) == 2
     assert all(d.kind == "tag_pick" for d in deferred)
-    # Each combo's deferred spec resolves independently (mixed by index).
-    from nodes.tags._base import resolve_spec
-
-    resolved = [resolve_spec(d)[0].tags[0] for d in deferred]
-    assert resolved[0] != resolved[1] or deferred[0].seed != deferred[1].seed
+    # Each combo's deferred spec resolves independently (mixed by index — no
+    # seed lives on TagsRandomPick itself anymore).
+    assert deferred[0].seed != deferred[1].seed
 
 
 def test_combinator_multiple_deferred_axes_composite_into_one_output() -> None:
-    (pick,) = TagsRandomPick().pick(count=1, seed=1, bundle=_fixed(_sel("eyes.color", ("blue_eyes", "red_eyes"))))
+    (pick,) = TagsRandomPick().pick(count=1, bundle=_fixed(_sel("eyes.color", ("blue_eyes", "red_eyes"))))
     (choice,) = TagsRandomBundle().pick(
-        seed=2,
         bundle_1=_fixed(_sel("character.a", ("a_tag",))),
         bundle_2=_fixed(_sel("character.b", ("b_tag",))),
     )
@@ -142,7 +139,7 @@ def test_combinator_multiple_deferred_axes_composite_into_one_output() -> None:
 
 
 def test_combinator_no_enumerable_axis_with_deferred_still_yields_one_combo() -> None:
-    (spec,) = TagsRandomPick().pick(count=1, seed=1, bundle=_fixed(_sel("eyes.color", ("blue_eyes",))))
+    (spec,) = TagsRandomPick().pick(count=1, bundle=_fixed(_sel("eyes.color", ("blue_eyes",))))
     bundles, labels, indices, deferred = TagsCombinator().combine(axis_1=[spec])
     assert bundles == [Spec(kind="fixed", pool=())]
     assert indices == [0]
