@@ -48,7 +48,7 @@ def _spec_to_dict(spec: Spec) -> dict[str, Any]:
         return {
             "kind": "bundle_choice",
             "seed": spec.seed,
-            "bundles": [[_selection_to_dict(s) for s in b] for b in spec.bundles],
+            "bundles": [_spec_to_dict(b) for b in spec.bundles],
         }
     return {"kind": "composite", "children": [_spec_to_dict(c) for c in spec.children]}
 
@@ -65,10 +65,16 @@ def _spec_from_dict(d: dict[str, Any]) -> Spec:
             pool=tuple(_selection_from_dict(s) for s in d["pool"]),
         )
     if kind == "bundle_choice":
+        bundles = d["bundles"]
+        if bundles and isinstance(bundles[0], list):
+            raise ValueError(
+                "TagsBuildFromRules: pre-nested-bundle-choice rules JSON detected — regenerate with the current "
+                "TagsRulesToJson"
+            )
         return Spec(
             kind="bundle_choice",
             seed=d["seed"],
-            bundles=tuple(tuple(_selection_from_dict(s) for s in b) for b in d["bundles"]),
+            bundles=tuple(_spec_from_dict(b) for b in bundles),
         )
     return Spec(kind="composite", children=tuple(_spec_from_dict(c) for c in d["children"]))
 

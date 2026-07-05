@@ -516,9 +516,21 @@ def test_merge_resolves_tag_pick_preserves_extra() -> None:
 def test_merge_resolves_bundle_choice_spec_intact() -> None:
     a = (_sel("character.a", ("long_hair", "serafuku")),)
     b = (_sel("character.b", ("short_hair", "blazer")),)
-    spec = Spec(kind="bundle_choice", seed=0, bundles=(a, b))
+    spec = Spec(kind="bundle_choice", seed=0, bundles=(_fixed(*a), _fixed(*b)))
     _, _, bundle = _run(bundle_1=spec)
     assert bundle in (a, b)
+
+
+def test_merge_resolves_bundle_choice_with_unresolved_candidate() -> None:
+    # A candidate need not already be fixed — TagsRandomBundle may wire in
+    # another unresolved spec (e.g. from TagsRandomPick), resolved here.
+    fixed_candidate = _fixed(_sel("character.a", ("long_hair",)))
+    deferred_candidate = Spec(kind="tag_pick", pool=(_sel("hair.color", ("red", "blue")),), count=1)
+    spec = Spec(kind="bundle_choice", seed=0, bundles=(fixed_candidate, deferred_candidate))
+    _, _, bundle = _run(bundle_1=spec)
+    assert bundle == (_sel("character.a", ("long_hair",)),) or (
+        len(bundle) == 1 and bundle[0].category == "random_pick" and len(bundle[0].tags) == 1
+    )
 
 
 def test_merge_combines_specs_and_bundles() -> None:
@@ -532,6 +544,6 @@ def test_merge_combines_specs_and_bundles() -> None:
 def test_merge_resolved_spec_participates_in_conflict_resolution() -> None:
     # A spec resolving to "long_hair" should still lose to an explicit
     # short_hair bundle via the usual MUTEX_GROUPS last-wins rule.
-    spec = Spec(kind="bundle_choice", seed=0, bundles=((_sel("hair.length", ("long_hair",)),),))
+    spec = Spec(kind="bundle_choice", seed=0, bundles=(_fixed(_sel("hair.length", ("long_hair",))),))
     prompt, _, _ = _run(bundle_1=spec, bundle_2=_fixed(_sel("hair.length", ("short_hair",))))
     assert prompt == "short_hair"

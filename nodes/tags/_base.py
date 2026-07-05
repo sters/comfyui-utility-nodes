@@ -78,7 +78,11 @@ class Spec:
     (order preserved, no dice roll). Every other kind is unresolved and only
     `resolve_spec` (called by `TagsBuild`) rolls the dice for it:
 
-    - `kind="bundle_choice"` picks one whole candidate out of `bundles`.
+    - `kind="bundle_choice"` picks one whole candidate `Spec` out of `bundles`
+      and resolves it — a candidate may itself be `fixed` or still
+      unresolved (`tag_pick`/`bundle_choice`/`composite`), so `RandomBundle`
+      can hold a mix of already-fixed and still-random alternatives; whichever
+      one is picked gets resolved on the spot, seeded off the same draw.
     - `kind="tag_pick"` samples `count` tags out of `pool`'s flattened,
       non-`extra` tags; `pool`'s `extra` selections pass through untouched.
     - `kind="composite"` resolves each of `children` independently and
@@ -89,7 +93,7 @@ class Spec:
 
     kind: Literal["fixed", "bundle_choice", "tag_pick", "composite"]
     seed: int = 0
-    bundles: tuple[tuple[TaggedSelection, ...], ...] = ()
+    bundles: tuple["Spec", ...] = ()
     pool: tuple[TaggedSelection, ...] = field(default_factory=tuple)
     count: int = 1
     children: tuple["Spec", ...] = ()
@@ -109,7 +113,10 @@ def resolve_spec(spec: Spec) -> tuple[TaggedSelection, ...]:
     rng = random.Random(spec.seed)
 
     if spec.kind == "bundle_choice":
-        return rng.choice(spec.bundles) if spec.bundles else ()
+        if not spec.bundles:
+            return ()
+        chosen = rng.choice(spec.bundles)
+        return resolve_spec(mix_seed(chosen, rng.getrandbits(64)))
 
     pool: list[str] = []
     extras: list[TaggedSelection] = []
@@ -149,7 +156,9 @@ def require_fixed(spec: "Spec", node_name: str) -> tuple[TaggedSelection, ...]:
 
     Used by every node for which an unresolved random pick makes no sense
     (Explode, Collect, Select, Decorate, Filter, Inspector, RandomPick,
-    RandomBundle) — they operate on concrete tags, not deferred choices.
+    Concat) — they operate on concrete tags, not deferred choices.
+    `RandomBundle` is the one candidate-taking node that does *not* use this —
+    its candidates may themselves be unresolved, resolved later by `TagsBuild`.
     """
     if spec.kind != "fixed":
         raise ValueError(f"{node_name}: expected a resolved input, got kind={spec.kind!r}")

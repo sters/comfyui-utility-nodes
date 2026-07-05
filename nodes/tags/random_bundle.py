@@ -1,12 +1,12 @@
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, Spec, TaggedSelection, require_fixed
+from ._base import TAGS_TYPE, Spec
 
 _MAX_INPUTS = 10
 
 
 class TagsRandomBundle:
-    """Describe a choice of one whole resolved bundle out of several alternatives, resolved later.
+    """Describe a choice of one whole bundle out of several alternatives, resolved later.
 
     The bundle-level counterpart to `TagsRandomPick`: where `TagsRandomPick`
     flattens one bundle's tags into a pool and samples *tags*, this node
@@ -16,10 +16,18 @@ class TagsRandomBundle:
     into one of `TagsBuild`'s `bundle_i` inputs (or a
     `TagsCombinator`/`TagsBuildFromRules` `axis_i`, where it becomes a
     deferred axis); that's where the choice gets resolved — using whichever
-    seed the actual build step owns — to exactly one of the wired bundles
-    **intact**: categories, layers and `mutex_within` preserved. Use it for
+    seed the actual build step owns.
+
+    Candidates may be a mix of already-resolved (`kind="fixed"`) bundles and
+    still-unresolved ones (another `TagsRandomPick`/`TagsRandomBundle`
+    output, or a `TagsCombinator`/`TagsBuildFromRules` `deferred_bundle`).
+    Whichever candidate gets picked is resolved on the spot — categories,
+    layers and `mutex_within` preserved for a fixed candidate; its own
+    randomness rolled (seeded off this pick) for an unresolved one. Use it for
     "pick one of these N alternatives each run": one of several
-    `CharacterPreset`s, one of several pre-composed scene/NSFW bundles, etc.
+    `CharacterPreset`s, one of several pre-composed scene/NSFW bundles, or
+    even one of several still-random sub-choices (e.g. "1 person doing a
+    random pose" vs "2 people doing a random pose").
 
     This is the node to reach for instead of feeding a `TagsCollect` list into
     `TagsRandomPick` — `TagsRandomPick` does not consume a list (ComfyUI would
@@ -27,8 +35,7 @@ class TagsRandomBundle:
     candidates as discrete inputs and collapses them to one bundle, so no
     `TagsCombinator` / `TagsSelect` is needed for the random-one-per-run case.
 
-    Empty / unwired inputs are ignored. Every wired candidate must already be
-    resolved (`kind="fixed"`).
+    Empty / unwired inputs are ignored.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
@@ -44,15 +51,14 @@ class TagsRandomBundle:
         return {"required": {}, "optional": optional}
 
     def pick(self, **kwargs: Any) -> tuple[Spec]:
-        candidates: list[tuple[TaggedSelection, ...]] = []
+        candidates: list[Spec] = []
         for i in range(1, _MAX_INPUTS + 1):
-            bundle = kwargs.get(f"bundle_{i}")
-            if bundle is None:
+            spec = kwargs.get(f"bundle_{i}")
+            if spec is None:
                 continue
-            pool = require_fixed(bundle, "TagsRandomBundle")
-            if not pool:
+            if spec.kind == "fixed" and not spec.pool:
                 continue
-            candidates.append(pool)
+            candidates.append(spec)
 
         return (Spec(kind="bundle_choice", bundles=tuple(candidates)),)
 
