@@ -4,7 +4,7 @@
 
 ## Inputs
 
-- `file`: a dropdown over the input folder, with a drag/drop upload button (same widget `LoadImage` uses, minus the image-specific preview).
+- `file`: a dropdown over the input folder, with a drag/drop upload button (same widget `LoadImage` uses). If the picked file looks like an image (by extension), a thumbnail preview is shown on the node, same as `LoadImage`; for any other file type, no preview is attempted.
 
 ## Outputs
 

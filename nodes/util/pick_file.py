@@ -5,6 +5,11 @@ over the input folder plus a drag/drop upload button — but never decodes
 anything. It just resolves the pick to a real filesystem path, so any file
 (not only images) can be wired downstream as a plain STRING path.
 
+``web/js/pick_file_preview.js`` adds the same thumbnail preview ``LoadImage``
+shows, but only when the picked filename looks like an image (by extension) —
+unlike ``LoadImage``'s built-in ``image_upload`` widget config, which always
+assumes the pick is an image, this node's picks can be anything.
+
 ``folder_paths`` is a ComfyUI-runtime module, so it is imported lazily inside
 the methods — the module stays importable without it installed. There is no
 pure logic to unit-test here (the whole body is folder_paths delegation), so
