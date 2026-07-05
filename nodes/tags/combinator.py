@@ -89,7 +89,7 @@ def combine_axes(axes: list[Axis], deferred: list[Spec]) -> tuple[list[Spec], li
     """Expand the enumerable axes and attach the deferred (random) axes to every combo.
 
     Shared by ``TagsCombinator.combine`` and ``TagsBuildFromRules.build`` so
-    the "at most one deferred-spec output, however many deferred axes fed it"
+    the "at most one deferred_bundle output, however many deferred axes fed it"
     behavior lives in one place.
     """
     bundles, labels, indices = expand_axes(axes)
@@ -129,10 +129,10 @@ class TagsCombinator:
     independent roll per combo).
 
     The node generates every combination of the enumerable axes and emits
-    each as a `kind="fixed"` Spec via `bundle` — it does *not* merge or
-    resolve conflicts itself. Any deferred axes are folded into the `
-    deferred_spec` output (composited together if there's more than one).
-    Wire both `bundle` and `deferred_spec` into two different `TagsMerge`
+    each as a resolved bundle via `bundle` — it does *not* merge or resolve
+    conflicts itself. Any deferred axes are folded into the `deferred_bundle`
+    output (composited together if there's more than one). Wire both
+    `bundle` and `deferred_bundle` into two different `TagsMerge`
     ("Merge & Validate") `bundle_i` slots; ComfyUI broadcasts that node over
     the output lists, so it runs once per combination and produces the
     per-combo prompt / warnings, with each combo's deferred axes independently
@@ -146,7 +146,7 @@ class TagsCombinator:
 
     INPUT_IS_LIST: ClassVar[bool] = True
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE, "STRING", "INT", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "label", "index", "deferred_spec")
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "label", "index", "deferred_bundle")
     OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True, True)
     FUNCTION: ClassVar[str] = "combine"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"

@@ -6,21 +6,21 @@
 
 - `bundle_1` … `bundle_10` (CUUN_TAGS, optional): the candidate bundles — each must already be resolved. Unwired or empty inputs are ignored.
 
-This node has **no `seed` input** — the only seed in the pipeline lives on [Merge & Validate](UtilityNodesTagsMerge.md) (the actual build step), which XOR-mixes it with this spec's own slot index when resolving. Set `control_after_generate` to `randomize` on `TagsMerge`'s `seed` to re-roll every run.
+This node has **no `seed` input** — the only seed in the pipeline lives on [Merge & Validate](UtilityNodesTagsMerge.md) (the actual build step), which XOR-mixes it with this node's own output's slot index when resolving. Set `control_after_generate` to `randomize` on `TagsMerge`'s `seed` to re-roll every run.
 
 ## Outputs
 
-- `spec` (CUUN_TAG_SPEC — the same socket type as `CUUN_TAGS`): an unresolved `bundle_choice` spec carrying the candidate bundles. Wire it into one of [Merge & Validate](UtilityNodesTagsMerge.md)'s `bundle_i` inputs to resolve it immediately, or into a [Combinator](UtilityNodesTagsCombinator.md)/[Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i` to make it a *deferred axis* — not cross-multiplied, resolved once independently per combination.
+- `bundle` (CUUN_TAGS): an unresolved "pick one of these" bundle carrying the candidates. Wire it into one of [Merge & Validate](UtilityNodesTagsMerge.md)'s `bundle_i` inputs to resolve it immediately, or into a [Combinator](UtilityNodesTagsCombinator.md)/[Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i` to make it a *deferred axis* — not cross-multiplied, resolved once independently per combination.
 
 ## Behavior
 
-- No randomness happens in this node — it only packages the wired candidates into a spec. Resolution (the actual choosing) happens wherever the spec ends up, using whichever seed the resolving node owns, uniformly over the non-empty wired inputs.
+- No randomness happens in this node — it only packages the wired candidates. Resolution (the actual choosing) happens wherever the output ends up, using whichever seed the resolving node owns, uniformly over the non-empty wired inputs.
 - The chosen bundle's selections are merged like any other input — no flattening or category loss, but it does go through the same mutex/conflict resolution as everything else once wired in.
 - This is the node for "pick one of these N alternatives each run". Do **not** feed a [Collect](UtilityNodesTagsCollect.md) list into [Random Pick](UtilityNodesTagsRandomPick.md) for this — Random Pick does not consume a list, so ComfyUI broadcasts it per element and keeps every candidate. Random Bundle takes the candidates as discrete inputs and collapses them to one.
 
 ## Typical use
 
-Random-one-per-run prompts need no [Combinator](UtilityNodesTagsCombinator.md) / [Select](UtilityNodesTagsSelect.md): each axis emits one bundle or spec, and a final [Merge & Validate](UtilityNodesTagsMerge.md) combines them.
+Random-one-per-run prompts need no [Combinator](UtilityNodesTagsCombinator.md) / [Select](UtilityNodesTagsSelect.md): each axis emits one bundle (resolved or not), and a final [Merge & Validate](UtilityNodesTagsMerge.md) combines them.
 
 ```
 CharacterPreset A ─┐

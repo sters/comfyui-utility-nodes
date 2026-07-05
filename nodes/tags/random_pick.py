@@ -6,13 +6,13 @@ from ._base import TAGS_TYPE, Spec, require_fixed
 class TagsRandomPick:
     """Describe a random sample of tags out of a resolved bundle, resolved later.
 
-    Packages `count` and the bundle to sample from into a
-    `Spec(kind="tag_pick")` — no randomness happens here, and no seed lives
-    on this node either. Wire the `spec` output into one of `TagsMerge`'s
-    `bundle_i` inputs (or a `TagsCombinator`/`TagsBuildFromRules` `axis_i`,
-    where it becomes a deferred axis); that's where specs get resolved,
-    alongside the usual conflict resolution, using whichever seed the actual
-    build step owns.
+    Packages `count` and the bundle to sample from into an unresolved
+    bundle — no randomness happens here, and no seed lives on this node
+    either. Wire the `bundle` output into one of `TagsMerge`'s `bundle_i`
+    inputs (or a `TagsCombinator`/`TagsBuildFromRules` `axis_i`, where it
+    becomes a deferred axis); that's where it gets resolved, alongside the
+    usual conflict resolution, using whichever seed the actual build step
+    owns.
 
     Resolution flattens every non-`extra` selection's tags into one pool,
     samples `count` of them without replacement, and emits the chosen tags
@@ -26,7 +26,7 @@ class TagsRandomPick:
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("spec",)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "pick"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 

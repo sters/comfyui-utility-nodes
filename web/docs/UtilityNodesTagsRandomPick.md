@@ -1,21 +1,21 @@
 # Tags: Random Pick
 
-`UtilityNodes/TagMaster` menu tree. Describes a random sample of `count` tags out of a resolved CUUN_TAGS bundle — the actual pick is deferred to [Merge & Validate](UtilityNodesTagsMerge.md) (or a [Combinator](UtilityNodesTagsCombinator.md) / [Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i`), the places that resolve specs. Use for "give me a random subset of these tags in the prompt" — variety without writing a separate template for each combination.
+`UtilityNodes/TagMaster` menu tree. Describes a random sample of `count` tags out of a resolved CUUN_TAGS bundle — the actual pick is deferred to [Merge & Validate](UtilityNodesTagsMerge.md) (or a [Combinator](UtilityNodesTagsCombinator.md) / [Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i`), the places that resolve unresolved bundles. Use for "give me a random subset of these tags in the prompt" — variety without writing a separate template for each combination.
 
 ## Inputs
 
 - `count` (INT, ≥ 1): number of tags to sample (without replacement).
-- `bundle` (CUUN_TAGS, optional): must already be resolved (a plain tag node's output, not another unresolved spec).
+- `bundle` (CUUN_TAGS, optional): the pool to sample from — must already be resolved (a plain tag node's output, not another node's unresolved output).
 
-This node has **no `seed` input** — the only seed in the pipeline lives on [Merge & Validate](UtilityNodesTagsMerge.md) (the actual build step), which XOR-mixes it with each spec's own slot index when resolving.
+This node has **no `seed` input** — the only seed in the pipeline lives on [Merge & Validate](UtilityNodesTagsMerge.md) (the actual build step), which XOR-mixes it with each unresolved input's own slot index when resolving.
 
 ## Outputs
 
-- `spec` (CUUN_TAG_SPEC — the same socket type as `CUUN_TAGS`): an unresolved `tag_pick` spec carrying `count` and the bundle to sample from. Wire it into one of [Merge & Validate](UtilityNodesTagsMerge.md)'s `bundle_i` inputs to resolve it immediately, or into a [Combinator](UtilityNodesTagsCombinator.md)/[Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i` to make it a *deferred axis* — not cross-multiplied, resolved once independently per combination.
+- `bundle` (CUUN_TAGS): an unresolved "pick `count` at random" bundle carrying `count` and the pool to sample from. Wire it into one of [Merge & Validate](UtilityNodesTagsMerge.md)'s `bundle_i` inputs to resolve it immediately, or into a [Combinator](UtilityNodesTagsCombinator.md)/[Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i` to make it a *deferred axis* — not cross-multiplied, resolved once independently per combination.
 
 ## Behavior
 
-- No randomness happens in this node — it only packages its inputs into a spec. Resolution (sampling) happens wherever the spec ends up, using whichever seed the resolving node owns.
+- No randomness happens in this node — it only packages its inputs. Resolution (sampling) happens wherever the output ends up, using whichever seed the resolving node owns.
 - On resolution: tags from every non-`extra` selection are flattened into one pool before sampling. Category metadata of the source selections is lost on purpose — the picked tags live under a new `random_pick` category.
 - If `count >= number of available tags`, every tag is returned (shuffled).
 - `extra` selections pass through untouched.

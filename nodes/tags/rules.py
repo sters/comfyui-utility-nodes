@@ -137,13 +137,13 @@ class TagsBuildFromRules:
 
     Performs the identical cartesian-product expansion (plus deferred-axis
     resolution) `TagsCombinator` does, sourcing candidates from the JSON
-    instead of live upstream nodes — wire `bundle` and `deferred_spec` into
+    instead of live upstream nodes — wire `bundle` and `deferred_bundle` into
     two different `TagsMerge` `bundle_i` slots, exactly like
     `TagsCombinator`'s.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE, "STRING", "INT", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "label", "index", "deferred_spec")
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "label", "index", "deferred_bundle")
     OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True, True)
     FUNCTION: ClassVar[str] = "build"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"

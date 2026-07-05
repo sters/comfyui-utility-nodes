@@ -12,7 +12,7 @@ class TagsRandomBundle:
     flattens one bundle's tags into a pool and samples *tags*, this node
     treats each wired input as one indivisible candidate. No randomness
     happens here, and no seed lives on this node either — it packages the
-    candidates into a `Spec(kind="bundle_choice")`. Wire the `spec` output
+    candidates into an unresolved bundle. Wire the `bundle` output
     into one of `TagsMerge`'s `bundle_i` inputs (or a
     `TagsCombinator`/`TagsBuildFromRules` `axis_i`, where it becomes a
     deferred axis); that's where the choice gets resolved — using whichever
@@ -32,7 +32,7 @@ class TagsRandomBundle:
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("spec",)
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle",)
     FUNCTION: ClassVar[str] = "pick"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
