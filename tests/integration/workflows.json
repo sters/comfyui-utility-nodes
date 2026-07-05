@@ -579,6 +579,21 @@
     ]
   },
   {
+    "name": "tags_concat_feeds_random_pick_over_combined_pool",
+    "description": "TagsConcat flattens two whole CharacterPreset bundles into one bundle, verbatim (no mutex/conflict resolution) — the union-of-tags pool TagsRandomPick needs to sample across both nodes' tags. TagsRandomPick(count=1) then TagsBuild(seed=0, bundle_1 slot) reproduces the deterministic reference pick over the 17-tag combined pool.",
+    "workflow": {
+      "1": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
+      "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
+      "3": {"class_type": "UtilityNodesTagsConcat", "inputs": {"bundle_1": ["1", 0], "bundle_2": ["2", 0]}},
+      "4": {"class_type": "UtilityNodesTagsRandomPick", "inputs": {"count": 1, "bundle": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsBuild", "inputs": {"seed": 0, "bundle_1": ["4", 0]}},
+      "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
+    },
+    "expect": [
+      ["6", "pleated_skirt"]
+    ]
+  },
+  {
     "name": "combinator_preset_override_axis",
     "description": "Issue #24: TagsCombinator over a preset base axis × an exploded HairColor axis emits concatenated CUUN_TAGS bundles; the downstream TagsBuild (broadcast per combination) resolves the hair MUTEX_GROUP last-wins, so the preset's brown_hair is overridden by each axis hair color. PreviewAny collects both prompts.",
     "workflow": {

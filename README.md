@@ -49,6 +49,7 @@ These consume/transform `CUUN_TAGS` bundles (or, where noted, a prompt STRING).
 | `Tags: Decorate` | `TagsDecorate` | Prefix the tags of a chosen category with a decoration phrase (built from another bundle); broadcasts as a cross product for multi-variant runs. |
 | `Tags: Explode` | `TagsExplode` | Split a bundle into one single-tag bundle per tag — feed it into `Combinator` to turn N checked tags into N axis values. |
 | `Tags: Collect` | `TagsCollect` | Gather several whole bundles into one list — feed it into `Combinator` to vary over whole bundles (e.g. multiple characters), one combination per bundle. |
+| `Tags: Concat` | `TagsConcat` | Concatenate several whole bundles into one, verbatim — no mutex/conflict resolution (unlike `Build`). Use to build a combined candidate pool for `Random Pick` before it runs. |
 | `Tags: Select` | `TagsSelect` | Pick one combination out of a `Combinator` list by index (wraps) — drive `index` from `Seed` and queue N runs for memory-safe large sweeps instead of one N-wide Run. |
 | `Rules to JSON` | `TagsRulesToJson` | Serialize `Combinator`-shaped axes (the candidates, not the expansion) to a JSON STRING — run once, save/preview it, and drop the source graph. |
 | `Build from Rules` | `TagsBuildFromRules` | Expand a `Rules to JSON` STRING back into `Combinator`-identical combination bundles, without the original toggle/preset nodes wired up. |
