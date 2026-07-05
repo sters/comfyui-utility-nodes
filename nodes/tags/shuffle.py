@@ -1,7 +1,7 @@
 import random
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, TaggedSelection
+from ._base import TAGS_TYPE, Spec, TaggedSelection, require_fixed
 
 
 class TagsShuffle:
@@ -36,12 +36,13 @@ class TagsShuffle:
     def shuffle(
         self,
         seed: int,
-        bundle: tuple[TaggedSelection, ...] = (),
-    ) -> tuple[tuple[TaggedSelection, ...]]:
+        bundle: Spec | None = None,
+    ) -> tuple[Spec]:
         rng = random.Random(seed)
+        pool = require_fixed(bundle, "TagsShuffle") if bundle is not None else ()
 
         out: list[TaggedSelection] = []
-        for sel in bundle or ():
+        for sel in pool:
             if sel.category == "extra" or len(sel.tags) < 2:
                 out.append(sel)
                 continue
@@ -56,7 +57,7 @@ class TagsShuffle:
                 )
             )
 
-        return (tuple(out),)
+        return (Spec(kind="fixed", pool=tuple(out)),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsShuffle": TagsShuffle}

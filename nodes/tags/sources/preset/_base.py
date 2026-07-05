@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ..._base import TAGS_TYPE, TaggedSelection
+from ..._base import TAGS_TYPE, Spec, TaggedSelection
 
 # Shared base for the flat-tuple preset nodes (character / personality /
 # situation / nsfw_scene). Each subclass only declares its preset table,
@@ -42,7 +42,7 @@ class PresetNodeBase:
             },
         }
 
-    def build(self, *args: Any, extra: str = "", **kwargs: Any) -> tuple[tuple[TaggedSelection, ...]]:
+    def build(self, *args: Any, extra: str = "", **kwargs: Any) -> tuple[Spec]:
         # ComfyUI calls build(<PARAM>=..., extra=...) by keyword; the tests
         # call build(<name>) positionally. Accept both.
         name = args[0] if args else kwargs.get(self.PARAM, "")
@@ -67,4 +67,4 @@ class PresetNodeBase:
                     mutex_within=False,
                 )
             )
-        return (tuple(bundle),)
+        return (Spec(kind="fixed", pool=tuple(bundle)),)

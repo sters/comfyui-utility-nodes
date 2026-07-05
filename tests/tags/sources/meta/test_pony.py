@@ -1,5 +1,4 @@
-from typing import Any
-
+from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.sources.meta.pony import MetaPony
 
 
@@ -14,13 +13,13 @@ def _all_scores_on() -> dict[str, bool]:
     }
 
 
-def _preview(result: tuple[Any, ...]) -> str:
-    bundle = tuple(result[0])
+def _preview(result: tuple[Spec]) -> str:
+    bundle = result[0].pool
     return ", ".join(t for sel in bundle for t in sel.tags)
 
 
-def _bundle(result: tuple[Any, ...]) -> tuple[Any, ...]:
-    return tuple(result[0])
+def _bundle(result: tuple[Spec]) -> tuple[TaggedSelection, ...]:
+    return result[0].pool
 
 
 def test_build_recommended() -> None:

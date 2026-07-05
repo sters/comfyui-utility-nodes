@@ -18,7 +18,7 @@ from typing import Any
 import pytest
 
 import nodes.tags
-from nodes.tags._base import RandomSpec, TaggedSelection
+from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.merge import TagsMerge
 
 # --------------------------------------------------------------------------
@@ -69,7 +69,7 @@ def _scenario(tags_str: str, *, extra: str = "") -> str:
     for t in tags:
         cat, layer, mutex = _TAG_INDEX.get(t, ("_unknown", "unknown", False))
         selections.append(TaggedSelection(category=cat, layer=layer, tags=(t,), mutex_within=mutex))
-    out = TagsMerge().merge(", ", extra=extra, bundle_1=tuple(selections))
+    out = TagsMerge().merge(", ", extra=extra, bundle_1=Spec(kind="fixed", pool=tuple(selections)))
     return str(out[0])
 
 
@@ -379,7 +379,11 @@ def test_scenario(tags_in: str, expected: object) -> None:
 
 def _run(**kwargs: Any) -> tuple[str, str, tuple[TaggedSelection, ...]]:
     out = TagsMerge().merge(", ", **kwargs)
-    return (str(out[0]), str(out[1]), tuple(out[2]))
+    return (str(out[0]), str(out[1]), out[2].pool)
+
+
+def _fixed(*sels: TaggedSelection) -> Spec:
+    return Spec(kind="fixed", pool=sels)
 
 
 def _sel(category: str, tags: tuple[str, ...], **kw: Any) -> TaggedSelection:
@@ -397,17 +401,17 @@ def test_merge_empty_inputs_yield_empty_prompt() -> None:
 
 
 def test_merge_extra_is_appended() -> None:
-    prompt, _, _ = _run(extra="1girl", bundle_1=(_sel("a", ("x",)),))
+    prompt, _, _ = _run(extra="1girl", bundle_1=_fixed(_sel("a", ("x",))))
     assert prompt == "x, 1girl"
 
 
 def test_extra_selection_is_not_subject_to_override() -> None:
     prompt, _, _ = _run(
-        bundle_1=(
+        bundle_1=_fixed(
             _sel("body.exposure", ("nude",), layer="exposure"),
             _sel("extra", ("1girl",), layer="extra"),
         ),
-        bundle_2=(_sel("clothing.tops", ("shirt",), layer="clothing"),),
+        bundle_2=_fixed(_sel("clothing.tops", ("shirt",), layer="clothing")),
     )
     assert "shirt" not in prompt
     assert "1girl" in prompt
@@ -416,8 +420,8 @@ def test_extra_selection_is_not_subject_to_override() -> None:
 def test_mutex_within_drops_second_selection_with_same_category() -> None:
     # Cross-bundle: two selections claim the same mutex category.
     prompt, warnings, _ = _run(
-        bundle_1=(_sel("hair.length", ("long_hair",), mutex_within=True),),
-        bundle_2=(_sel("hair.length", ("short_hair",), mutex_within=True),),
+        bundle_1=_fixed(_sel("hair.length", ("long_hair",), mutex_within=True)),
+        bundle_2=_fixed(_sel("hair.length", ("short_hair",), mutex_within=True)),
     )
     assert prompt == "long_hair"
     assert "mutex:" in warnings
@@ -425,31 +429,31 @@ def test_mutex_within_drops_second_selection_with_same_category() -> None:
 
 def test_mutex_within_collapses_multi_tag_selection() -> None:
     prompt, warnings, _ = _run(
-        bundle_1=(_sel("hair.length", ("long_hair", "short_hair"), mutex_within=True),),
+        bundle_1=_fixed(_sel("hair.length", ("long_hair", "short_hair"), mutex_within=True)),
     )
     assert prompt == "long_hair"
     assert "short_hair" in warnings
 
 
 def test_separator_escape_sequence_decoded() -> None:
-    out = TagsMerge().merge(r"\n", bundle_1=(_sel("a", ("x", "y")),))
+    out = TagsMerge().merge(r"\n", bundle_1=_fixed(_sel("a", ("x", "y"))))
     assert out[0] == "x\ny"
 
 
-def test_eleventh_bundle_is_silently_ignored() -> None:
-    bundles = {f"bundle_{i + 1}": (_sel("c", (f"t{i + 1}",)),) for i in range(11)}
+def test_twenty_first_bundle_is_silently_ignored() -> None:
+    bundles = {f"bundle_{i + 1}": _fixed(_sel("c", (f"t{i + 1}",))) for i in range(21)}
     prompt, _, _ = _run(**bundles)
     tokens = prompt.split(", ")
-    assert "t10" in tokens
-    assert "t11" not in tokens
+    assert "t20" in tokens
+    assert "t21" not in tokens
 
 
 def test_returned_bundle_can_be_re_merged() -> None:
     _, _, bundle = _run(
-        bundle_1=(_sel("a", ("x",)),),
-        bundle_2=(_sel("b", ("y",)),),
+        bundle_1=_fixed(_sel("a", ("x",))),
+        bundle_2=_fixed(_sel("b", ("y",))),
     )
-    prompt2, _, _ = _run(bundle_1=bundle)
+    prompt2, _, _ = _run(bundle_1=Spec(kind="fixed", pool=bundle))
     assert prompt2 == "x, y"
 
 
@@ -477,33 +481,34 @@ def test_unknown_tags_pass_through() -> None:
 
 
 # --------------------------------------------------------------------------
-# Random spec resolution (TagsRandomPick / TagsRandomBundle land here as
-# unresolved CUUN_TAG_SPEC inputs; TagsMerge is the pipeline's terminal
-# build step and resolves them before running conflict resolution).
+# Unresolved spec resolution (TagsRandomPick / TagsRandomBundle land here as
+# unresolved `Spec` inputs on the same `bundle_i` slots as already-fixed
+# ones; TagsMerge is the pipeline's terminal build step and resolves them
+# before running conflict resolution).
 # --------------------------------------------------------------------------
 
 
 def test_merge_resolves_tag_pick_spec() -> None:
-    spec = RandomSpec(kind="tag_pick", seed=42, pool=(_sel("x", ("a", "b", "c", "d", "e")),), count=3)
-    prompt, _, bundle = _run(spec_1=spec)
+    spec = Spec(kind="tag_pick", seed=42, pool=(_sel("x", ("a", "b", "c", "d", "e")),), count=3)
+    prompt, _, bundle = _run(bundle_1=spec)
     assert len(prompt.split(", ")) == 3
     assert bundle[0].category == "random_pick"
 
 
 def test_merge_resolves_tag_pick_flattening_across_selections() -> None:
-    spec = RandomSpec(
+    spec = Spec(
         kind="tag_pick",
         seed=7,
         pool=(_sel("hair.color", ("red", "blue")), _sel("clothing.tops", ("shirt", "blouse"))),
         count=4,
     )
-    _, _, bundle = _run(spec_1=spec)
+    _, _, bundle = _run(bundle_1=spec)
     assert set(bundle[0].tags) == {"red", "blue", "shirt", "blouse"}
 
 
 def test_merge_resolves_tag_pick_preserves_extra() -> None:
-    spec = RandomSpec(kind="tag_pick", seed=1, pool=(_sel("x", ("a", "b", "c")), _sel("extra", ("freeform",))), count=1)
-    _, _, bundle = _run(spec_1=spec)
+    spec = Spec(kind="tag_pick", seed=1, pool=(_sel("x", ("a", "b", "c")), _sel("extra", ("freeform",))), count=1)
+    _, _, bundle = _run(bundle_1=spec)
     assert bundle[-1].category == "extra"
     assert bundle[-1].tags == ("freeform",)
 
@@ -511,21 +516,22 @@ def test_merge_resolves_tag_pick_preserves_extra() -> None:
 def test_merge_resolves_bundle_choice_spec_intact() -> None:
     a = (_sel("character.a", ("long_hair", "serafuku")),)
     b = (_sel("character.b", ("short_hair", "blazer")),)
-    spec = RandomSpec(kind="bundle_choice", seed=0, bundles=(a, b))
-    _, _, bundle = _run(spec_1=spec)
+    spec = Spec(kind="bundle_choice", seed=0, bundles=(a, b))
+    _, _, bundle = _run(bundle_1=spec)
     assert bundle in (a, b)
 
 
 def test_merge_combines_specs_and_bundles() -> None:
-    # Specs are resolved before bundles, so the resolved spec's tags lead.
-    spec = RandomSpec(kind="tag_pick", seed=1, pool=(_sel("x", ("a",)),), count=1)
-    prompt, _, _ = _run(bundle_1=(_sel("y", ("z",)),), spec_1=spec)
+    # Unresolved specs are resolved before fixed bundles, so the resolved
+    # spec's tags lead.
+    spec = Spec(kind="tag_pick", seed=1, pool=(_sel("x", ("a",)),), count=1)
+    prompt, _, _ = _run(bundle_1=spec, bundle_2=_fixed(_sel("y", ("z",))))
     assert prompt == "a, z"
 
 
 def test_merge_resolved_spec_participates_in_conflict_resolution() -> None:
     # A spec resolving to "long_hair" should still lose to an explicit
     # short_hair bundle via the usual MUTEX_GROUPS last-wins rule.
-    spec = RandomSpec(kind="bundle_choice", seed=0, bundles=((_sel("hair.length", ("long_hair",)),),))
-    prompt, _, _ = _run(spec_1=spec, bundle_1=(_sel("hair.length", ("short_hair",)),))
+    spec = Spec(kind="bundle_choice", seed=0, bundles=((_sel("hair.length", ("long_hair",)),),))
+    prompt, _, _ = _run(bundle_1=spec, bundle_2=_fixed(_sel("hair.length", ("short_hair",))))
     assert prompt == "short_hair"

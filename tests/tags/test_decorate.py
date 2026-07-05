@@ -6,7 +6,7 @@ import importlib
 import pkgutil
 
 import nodes.tags
-from nodes.tags._base import TAG_CATEGORY_REGISTRY, TaggedSelection
+from nodes.tags._base import TAG_CATEGORY_REGISTRY, Spec, TaggedSelection
 from nodes.tags.decorate import TagsDecorate
 from nodes.tags.sources.decoration.color import ColorPalette
 
@@ -24,17 +24,17 @@ def _populate_registry() -> None:
 _populate_registry()
 
 
-def _bundle(*selections: TaggedSelection) -> tuple[TaggedSelection, ...]:
-    return tuple(selections)
+def _bundle(*selections: TaggedSelection) -> Spec:
+    return Spec(kind="fixed", pool=tuple(selections))
 
 
 def _call(
     target: str,
-    bundle: tuple[TaggedSelection, ...] | list[tuple[TaggedSelection, ...]] | None = None,
-    decoration: tuple[TaggedSelection, ...] | list[tuple[TaggedSelection, ...]] | None = None,
+    bundle: Spec | list[Spec] | None = None,
+    decoration: Spec | list[Spec] | None = None,
     *,
     sep: str = ", ",
-) -> tuple[list[str], list[str], list[tuple[TaggedSelection, ...]]]:
+) -> tuple[list[str], list[str], list[Spec]]:
     """Helper mimicking ComfyUI's INPUT_IS_LIST contract: every arg is a list.
 
     Returns (prompts, warnings, bundles) — prompts are reconstructed from the
@@ -48,7 +48,7 @@ def _call(
         decoration=d,
     )
     warnings, bundles = out
-    prompts = [sep.join(t for sel in bun for t in sel.tags) for bun in bundles]
+    prompts = [sep.join(t for sel in bun.pool for t in sel.tags) for bun in bundles]
     return prompts, warnings, bundles
 
 
@@ -113,8 +113,8 @@ def test_extra_selection_passes_through_untouched() -> None:
     prompts, _, out_bundles = _call("clothing.bottoms", bundle, decoration)
     assert "red pleated skirt" in prompts[0]
     assert "my custom phrase" in prompts[0]
-    assert out_bundles[0][-1].category == "extra"
-    assert out_bundles[0][-1].tags == ("my custom phrase",)
+    assert out_bundles[0].pool[-1].category == "extra"
+    assert out_bundles[0].pool[-1].tags == ("my custom phrase",)
 
 
 def test_chained_decorate_applies_independent_rules() -> None:
@@ -144,7 +144,8 @@ def test_underscore_in_decoration_becomes_space() -> None:
 def test_color_palette_emits_decoration_color_selection() -> None:
     node = ColorPalette()
     out = node.build("", red=True, green=True)
-    (bundle,) = out
+    (spec,) = out
+    bundle = spec.pool
     assert ", ".join(t for sel in bundle for t in sel.tags) == "red, green"
     assert len(bundle) == 1
     assert bundle[0].category == "decoration.color"

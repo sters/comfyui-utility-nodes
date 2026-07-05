@@ -462,7 +462,7 @@
         "class_type": "UtilityNodesTagsRandomPick",
         "inputs": {"count": 3, "seed": 7, "bundle": ["1", 0]}
       },
-      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["2", 0]}},
+      "3": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["2", 0]}},
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["3", 0]}}
     },
     "expect": [
@@ -554,7 +554,7 @@
         "inputs": {"count": 3, "seed": ["1", 0], "bundle": ["2", 0]}
       },
       "4": {"class_type": "PreviewAny", "inputs": {"source": ["1", 0]}},
-      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["3", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["3", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -652,7 +652,7 @@
       "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
       "3": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "4": {"class_type": "UtilityNodesTagsRandomBundle", "inputs": {"seed": 0, "bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}},
-      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["4", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [
@@ -667,7 +667,7 @@
       "2": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "blazer_schoolgirl"}},
       "3": {"class_type": "UtilityNodesCharacterPreset", "inputs": {"preset": "serafuku_schoolgirl"}},
       "4": {"class_type": "UtilityNodesTagsRandomBundle", "inputs": {"seed": 5, "bundle_1": ["1", 0], "bundle_2": ["2", 0], "bundle_3": ["3", 0]}},
-      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"spec_1": ["4", 0]}},
+      "5": {"class_type": "UtilityNodesTagsMerge", "inputs": {"bundle_1": ["4", 0]}},
       "6": {"class_type": "PreviewAny", "inputs": {"source": ["5", 0]}}
     },
     "expect": [

@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, TaggedSelection
+from ._base import TAGS_TYPE, Spec, TaggedSelection, require_fixed
 
 
 class TagsBundleInspector:
@@ -24,11 +24,10 @@ class TagsBundleInspector:
             "optional": {"warnings": ("STRING", {"multiline": True, "default": "", "forceInput": True})},
         }
 
-    def inspect(
-        self, bundle: tuple[TaggedSelection, ...], warnings: str = ""
-    ) -> tuple[tuple[TaggedSelection, ...], str]:
-        report = _format_report(bundle, warnings)
-        return (tuple(bundle), report)
+    def inspect(self, bundle: Spec, warnings: str = "") -> tuple[Spec, str]:
+        pool = require_fixed(bundle, "TagsBundleInspector")
+        report = _format_report(pool, warnings)
+        return (Spec(kind="fixed", pool=pool), report)
 
 
 def _format_report(bundle: tuple[TaggedSelection, ...], warnings: str) -> str:

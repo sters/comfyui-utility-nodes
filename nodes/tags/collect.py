@@ -1,12 +1,12 @@
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, TaggedSelection
+from ._base import TAGS_TYPE, Spec, require_fixed
 
 _MAX_INPUTS = 10
 
 
 class TagsCollect:
-    """Gather several whole bundles into one list of bundles (a Combinator axis).
+    """Gather several whole resolved bundles into one list of Specs (a Combinator axis).
 
     Each wired bundle becomes one element of the output list, kept intact —
     no merging, no per-tag explosion. Feed the result into a `TagsCombinator`
@@ -19,6 +19,10 @@ class TagsCollect:
     `TagsMerge` then `TagsExplode` — flattens the characters together and then
     re-splits per tag; `TagsCollect` is the node that preserves each bundle as
     one discrete axis value.
+
+    Every wired input must already be resolved (`kind="fixed"`) — an
+    unresolved `TagsRandomPick`/`TagsRandomBundle` spec belongs on a
+    `TagsCombinator`/`TagsBuildFromRules` `axis_i` directly, not here.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
@@ -34,13 +38,16 @@ class TagsCollect:
             optional[f"bundle_{i}"] = (TAGS_TYPE,)
         return {"required": {}, "optional": optional}
 
-    def collect(self, **kwargs: Any) -> tuple[list[tuple[TaggedSelection, ...]]]:
-        out: list[tuple[TaggedSelection, ...]] = []
+    def collect(self, **kwargs: Any) -> tuple[list[Spec]]:
+        out: list[Spec] = []
         for i in range(1, _MAX_INPUTS + 1):
             bundle = kwargs.get(f"bundle_{i}")
-            if not bundle:
+            if bundle is None:
                 continue
-            out.append(tuple(bundle))
+            pool = require_fixed(bundle, "TagsCollect")
+            if not pool:
+                continue
+            out.append(Spec(kind="fixed", pool=pool))
         return (out,)
 
 

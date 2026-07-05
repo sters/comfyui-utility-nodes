@@ -1,14 +1,14 @@
 from typing import Any
 
-from nodes.tags._base import TaggedSelection
+from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.merge import TagsMerge
 from nodes.tags.sources.preset.character import PRESETS, CharacterPreset
 
 
-def _build(preset: str, **kw: Any) -> tuple[str, tuple[TaggedSelection, ...]]:
+def _build(preset: str, **kw: Any) -> tuple[str, Spec]:
     out = CharacterPreset().build(preset, **kw)
-    bundle = tuple(out[0])
-    return ", ".join(t for sel in bundle for t in sel.tags), bundle
+    spec = out[0]
+    return ", ".join(t for sel in spec.pool for t in sel.tags), spec
 
 
 def test_input_types_lists_all_presets() -> None:
@@ -21,17 +21,17 @@ def test_input_types_lists_all_presets() -> None:
 def test_preset_emits_full_tag_list() -> None:
     prompt, bundle = _build("miko")
     assert prompt == ", ".join(PRESETS["miko"])
-    assert len(bundle) == 1
-    assert bundle[0].tags == PRESETS["miko"]
-    assert bundle[0].category == "preset.miko"
+    assert len(bundle.pool) == 1
+    assert bundle.pool[0].tags == PRESETS["miko"]
+    assert bundle.pool[0].category == "preset.miko"
 
 
 def test_preset_extra_appended_as_separate_selection() -> None:
     prompt, bundle = _build("miko", extra="1girl")
     assert prompt.endswith(", 1girl")
-    assert len(bundle) == 2
-    assert bundle[1].category == "extra"
-    assert bundle[1].tags == ("1girl",)
+    assert len(bundle.pool) == 2
+    assert bundle.pool[1].category == "extra"
+    assert bundle.pool[1].tags == ("1girl",)
 
 
 def test_preset_pipes_through_tagsmerge_cleanly() -> None:
@@ -61,7 +61,7 @@ def test_preset_layered_with_nude_drops_clothing() -> None:
     # If user explicitly adds nude on top of a preset, conflict resolution
     # drops the preset's clothing tags.
     _, miko_bundle = _build("miko")
-    nude_sel = (TaggedSelection("body.exposure", "exposure", ("nude",), False),)
+    nude_sel = Spec(kind="fixed", pool=(TaggedSelection("body.exposure", "exposure", ("nude",), False),))
     out = TagsMerge().merge(", ", bundle_1=nude_sel, bundle_2=miko_bundle)
     prompt = str(out[0])
     tokens = prompt.split(", ")

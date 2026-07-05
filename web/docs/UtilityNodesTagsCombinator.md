@@ -1,29 +1,33 @@
 # Tags Combinator (axes × bundles)
 
-`UtilityNodes/TagMaster` menu tree. Cartesian product over up to 8 axes of `CUUN_TAGS` bundles. Each axis is a list of bundles; each combination is emitted as a **concatenated `CUUN_TAGS` bundle**. The combinator does **not** merge or resolve conflicts itself — wire its `bundle` output into a `TagsMerge` ("Merge & Validate") node, which ComfyUI broadcasts over the list to validate and flatten one prompt per combination.
+`UtilityNodes/TagMaster` menu tree. Cartesian product over up to 8 axes of `CUUN_TAGS`. Each axis is either a **list of resolved bundles** to enumerate, or a **single unresolved spec** (wired directly from `TagsRandomPick`/`TagsRandomBundle`) to defer — not cross-multiplied, resolved once independently per combination. Each combination is emitted as a **concatenated `CUUN_TAGS` bundle**. The combinator does **not** merge or resolve conflicts itself — wire both `bundle` and `deferred_spec` into two different `TagsMerge` ("Merge & Validate") `bundle_i` slots, which ComfyUI broadcasts over the lists to validate and flatten one prompt per combination.
 
 ## Inputs
 
-- `axis_1` ... `axis_8` (CUUN_TAGS, optional, `INPUT_IS_LIST=True`): each axis takes a **list of bundles**. Wire either:
-  - A single preset → 1 value on this axis.
-  - A tag-toggle node through `TagsExplode` → one value per checked tag.
-  - Several whole bundles through `TagsCollect` → one value per bundle (e.g. multiple characters).
+- `axis_1` ... `axis_8` (CUUN_TAGS, optional, `INPUT_IS_LIST=True`): each axis is either:
+  - An **enumerable** list of resolved candidates. Wire either:
+    - A single preset → 1 value on this axis.
+    - A tag-toggle node through `TagsExplode` → one value per checked tag.
+    - Several whole bundles through `TagsCollect` → one value per bundle (e.g. multiple characters).
+  - A **deferred** axis: a `TagsRandomPick`/`TagsRandomBundle` `spec` output wired directly in (not through Explode/Collect) — not cross-multiplied, carried along on every combination and resolved independently (mixed by combination index) downstream.
 
-Unwired / empty axes are skipped (they don't zero out the product).
+Unwired / empty axes are skipped (they don't zero out the product). Any number of axes may be deferred — they're composited into one `deferred_spec` per combination.
 
 ## Outputs (all lists, `OUTPUT_IS_LIST=True`)
 
-- `bundle` (CUUN_TAGS): one concatenated bundle per combination — the chosen axis bundles joined in axis order, **unmerged**. Feed into `TagsMerge` for conflict resolution and the final prompt string.
+- `bundle` (CUUN_TAGS): one concatenated bundle per combination — the chosen enumerable axis values joined in axis order, **unmerged**. Feed into `TagsMerge` for conflict resolution and the final prompt string.
 - `label` (STRING): per-combination identifier, joined with `__`. Per-axis segment is:
   - Single-tag bundle → the tag itself (e.g. `red_hair`)
   - Multi-tag bundle with dotted category (preset) → the suffix after the last dot (e.g. `serafuku_schoolgirl` from `character.serafuku_schoolgirl`)
   - Multi-tag bundle without dotted category → first tag
 - `index` (INT): 0-based counter.
+- `deferred_spec` (CUUN_TAGS): the composited unresolved spec for this combination (or an empty resolved spec if no axis was deferred) — wire into a separate `TagsMerge.bundle_i` slot alongside `bundle`.
 
 ## Wiring
 
 ```
-Combinator.bundle ─→ TagsMerge.bundle_1 ─→ (prompt) ─→ CLIPTextEncode ─→ KSampler ─→ SaveImage
+Combinator.bundle         ─→ TagsMerge.bundle_1 ─┐
+Combinator.deferred_spec  ─→ TagsMerge.bundle_2 ─┴─→ (prompt) ─→ CLIPTextEncode ─→ KSampler ─→ SaveImage
                        (broadcast per combination; emits prompt + warnings lists)
 ```
 

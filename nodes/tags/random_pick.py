@@ -1,16 +1,17 @@
 from typing import Any, ClassVar
 
-from ._base import RANDOM_SPEC_TYPE, TAGS_TYPE, RandomSpec, TaggedSelection
+from ._base import TAGS_TYPE, Spec, require_fixed
 
 
 class TagsRandomPick:
-    """Describe a random sample of tags out of a CUUN_TAGS bundle, resolved later.
+    """Describe a random sample of tags out of a resolved bundle, resolved later.
 
     Packages `count`, `seed`, and the bundle to sample from into a
-    `RandomSpec` — no randomness happens here. Wire the `spec` output into
-    one of `TagsMerge`'s `spec_i` inputs; that's the pipeline's terminal
-    build step, and it resolves specs alongside the usual conflict
-    resolution.
+    `Spec(kind="tag_pick")` — no randomness happens here. Wire the `spec`
+    output into one of `TagsMerge`'s `bundle_i` inputs (or a
+    `TagsCombinator`/`TagsBuildFromRules` `axis_i`, where it becomes a
+    deferred axis); that's where specs get resolved, alongside the usual
+    conflict resolution.
 
     Resolution flattens every non-`extra` selection's tags into one pool,
     samples `count` of them without replacement using `seed`, and emits the
@@ -23,7 +24,7 @@ class TagsRandomPick:
     shuffled order). `extra` selections are passed through as-is.
     """
 
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (RANDOM_SPEC_TYPE,)
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE,)
     RETURN_NAMES: ClassVar[tuple[str, ...]] = ("spec",)
     FUNCTION: ClassVar[str] = "pick"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
@@ -44,9 +45,10 @@ class TagsRandomPick:
         self,
         count: int,
         seed: int,
-        bundle: tuple[TaggedSelection, ...] = (),
-    ) -> tuple[RandomSpec]:
-        return (RandomSpec(kind="tag_pick", seed=seed, pool=tuple(bundle or ()), count=count),)
+        bundle: Spec | None = None,
+    ) -> tuple[Spec]:
+        pool = require_fixed(bundle, "TagsRandomPick") if bundle is not None else ()
+        return (Spec(kind="tag_pick", seed=seed, pool=pool, count=count),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsRandomPick": TagsRandomPick}

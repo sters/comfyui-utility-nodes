@@ -6,7 +6,6 @@ NODE_CLASS_MAPPINGS: dict[str, type] = {}
 NODE_DISPLAY_NAME_MAPPINGS: dict[str, str] = {}
 
 TAGS_TYPE = "CUUN_TAGS"
-RANDOM_SPEC_TYPE = "CUUN_TAG_SPEC"
 
 # tag string -> CATEGORY_ID of the TagNodeBase subclass that declares it.
 # Populated by TagNodeBase.__init_subclass__ at import time. A tag declared by
@@ -72,24 +71,41 @@ class TaggedSelection:
 
 
 @dataclass(frozen=True)
-class RandomSpec:
-    """An unresolved random choice, held as data until TagsMerge resolves it.
+class Spec:
+    """The single currency flowing over every `CUUN_TAGS` socket.
 
-    `kind="bundle_choice"` picks one whole bundle out of `bundles`.
-    `kind="tag_pick"` samples `count` tags out of `pool`'s flattened,
-    non-`extra` tags (mirroring `TagsRandomPick`'s old behavior); `pool`'s
-    `extra` selections pass through untouched.
+    `kind="fixed"` is already-resolved data — `pool` is returned unchanged
+    (order preserved, no dice roll). Every other kind is unresolved and only
+    `resolve_spec` (called by `TagsMerge`) rolls the dice for it:
+
+    - `kind="bundle_choice"` picks one whole candidate out of `bundles`.
+    - `kind="tag_pick"` samples `count` tags out of `pool`'s flattened,
+      non-`extra` tags; `pool`'s `extra` selections pass through untouched.
+    - `kind="composite"` resolves each of `children` independently and
+      concatenates the results in order — this is how more than one
+      unresolved axis (e.g. a random hairstyle *and* a random hair color)
+      can flow through a single socket.
     """
 
-    kind: Literal["bundle_choice", "tag_pick"]
-    seed: int
+    kind: Literal["fixed", "bundle_choice", "tag_pick", "composite"]
+    seed: int = 0
     bundles: tuple[tuple[TaggedSelection, ...], ...] = ()
     pool: tuple[TaggedSelection, ...] = field(default_factory=tuple)
     count: int = 1
+    children: tuple["Spec", ...] = ()
 
 
-def resolve_random_spec(spec: RandomSpec) -> tuple[TaggedSelection, ...]:
-    """Roll the dice for one `RandomSpec`. The single place randomness is resolved — called by `TagsMerge`."""
+def resolve_spec(spec: Spec) -> tuple[TaggedSelection, ...]:
+    """Roll the dice for one `Spec`. The single place randomness is resolved — called by `TagsMerge`."""
+    if spec.kind == "fixed":
+        return spec.pool
+
+    if spec.kind == "composite":
+        out: list[TaggedSelection] = []
+        for child in spec.children:
+            out.extend(resolve_spec(child))
+        return tuple(out)
+
     rng = random.Random(spec.seed)
 
     if spec.kind == "bundle_choice":
@@ -106,11 +122,23 @@ def resolve_random_spec(spec: RandomSpec) -> tuple[TaggedSelection, ...]:
     n = min(spec.count, len(pool))
     picked = rng.sample(pool, n) if n else []
 
-    out: list[TaggedSelection] = []
+    out = []
     if picked:
         out.append(TaggedSelection(category="random_pick", layer="random", tags=tuple(picked), mutex_within=False))
     out.extend(extras)
     return tuple(out)
+
+
+def require_fixed(spec: "Spec", node_name: str) -> tuple[TaggedSelection, ...]:
+    """Unwrap a `Spec` that must already be resolved, or raise a clear error.
+
+    Used by every node for which an unresolved random pick makes no sense
+    (Explode, Collect, Select, Decorate, Filter, Inspector, RandomPick,
+    RandomBundle) — they operate on concrete tags, not deferred choices.
+    """
+    if spec.kind != "fixed":
+        raise ValueError(f"{node_name}: expected a resolved input, got kind={spec.kind!r}")
+    return spec.pool
 
 
 class TagNodeBase:
@@ -153,7 +181,7 @@ class TagNodeBase:
             },
         }
 
-    def build(self, extra: str = "", **kwargs: Any) -> tuple[tuple[TaggedSelection, ...]]:
+    def build(self, extra: str = "", **kwargs: Any) -> tuple[Spec]:
         invert = bool(kwargs.pop("invert", False))
         tags: dict[str, bool] = {k: bool(v) for k, v in kwargs.items()}
         if invert:
@@ -181,4 +209,4 @@ class TagNodeBase:
                     mutex_within=False,
                 )
             )
-        return (tuple(bundle),)
+        return (Spec(kind="fixed", pool=tuple(bundle)),)

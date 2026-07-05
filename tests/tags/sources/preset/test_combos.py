@@ -16,7 +16,7 @@ from nodes.tags.sources.preset.personality import PersonalityPreset
 
 
 def _bundle(node_cls: type, name: str) -> Any:
-    return tuple(node_cls().build(name)[0])
+    return node_cls().build(name)[0]
 
 
 def _combo(

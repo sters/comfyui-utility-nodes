@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ..._base import TAGS_TYPE, TaggedSelection
+from ..._base import TAGS_TYPE, Spec, TaggedSelection
 
 _SCORE_TAGS = ("score_9", "score_8_up", "score_7_up", "score_6_up", "score_5_up", "score_4_up")
 _RATING_TAGS = ("rating_safe", "rating_questionable", "rating_explicit")
@@ -49,7 +49,7 @@ class MetaPony:
         self,
         extra: str = "",
         **toggles: bool,
-    ) -> tuple[tuple[TaggedSelection, ...]]:
+    ) -> tuple[Spec]:
         ordered = (*_SCORE_TAGS, *_RATING_TAGS, *_SOURCE_TAGS)
         tags: list[str] = [tag for tag in ordered if toggles.get(tag, False)]
 
@@ -75,7 +75,7 @@ class MetaPony:
                 )
             )
 
-        return (tuple(bundle),)
+        return (Spec(kind="fixed", pool=tuple(bundle)),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {

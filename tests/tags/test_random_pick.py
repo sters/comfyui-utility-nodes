@@ -1,4 +1,4 @@
-from nodes.tags._base import TaggedSelection
+from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.random_pick import TagsRandomPick
 
 
@@ -8,7 +8,7 @@ def _sel(category: str, tags: tuple[str, ...], mutex_within: bool = False) -> Ta
 
 def test_random_pick_returns_tag_pick_spec() -> None:
     bundle = (_sel("x", ("a", "b", "c", "d", "e")),)
-    (spec,) = TagsRandomPick().pick(3, 42, bundle)
+    (spec,) = TagsRandomPick().pick(3, 42, Spec(kind="fixed", pool=bundle))
     assert spec.kind == "tag_pick"
     assert spec.seed == 42
     assert spec.count == 3
@@ -16,5 +16,5 @@ def test_random_pick_returns_tag_pick_spec() -> None:
 
 
 def test_random_pick_defaults_pool_to_empty_for_unwired_bundle() -> None:
-    (spec,) = TagsRandomPick().pick(3, 1, ())
+    (spec,) = TagsRandomPick().pick(3, 1, None)
     assert spec.pool == ()

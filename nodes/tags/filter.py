@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ._base import TAG_CATEGORY_REGISTRY, TAGS_TYPE, TaggedSelection
+from ._base import TAG_CATEGORY_REGISTRY, TAGS_TYPE, Spec, TaggedSelection, require_fixed
 
 _EXTRA_CATEGORY = "extra"
 _NONE = "(none)"
@@ -43,9 +43,9 @@ class TagsFilter:
     def filter(
         self,
         target_category: str,
-        bundle: tuple[TaggedSelection, ...] | None = None,
-    ) -> tuple[tuple[TaggedSelection, ...]]:
-        src = bundle or ()
+        bundle: Spec | None = None,
+    ) -> tuple[Spec]:
+        src = require_fixed(bundle, "TagsFilter") if bundle is not None else ()
         target = target_category if target_category and target_category != _NONE else ""
 
         out: list[TaggedSelection] = []
@@ -68,7 +68,7 @@ class TagsFilter:
                     )
                 )
 
-        return (tuple(out),)
+        return (Spec(kind="fixed", pool=tuple(out)),)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsFilter": TagsFilter}

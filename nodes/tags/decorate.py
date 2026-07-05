@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ._base import TAG_CATEGORY_REGISTRY, TAGS_TYPE, TaggedSelection
+from ._base import TAG_CATEGORY_REGISTRY, TAGS_TYPE, Spec, TaggedSelection, require_fixed
 
 _EXTRA_CATEGORY = "extra"
 _NONE = "(none)"
@@ -50,25 +50,29 @@ class TagsDecorate:
     def decorate(
         self,
         target_category: list[str],
-        bundle: list[tuple[TaggedSelection, ...]] | None = None,
-        decoration: list[tuple[TaggedSelection, ...]] | None = None,
-    ) -> tuple[list[str], list[tuple[TaggedSelection, ...]]]:
+        bundle: list[Spec] | None = None,
+        decoration: list[Spec] | None = None,
+    ) -> tuple[list[str], list[Spec]]:
         target = target_category[0] if target_category else _NONE
 
         # Normalise empty lists to a single-element "empty" axis so that
         # the cross-product doesn't collapse to zero results when one
         # side is unwired.
-        bundles: list[tuple[TaggedSelection, ...]] = list(bundle) if bundle else [()]
-        decorations: list[tuple[TaggedSelection, ...]] = list(decoration) if decoration else [()]
+        bundles: list[tuple[TaggedSelection, ...]] = (
+            [require_fixed(b, "TagsDecorate") for b in bundle] if bundle else [()]
+        )
+        decorations: list[tuple[TaggedSelection, ...]] = (
+            [require_fixed(d, "TagsDecorate") for d in decoration] if decoration else [()]
+        )
 
         warnings_out: list[str] = []
-        bundles_out: list[tuple[TaggedSelection, ...]] = []
+        bundles_out: list[Spec] = []
 
         for b in bundles:
             for d in decorations:
                 w, ob = self._decorate_one(target, b, d)
                 warnings_out.append(w)
-                bundles_out.append(ob)
+                bundles_out.append(Spec(kind="fixed", pool=ob))
 
         return (warnings_out, bundles_out)
 

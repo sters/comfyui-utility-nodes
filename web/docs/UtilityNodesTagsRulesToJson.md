@@ -6,11 +6,11 @@ Wiring a heavy graph (many toggle nodes, presets, `TagsExplode`/`TagsCollect`) j
 
 ## Inputs
 
-- `axis_1` ... `axis_8` (CUUN_TAGS, optional, `INPUT_IS_LIST=True`): identical wiring to [Tags Combinator](UtilityNodesTagsCombinator.md)'s axes — a preset, a tag-toggle node through `TagsExplode`, or several whole bundles through `TagsCollect`.
+- `axis_1` ... `axis_8` (CUUN_TAGS, optional, `INPUT_IS_LIST=True`): identical wiring to [Tags Combinator](UtilityNodesTagsCombinator.md)'s axes — a preset, a tag-toggle node through `TagsExplode`, several whole bundles through `TagsCollect`, or a `TagsRandomPick`/`TagsRandomBundle` spec wired directly in for a deferred (random) axis.
 
 ## Outputs
 
-- `rules` (STRING): the axes, verbatim, as JSON. Feed straight into `Build from Rules`, or save it to disk.
+- `rules` (STRING): the axes, verbatim, as JSON. A deferred axis serializes as one compact spec object (`{"kind": "tag_pick", ...}` / `{"kind": "bundle_choice", ...}`), not as N expanded candidates. Feed straight into `Build from Rules`, or save it to disk.
 
 ## Wiring
 

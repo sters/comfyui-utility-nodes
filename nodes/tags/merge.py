@@ -1,21 +1,23 @@
 from typing import Any, ClassVar
 
-from ._base import RANDOM_SPEC_TYPE, TAGS_TYPE, TaggedSelection, resolve_random_spec
+from ._base import TAGS_TYPE, Spec, TaggedSelection, resolve_spec
 from ._conflicts import MUTEX_GROUPS, TAG_CONFLICTS
 
-_MAX_INPUTS = 10
+_MAX_INPUTS = 20
 _EXTRA_CATEGORY = "extra"
 
 
 class TagsMerge:
-    """The pipeline's terminal build step: resolves random specs, then applies
-    cross-bundle conflict rules, and flattens everything into a prompt.
+    """The pipeline's terminal build step: resolves any unresolved specs, then
+    applies cross-bundle conflict rules, and flattens everything into a prompt.
 
-    Accepts already-resolved `bundle_i` inputs (from tag-toggle nodes,
-    presets, `TagsCombinator`, etc.) and unresolved `spec_i` inputs (from
-    `TagsRandomPick` / `TagsRandomBundle`). Specs are resolved first — using
-    each spec's own `seed` — then their resulting selections are merged
-    alongside the `bundle_i` inputs through the same mutex/conflict pipeline.
+    Every `bundle_i` input is a `Spec` — either already-resolved
+    (`kind="fixed"`, from tag-toggle nodes, presets, `TagsCombinator`, etc.)
+    or still-unresolved (from `TagsRandomPick` / `TagsRandomBundle`, or a
+    `TagsCombinator`/`TagsBuildFromRules` `deferred_spec` output). Unresolved
+    specs are resolved first — using each spec's own `seed` — then their
+    resulting selections are merged alongside the already-fixed inputs
+    through the same mutex/conflict pipeline.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
@@ -30,8 +32,6 @@ class TagsMerge:
         }
         for i in range(1, _MAX_INPUTS + 1):
             optional[f"bundle_{i}"] = (TAGS_TYPE,)
-        for i in range(1, _MAX_INPUTS + 1):
-            optional[f"spec_{i}"] = (RANDOM_SPEC_TYPE,)
         return {
             "required": {
                 "separator": ("STRING", {"multiline": False, "default": ", "}),
@@ -39,26 +39,28 @@ class TagsMerge:
             "optional": optional,
         }
 
-    def merge(self, separator: str, extra: str = "", **kwargs: Any) -> tuple[str, str, tuple[TaggedSelection, ...]]:
+    def merge(self, separator: str, extra: str = "", **kwargs: Any) -> tuple[str, str, Spec]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         warnings: list[str] = []
 
-        # 1. Collect all incoming selections in input order: specs resolved
-        #    via their own seed first, then already-resolved bundles. Specs
-        #    going first means an explicit `bundle_i` override (e.g. a
-        #    HairColor node) wins over a random pick via the usual
-        #    last-occurrence-wins MUTEX_GROUPS rule below.
+        # 1. Collect all incoming selections in input order: unresolved specs
+        #    resolved via their own seed first, then already-fixed ones.
+        #    Unresolved specs going first means an explicit `bundle_i`
+        #    override (e.g. a HairColor node) wins over a random pick via the
+        #    usual last-occurrence-wins MUTEX_GROUPS rule below.
         selections: list[TaggedSelection] = []
+        specs: list[Spec] = []
         for i in range(1, _MAX_INPUTS + 1):
-            spec = kwargs.get(f"spec_{i}")
+            spec = kwargs.get(f"bundle_{i}")
             if spec is None:
                 continue
-            selections.extend(resolve_random_spec(spec))
-        for i in range(1, _MAX_INPUTS + 1):
-            bundle = kwargs.get(f"bundle_{i}")
-            if not bundle:
-                continue
-            selections.extend(bundle)
+            specs.append(spec)
+        for spec in specs:
+            if spec.kind != "fixed":
+                selections.extend(resolve_spec(spec))
+        for spec in specs:
+            if spec.kind == "fixed":
+                selections.extend(spec.pool)
 
         # 2. Apply mutex_within: per category, keep only the first selection.
         seen_mutex: dict[str, TaggedSelection] = {}
@@ -148,7 +150,7 @@ class TagsMerge:
             parts.append(extra_stripped)
         prompt = sep.join(parts)
         warnings_str = "\n".join(warnings)
-        return (prompt, warnings_str, tuple(final))
+        return (prompt, warnings_str, Spec(kind="fixed", pool=tuple(final)))
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsMerge": TagsMerge}

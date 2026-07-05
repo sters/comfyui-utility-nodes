@@ -1,6 +1,6 @@
 from typing import Any, ClassVar
 
-from ._base import TAGS_TYPE, TaggedSelection
+from ._base import TAGS_TYPE, Spec
 
 
 class TagsSelect:
@@ -44,18 +44,18 @@ class TagsSelect:
     def select(
         self,
         index: list[int],
-        bundles: list[tuple[TaggedSelection, ...]] | None = None,
+        bundles: list[Spec] | None = None,
         labels: list[str] | None = None,
-    ) -> tuple[tuple[TaggedSelection, ...], str, int]:
+    ) -> tuple[Spec, str, int]:
         # INPUT_IS_LIST=True makes every input a list, even the scalar widget.
         idx = index[0] if index else 0
         items = [b for b in (bundles or [])]
         if not items:
-            return ((), "", 0)
+            return (Spec(kind="fixed", pool=()), "", 0)
         effective = idx % len(items)
         label_list = labels or []
         label = str(label_list[effective]) if effective < len(label_list) else ""
-        return (tuple(items[effective]), label, effective)
+        return (items[effective], label, effective)
 
 
 NODE_CLASS_MAPPINGS: dict[str, type] = {"UtilityNodesTagsSelect": TagsSelect}

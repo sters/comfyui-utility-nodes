@@ -1,17 +1,17 @@
 from typing import Any
 
-from nodes.tags._base import TaggedSelection
+from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.merge import TagsMerge
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.personality import PERSONALITY_PRESETS, PersonalityPreset
 
 
-def _build_personality(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(PersonalityPreset().build(name)[0])
+def _build_personality(name: str) -> Spec:
+    return PersonalityPreset().build(name)[0]
 
 
-def _build_character(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(CharacterPreset().build(name)[0])
+def _build_character(name: str) -> Spec:
+    return CharacterPreset().build(name)[0]
 
 
 def test_personality_preset_input_lists_all() -> None:
@@ -23,7 +23,7 @@ def test_personality_preset_input_lists_all() -> None:
 
 def test_tsundere_emits_expected_tags() -> None:
     bundle = _build_personality("tsundere")
-    tags = bundle[0].tags
+    tags = bundle.pool[0].tags
     for expected in ("blush", "embarrassed", "pouting", "looking_away", "frown"):
         assert expected in tags
 
@@ -63,7 +63,7 @@ def test_kuudere_expressionless_drops_active_expression() -> None:
     # first and a smile bundle second, smile overrides expressionless.
     # Put the smile bundle first to keep expressionless.
     kuudere = _build_personality("kuudere")
-    smile_bundle = (TaggedSelection("ext", "ext", ("smile",), False),)
+    smile_bundle = Spec(kind="fixed", pool=(TaggedSelection("ext", "ext", ("smile",), False),))
     out = TagsMerge().merge(", ", bundle_1=smile_bundle, bundle_2=kuudere)
     tokens = str(out[0]).split(", ")
     assert "expressionless" in tokens
@@ -72,7 +72,7 @@ def test_kuudere_expressionless_drops_active_expression() -> None:
 
 def test_personality_extra_appended() -> None:
     out = PersonalityPreset().build("genki", extra="1girl")
-    bundle = tuple(out[0])
+    bundle = out[0].pool
     preview = ", ".join(t for sel in bundle for t in sel.tags)
     assert preview.endswith(", 1girl")
     assert len(bundle) == 2

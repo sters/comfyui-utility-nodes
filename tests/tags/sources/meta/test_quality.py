@@ -1,3 +1,4 @@
+from nodes.tags._base import Spec
 from nodes.tags.sources.meta.quality import _QUALITY, MetaQuality
 
 
@@ -14,22 +15,22 @@ def test_quality_emits_only_checked_tags() -> None:
     tags = dict.fromkeys(_QUALITY, False)
     tags["masterpiece"] = True
     tags["best_quality"] = True
-    (bundle,) = node.build("", **tags)
-    assert bundle[0].tags == ("masterpiece", "best_quality")
-    assert bundle[0].category == "meta.quality"
+    (spec,) = node.build("", **tags)
+    assert spec.pool[0].tags == ("masterpiece", "best_quality")
+    assert spec.pool[0].category == "meta.quality"
 
 
 def test_quality_empty_when_nothing_checked() -> None:
     node = MetaQuality()
     tags = dict.fromkeys(_QUALITY, False)
     out = node.build("", **tags)
-    assert out == ((),)
+    assert out == (Spec(kind="fixed", pool=()),)
 
 
 def test_quality_invert_selects_the_rest() -> None:
     node = MetaQuality()
     tags = dict.fromkeys(_QUALITY, False)
     tags["realistic"] = True
-    (bundle,) = node.build("", invert=True, **tags)
+    (spec,) = node.build("", invert=True, **tags)
     expected = tuple(t for t in _QUALITY if t != "realistic")
-    assert bundle[0].tags == expected
+    assert spec.pool[0].tags == expected

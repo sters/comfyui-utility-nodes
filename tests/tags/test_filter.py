@@ -1,4 +1,4 @@
-from nodes.tags._base import TAG_CATEGORY_REGISTRY, TaggedSelection
+from nodes.tags._base import TAG_CATEGORY_REGISTRY, Spec, TaggedSelection
 from nodes.tags.filter import TagsFilter
 
 
@@ -7,8 +7,8 @@ def _sel(category: str, tags: tuple[str, ...], mutex_within: bool = False) -> Ta
 
 
 def _run(target: str, bundle: tuple[TaggedSelection, ...]) -> tuple[str, tuple[TaggedSelection, ...]]:
-    out = TagsFilter().filter(target, bundle=bundle)
-    new_bundle = tuple(out[0])
+    out = TagsFilter().filter(target, bundle=Spec(kind="fixed", pool=bundle))
+    new_bundle = out[0].pool
     preview = ", ".join(t for sel in new_bundle for t in sel.tags)
     return preview, new_bundle
 
@@ -93,11 +93,11 @@ def test_preserves_mutex_within_metadata() -> None:
 
 def test_preview_joins_with_comma_space() -> None:
     bundle = (_sel("clothing.tops", ("shirt", "blouse")),)
-    out = TagsFilter().filter("(none)", bundle=bundle)
-    assert ", ".join(t for sel in out[0] for t in sel.tags) == "shirt, blouse"
+    out = TagsFilter().filter("(none)", bundle=Spec(kind="fixed", pool=bundle))
+    assert ", ".join(t for sel in out[0].pool for t in sel.tags) == "shirt, blouse"
 
 
 def test_no_bundle_input_returns_empty() -> None:
     out = TagsFilter().filter("(none)")
-    assert ", ".join(t for sel in out[0] for t in sel.tags) == ""
-    assert out == ((),)
+    assert ", ".join(t for sel in out[0].pool for t in sel.tags) == ""
+    assert out == (Spec(kind="fixed", pool=()),)

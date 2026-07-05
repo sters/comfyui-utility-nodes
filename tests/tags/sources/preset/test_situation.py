@@ -1,11 +1,11 @@
-from nodes.tags._base import TaggedSelection
+from nodes.tags._base import Spec
 from nodes.tags.merge import TagsMerge
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.situation import SITUATION_PRESETS, SituationPreset
 
 
-def _build_situation(name: str) -> tuple[TaggedSelection, ...]:
-    return tuple(SituationPreset().build(name)[0])
+def _build_situation(name: str) -> Spec:
+    return SituationPreset().build(name)[0]
 
 
 def test_situation_preset_input_lists_all() -> None:
@@ -17,13 +17,13 @@ def test_situation_preset_input_lists_all() -> None:
 
 def test_summer_beach_emits_expected_tags() -> None:
     bundle = _build_situation("summer_beach")
-    tags = bundle[0].tags
+    tags = bundle.pool[0].tags
     for expected in ("beach", "ocean", "swimsuit"):
         assert expected in tags
 
 
 def test_character_plus_situation_layers_cleanly() -> None:
-    miko = tuple(CharacterPreset().build("miko")[0])
+    miko = CharacterPreset().build("miko")[0]
     shrine = _build_situation("shrine_visit")
     out = TagsMerge().merge(", ", bundle_1=miko, bundle_2=shrine)
     tokens = str(out[0]).split(", ")
@@ -33,7 +33,7 @@ def test_character_plus_situation_layers_cleanly() -> None:
 
 def test_situation_extra_appended() -> None:
     out = SituationPreset().build("park_picnic", extra="1girl")
-    bundle = tuple(out[0])
+    bundle = out[0].pool
     preview = ", ".join(t for sel in bundle for t in sel.tags)
     assert preview.endswith(", 1girl")
     assert len(bundle) == 2

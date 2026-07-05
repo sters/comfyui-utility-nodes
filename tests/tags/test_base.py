@@ -1,6 +1,6 @@
 from typing import ClassVar
 
-from nodes.tags._base import TAGS_TYPE, TaggedSelection, TagNodeBase, category_for_module
+from nodes.tags._base import TAGS_TYPE, Spec, TaggedSelection, TagNodeBase, category_for_module
 
 
 class _SampleNode(TagNodeBase):
@@ -30,8 +30,8 @@ class _DefaultTrueNode(TagNodeBase):
     TAGS: ClassVar[tuple[str, ...]] = ("x", "y")
 
 
-def _result(out: tuple[tuple[TaggedSelection, ...]]) -> tuple[str, tuple[TaggedSelection, ...]]:
-    bundle = tuple(out[0])
+def _result(out: tuple[Spec]) -> tuple[str, tuple[TaggedSelection, ...]]:
+    bundle = out[0].pool
     preview = ", ".join(t for sel in bundle for t in sel.tags)
     return preview, bundle
 
