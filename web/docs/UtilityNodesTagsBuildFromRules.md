@@ -8,13 +8,12 @@
 
 ## Outputs (all lists, `OUTPUT_IS_LIST=True`)
 
-- `bundle` (CUUN_TAGS): one concatenated bundle per combination, unmerged — wire into `TagsBuild` exactly like `TagsCombinator`'s `bundle` output.
+- `bundle` (CUUN_TAGS): one Spec per combination, unmerged, exactly like `TagsCombinator`'s `bundle` output — already-resolved when no axis was deferred, or a composite folding in the deferred part when one was (any axis that was a `TagsRandomPick`/`TagsRandomBundle` output, serialized as-is by `Rules to JSON` and never expanded, resolves independently per combination). Wire into `TagsBuild`.
 - `label` (STRING): per-combination identifier, same scheme as `TagsCombinator`'s `label`.
 - `index` (INT): 0-based counter.
-- `deferred_bundle` (CUUN_TAGS): same as `TagsCombinator`'s `deferred_bundle` — any axis that was a `TagsRandomPick`/`TagsRandomBundle` output (serialized as-is by `Rules to JSON`, never expanded) round-trips here and resolves independently per combination. Wire into a separate `TagsBuild.bundle_i` slot.
 
 ## Notes
 
-- Malformed or empty `rules` yields no combinations (`([], [], [], [])`), not an error.
-- Rules JSON produced before the bundle unification (no `"kind"` key per axis entry) is rejected with a clear `ValueError` rather than silently misinterpreted — regenerate it with the current `Rules to JSON`.
+- Malformed or empty `rules` yields no combinations (`([], [], [])`), not an error.
+- Rules JSON produced before the bundle unification (no `"kind"` key per axis entry), or before `bundle_choice` candidates became nested Specs, is rejected with a clear `ValueError` rather than silently misinterpreted — regenerate it with the current `Rules to JSON`.
 - Conflict resolution (`TAG_CONFLICTS` / `MUTEX_GROUPS`) is still the downstream `TagsBuild`'s job, per combination.

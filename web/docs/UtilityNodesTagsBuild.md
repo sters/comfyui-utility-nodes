@@ -1,6 +1,6 @@
 # Tags: Build
 
-`UtilityNodes/TagMaster` menu tree. The pipeline's terminal **build** step: accepts up to 20 `CUUN_TAGS` inputs — each is a bundle, either already-resolved (from tag-toggle nodes/presets) or still-unresolved (from [Random Pick](UtilityNodesTagsRandomPick.md) / [Random Bundle](UtilityNodesTagsRandomBundle.md), or a `deferred_bundle` output from [Combinator](UtilityNodesTagsCombinator.md) / [Build from Rules](UtilityNodesTagsBuildFromRules.md)) — resolves cross-node conflicts (and any unresolved bundles), and emits a final STRING.
+`UtilityNodes/TagMaster` menu tree. The pipeline's terminal **build** step: accepts up to 20 `CUUN_TAGS` inputs — each is a bundle, either already-resolved (from tag-toggle nodes/presets, or a [Combinator](UtilityNodesTagsCombinator.md) / [Build from Rules](UtilityNodesTagsBuildFromRules.md) combo with no deferred axis) or still-unresolved (from [Random Pick](UtilityNodesTagsRandomPick.md) / [Random Bundle](UtilityNodesTagsRandomBundle.md), or a Combinator/Build from Rules combo that folded one in) — resolves cross-node conflicts (and any unresolved bundles), and emits a final STRING.
 
 ## Inputs
 
@@ -17,7 +17,7 @@
 
 ## Resolution order
 
-0. **Unresolved-input resolution**: every wired input that isn't already resolved is resolved first (`TagsRandomPick`'s "pick `count`" samples its pool, `TagsRandomBundle`'s "pick one" picks one candidate, a `deferred_bundle` composited from several such nodes resolves each independently and concatenates them), each using `seed` XOR-mixed with its own slot index. The resulting selections are appended before the already-resolved inputs, in slot order within each group, then resolution proceeds exactly as below.
+0. **Unresolved-input resolution**: every wired input that isn't already resolved is resolved first (`TagsRandomPick`'s "pick `count`" samples its pool, `TagsRandomBundle`'s "pick one" picks one candidate — itself resolved further if that candidate wasn't fixed either — a `composite` Spec resolves each of its children independently and concatenates them), each using `seed` XOR-mixed with its own slot index. The resulting selections are appended before the already-resolved inputs, in slot order within each group, then resolution proceeds exactly as below.
 1. **`mutex_within`**: for selections that declare themselves mutex (e.g. `HairColor`), keep only the first selection per category, and only the first tag inside it. So wiring two `HairColor` nodes drops the second; checking every box on a mutex node still keeps only the leading tag.
 2. **`MUTEX_GROUPS`** (in `nodes/tags/_conflicts.py`): cross-category sets where at most one member may survive. E.g. `long_hair` vs `short_hair` from different nodes — **last occurrence in input order wins**, so later bundles override earlier ones (preset's `brown_hair` is overwritten by a later explicit `red_hair`).
 3. **`TAG_CONFLICTS`**: trigger → suppressed-tags map. If a trigger tag appears anywhere in the bundle, the listed tags are dropped from every non-`extra` selection. The trigger itself is never dropped. Examples:

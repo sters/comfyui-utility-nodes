@@ -53,7 +53,7 @@ def test_select_walks_full_combinator_sweep_one_per_index() -> None:
     (blazer,) = CharacterPreset().build("blazer_schoolgirl")
     (serafuku,) = CharacterPreset().build("serafuku_schoolgirl")
     (bundles,) = TagsCollect().collect(bundle_1=blazer, bundle_2=serafuku)
-    combo_bundles, labels, _, _ = TagsCombinator().combine(axis_1=bundles)
+    combo_bundles, labels, _ = TagsCombinator().combine(axis_1=bundles)
 
     picked = [TagsSelect().select([i], bundles=combo_bundles, labels=labels) for i in range(len(combo_bundles))]
     picked_labels = [p[1] for p in picked]

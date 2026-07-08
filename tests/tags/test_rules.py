@@ -46,10 +46,10 @@ def test_build_from_rules_matches_combinator_expansion() -> None:
     hair = _make_explode_axis("hair.color", ("red_hair", "blue_hair"))
     figure = _make_explode_axis("body.figure", ("muscular", "slim", "curvy"))
 
-    combinator_bundles, combinator_labels, combinator_indices, _ = TagsCombinator().combine(axis_1=hair, axis_2=figure)
+    combinator_bundles, combinator_labels, combinator_indices = TagsCombinator().combine(axis_1=hair, axis_2=figure)
 
     (rules,) = TagsRulesToJson().build(axis_1=hair, axis_2=figure)
-    rule_bundles, rule_labels, rule_indices, _ = TagsBuildFromRules().build(rules)
+    rule_bundles, rule_labels, rule_indices = TagsBuildFromRules().build(rules)
 
     assert rule_bundles == combinator_bundles
     assert rule_labels == combinator_labels
@@ -58,7 +58,7 @@ def test_build_from_rules_matches_combinator_expansion() -> None:
 
 
 def test_build_from_rules_empty_rules_yields_no_combinations() -> None:
-    assert TagsBuildFromRules().build("[]") == ([], [], [], [])
+    assert TagsBuildFromRules().build("[]") == ([], [], [])
 
 
 def test_deferred_axis_round_trips_through_json_without_expanding() -> None:
@@ -67,13 +67,16 @@ def test_deferred_axis_round_trips_through_json_without_expanding() -> None:
     (pick_spec,) = TagsRandomPick().pick(count=1, bundle=pool)
 
     (rules,) = TagsRulesToJson().build(axis_1=[pick_spec])
-    rule_bundles, rule_labels, rule_indices, rule_deferred = TagsBuildFromRules().build(rules)
+    rule_bundles, rule_labels, rule_indices = TagsBuildFromRules().build(rules)
 
-    # No enumerable axis at all — still exactly one combo, deferred intact.
+    # No enumerable axis at all — still exactly one combo, deferred folded
+    # into that combo's single composite Spec (fixed part, then the pick).
     assert len(rule_bundles) == 1
-    assert rule_deferred[0].kind == "tag_pick"
-    assert rule_deferred[0].pool == pool.pool
-    assert rule_deferred[0].count == 1
+    assert rule_bundles[0].kind == "composite"
+    deferred = rule_bundles[0].children[1]
+    assert deferred.kind == "tag_pick"
+    assert deferred.pool == pool.pool
+    assert deferred.count == 1
 
 
 def test_old_format_rules_json_raises_clear_error() -> None:

@@ -19,9 +19,9 @@ class TagsRandomBundle:
     seed the actual build step owns.
 
     Candidates may be a mix of already-resolved (`kind="fixed"`) bundles and
-    still-unresolved ones (another `TagsRandomPick`/`TagsRandomBundle`
-    output, or a `TagsCombinator`/`TagsBuildFromRules` `deferred_bundle`).
-    Whichever candidate gets picked is resolved on the spot — categories,
+    still-unresolved ones (another `TagsRandomPick`/`TagsRandomBundle` or a
+    `TagsCombinator`/`TagsBuildFromRules` `bundle` output). Whichever
+    candidate gets picked is resolved on the spot — categories,
     layers and `mutex_within` preserved for a fixed candidate; its own
     randomness rolled (seeded off this pick) for an unresolved one. Use it for
     "pick one of these N alternatives each run": one of several

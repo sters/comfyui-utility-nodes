@@ -12,9 +12,10 @@ class TagsBuild:
     applies cross-bundle conflict rules, and flattens everything into a prompt.
 
     Every `bundle_i` input is a `Spec` — either already-resolved
-    (`kind="fixed"`, from tag-toggle nodes, presets, `TagsCombinator`, etc.)
-    or still-unresolved (from `TagsRandomPick` / `TagsRandomBundle`, or a
-    `TagsCombinator`/`TagsBuildFromRules` `deferred_bundle` output). This is the
+    (`kind="fixed"`, from tag-toggle nodes, presets, a `TagsCombinator`/
+    `TagsBuildFromRules` combo with no deferred axis, etc.) or still-unresolved
+    (from `TagsRandomPick` / `TagsRandomBundle`, or a `TagsCombinator`/
+    `TagsBuildFromRules` combo that folded in a deferred axis). This is the
     only node in the pipeline with a `seed` — `TagsRandomPick`/`TagsRandomBundle`
     carry none of their own. Each unresolved input is resolved here using
     `seed` XOR-mixed with its own slot index (so multiple unresolved inputs on

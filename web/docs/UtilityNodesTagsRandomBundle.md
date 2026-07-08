@@ -1,10 +1,10 @@
 # Tags: Random Bundle
 
-`UtilityNodes/TagMaster` menu tree. Describes a choice of **one whole resolved CUUN_TAGS bundle** out of several wired alternatives — the actual choice is deferred to [Build](UtilityNodesTagsBuild.md) (or a [Combinator](UtilityNodesTagsCombinator.md) / [Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i`), which resolves it intact. The bundle-level counterpart to [Random Pick](UtilityNodesTagsRandomPick.md): Random Pick samples *tags* out of one bundle's flattened pool; Random Bundle treats each wired input as one indivisible candidate and resolves to exactly one of them, with categories / layers / `mutex_within` preserved.
+`UtilityNodes/TagMaster` menu tree. Describes a choice of **one whole CUUN_TAGS bundle** out of several wired alternatives — the actual choice (and, if that candidate wasn't already resolved, its own resolution) is deferred to [Build](UtilityNodesTagsBuild.md) (or a [Combinator](UtilityNodesTagsCombinator.md) / [Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i`). The bundle-level counterpart to [Random Pick](UtilityNodesTagsRandomPick.md): Random Pick samples *tags* out of one bundle's flattened pool; Random Bundle treats each wired input as one indivisible candidate and resolves to exactly one of them, with categories / layers / `mutex_within` preserved for already-fixed candidates.
 
 ## Inputs
 
-- `bundle_1` … `bundle_10` (CUUN_TAGS, optional): the candidate bundles — each must already be resolved. Unwired or empty inputs are ignored.
+- `bundle_1` … `bundle_10` (CUUN_TAGS, optional): the candidate bundles — a mix of already-resolved and still-unresolved (another Random Pick/Random Bundle, or a Combinator/Build from Rules `bundle`) is fine; whichever gets picked is resolved when Build runs. Unwired or empty-fixed inputs are ignored.
 
 This node has **no `seed` input** — the only seed in the pipeline lives on [Build](UtilityNodesTagsBuild.md) (the actual build step), which XOR-mixes it with this node's own output's slot index when resolving. Set `control_after_generate` to `randomize` on `TagsBuild`'s `seed` to re-roll every run.
 

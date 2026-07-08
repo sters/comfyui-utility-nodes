@@ -85,12 +85,15 @@ def label_combo(combo: tuple[Spec, ...]) -> str:
     return "__".join(parts)
 
 
-def combine_axes(axes: list[Axis], deferred: list[Spec]) -> tuple[list[Spec], list[str], list[int], list[Spec]]:
-    """Expand the enumerable axes and attach the deferred (random) axes to every combo.
+def combine_axes(axes: list[Axis], deferred: list[Spec]) -> tuple[list[Spec], list[str], list[int]]:
+    """Expand the enumerable axes and fold any deferred (random) axes into each combo.
 
-    Shared by ``TagsCombinator.combine`` and ``TagsBuildFromRules.build`` so
-    the "at most one deferred_bundle output, however many deferred axes fed it"
-    behavior lives in one place.
+    Shared by ``TagsCombinator.combine`` and ``TagsBuildFromRules.build``.
+    Each combo comes out as a single `Spec`: already-resolved (`kind="fixed"`)
+    when there was no deferred axis, or `kind="composite"` — pairing that
+    combo's fixed part with the (possibly multi-axis, itself-composited)
+    deferred part — when there was. Either shape resolves the same way
+    downstream, so callers only ever need one `bundle_i` slot per combo.
     """
     bundles, labels, indices = expand_axes(axes)
     if not bundles and deferred:
@@ -100,21 +103,16 @@ def combine_axes(axes: list[Axis], deferred: list[Spec]) -> tuple[list[Spec], li
 
     fixed_specs = [Spec(kind="fixed", pool=b) for b in bundles]
 
-    base_deferred: Spec | None
     if not deferred:
-        base_deferred = None
-    elif len(deferred) == 1:
-        base_deferred = deferred[0]
-    else:
-        base_deferred = Spec(kind="composite", children=tuple(deferred))
+        return (fixed_specs, labels, indices)
 
-    deferred_specs = (
-        [mix_seed(base_deferred, idx) for idx in indices]
-        if base_deferred is not None
-        else [Spec(kind="fixed", pool=()) for _ in indices]
-    )
+    base_deferred = deferred[0] if len(deferred) == 1 else Spec(kind="composite", children=tuple(deferred))
+    combined = [
+        Spec(kind="composite", children=(fixed_specs[pos], mix_seed(base_deferred, idx)))
+        for pos, idx in enumerate(indices)
+    ]
 
-    return (fixed_specs, labels, indices, deferred_specs)
+    return (combined, labels, indices)
 
 
 class TagsCombinator:
@@ -129,14 +127,14 @@ class TagsCombinator:
     independent roll per combo).
 
     The node generates every combination of the enumerable axes and emits
-    each as a resolved bundle via `bundle` — it does *not* merge or resolve
-    conflicts itself. Any deferred axes are folded into the `deferred_bundle`
-    output (composited together if there's more than one). Wire both
-    `bundle` and `deferred_bundle` into two different `TagsBuild`
-    `bundle_i` slots; ComfyUI broadcasts that node over
-    the output lists, so it runs once per combination and produces the
-    per-combo prompt / warnings, with each combo's deferred axes independently
-    resolved.
+    each as one `Spec` via `bundle` — it does *not* merge or resolve
+    conflicts itself. Any deferred axes are folded into that same `Spec`
+    (composited together with the combo's fixed part, and with each other if
+    there's more than one deferred axis) rather than riding on a separate
+    output — wire `bundle` into a single `TagsBuild` `bundle_i` slot;
+    ComfyUI broadcasts that node over the output lists, so it runs once per
+    combination and produces the per-combo prompt / warnings, with each
+    combo's deferred axes independently resolved.
 
     Axis order is the priority order — `TagsBuild`'s MUTEX_GROUPS is
     last-wins, so put base / fixed axes earlier and override axes later
@@ -145,9 +143,9 @@ class TagsCombinator:
     """
 
     INPUT_IS_LIST: ClassVar[bool] = True
-    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE, "STRING", "INT", TAGS_TYPE)
-    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "label", "index", "deferred_bundle")
-    OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True, True)
+    RETURN_TYPES: ClassVar[tuple[str, ...]] = (TAGS_TYPE, "STRING", "INT")
+    RETURN_NAMES: ClassVar[tuple[str, ...]] = ("bundle", "label", "index")
+    OUTPUT_IS_LIST: ClassVar[tuple[bool, ...]] = (True, True, True)
     FUNCTION: ClassVar[str] = "combine"
     CATEGORY: ClassVar[str] = "UtilityNodes/TagMaster"
 
@@ -166,7 +164,7 @@ class TagsCombinator:
     def combine(
         self,
         **kwargs: Any,
-    ) -> tuple[list[Spec], list[str], list[int], list[Spec]]:
+    ) -> tuple[list[Spec], list[str], list[int]]:
         axes, deferred = collect_axes(kwargs, self._MAX_AXES)
         return combine_axes(axes, deferred)
 
