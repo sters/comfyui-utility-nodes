@@ -446,6 +446,96 @@ NSFW_SCENE_PRESETS: dict[str, tuple[str, ...]] = {
         "moaning",
         "looking_at_another",
     ),
+    # ── Location-based ────────────────────────────────────────────────────
+    "hot_spring_sex": (
+        # steam / hot spring setting → pairs with hot_spring situation
+        "steam",
+        "nude",
+        "vaginal",
+        "on_back",
+        "blush",
+        "moaning",
+    ),
+    "forest_sex": (
+        # outdoor forest → pairs with enchanted_forest situation
+        "forest",
+        "outdoors",
+        "nude",
+        "vaginal",
+        "missionary",
+        "blush",
+    ),
+    "outdoor_night_sex": (
+        # moonlit outdoor → pairs with stargazing / harbor situations
+        "outdoors",
+        "night",
+        "moonlight",
+        "vaginal",
+        "nude",
+        "blush",
+        "looking_at_viewer",
+    ),
+    # ── Position-focused ──────────────────────────────────────────────────
+    "suspended_sex": (
+        "suspended_congress",
+        "vaginal",
+        "nude",
+        "blush",
+        "moaning",
+    ),
+    "spooning_tender": (
+        # intimate / gentle → pairs with deredere / lovestruck personality
+        "spooning",
+        "vaginal",
+        "kissing",
+        "nude",
+        "blush",
+        "smile",
+    ),
+    "double_penetration": (
+        "double_penetration",
+        "ahegao",
+        "nude",
+        "sweat",
+        "heart-shaped_pupils",
+    ),
+    "gangbang_rough": (
+        "gangbang",
+        "rough_sex",
+        "nude",
+        "ahegao",
+        "tears",
+        "sweat",
+    ),
+    # ── Personality-driven ────────────────────────────────────────────────
+    "morning_sex": (
+        # pairs with sleepy personality + morning_routine situation
+        "bedroom",
+        "indoors",
+        "morning",
+        "sleepy",
+        "vaginal",
+        "nude",
+        "blush",
+    ),
+    "playful_handjob": (
+        # pairs with playful_tease personality
+        "handjob",
+        "smirk",
+        "one_eye_closed",
+        "tongue_out",
+        "looking_at_viewer",
+    ),
+    "afterglow_tender": (
+        # tender aftermath → pairs with deredere / lovestruck personality
+        "after_sex",
+        "bedroom",
+        "indoors",
+        "lying",
+        "closed_eyes",
+        "smile",
+        "blush",
+    ),
 }
 
 

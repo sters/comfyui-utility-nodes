@@ -369,6 +369,83 @@ SITUATION_PRESETS: dict[str, tuple[str, ...]] = {
         "serious",
         "looking_to_the_side",
     ),
+    "harbor_morning": (
+        # pairs naturally with pirate / navigator chars
+        "outdoors",
+        "ocean",
+        "morning",
+        "windy",
+        "sunlight",
+        "smile",
+        "looking_at_viewer",
+    ),
+    "church_interior": (
+        # pairs naturally with nun / fantasy_cleric chars
+        "church",
+        "indoors",
+        "afternoon",
+        "soft_lighting",
+        "standing",
+        "smile",
+        "looking_at_viewer",
+    ),
+    "japanese_garden": (
+        # pairs naturally with samurai / miko / shrine_dancer chars
+        "garden",
+        "outdoors",
+        "afternoon",
+        "sunlight",
+        "petals",
+        "standing",
+        "smile",
+    ),
+    "race_grid": (
+        # pairs naturally with race_queen char
+        "outdoors",
+        "noon",
+        "sunny",
+        "dynamic_pose",
+        "smile",
+        "looking_at_viewer",
+    ),
+    "neon_city_night": (
+        # pairs naturally with android / futuristic_idol chars
+        "outdoors",
+        "city",
+        "night",
+        "neon_lights",
+        "neon_trim",
+        "walking",
+        "looking_at_viewer",
+    ),
+    "gothic_cathedral": (
+        # pairs naturally with vampire / gothic_lolita / nun chars
+        "church",
+        "indoors",
+        "night",
+        "candlelight",
+        "dramatic_lighting",
+        "standing",
+        "serious",
+    ),
+    "outdoor_training": (
+        # pairs naturally with military / knight / kunoichi chars
+        "outdoors",
+        "afternoon",
+        "sunlight",
+        "dynamic_pose",
+        "determined",
+        "serious",
+    ),
+    "cafe_morning_shift": (
+        # pairs naturally with cafe_waitress char (worker POV)
+        "cafe",
+        "indoors",
+        "morning",
+        "sunlight",
+        "smile",
+        "looking_at_viewer",
+    ),
 }
 
 
