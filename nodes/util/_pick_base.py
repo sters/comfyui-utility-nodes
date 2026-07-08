@@ -6,10 +6,17 @@ widget config keys — ``image_upload``, ``video_upload``, ``audio_upload``,
 kind, so a single file-type-agnostic picker can't get native upload/preview
 for free (confirmed by decompiling the shipped frontend bundle: the widget
 selector reads exactly those keys off the combo's options dict and nothing
-else). Instead there's one node per kind ComfyUI natively recognizes, each
-using the matching ``folder_paths.filter_files_content_types`` filter so the
+else). So there's one node per kind ComfyUI natively recognizes, each using
+the matching ``folder_paths.filter_files_content_types`` filter so the
 dropdown only lists files of that kind, exactly like the built-in loaders
 (``LoadImage`` filters to ``["image"]``, ``LoadAudio`` to ``["audio"]``, …).
+
+``PickFile`` is the odd one out: it leaves ``UPLOAD_KEY``/``CONTENT_TYPES``
+unset, so the base class skips both the upload-kind config key and the
+content-type filter — a plain dropdown over every file in the input folder,
+any extension, with no upload button (there being no generic upload kind to
+opt into). It's the fallback for file types the four typed pickers don't
+cover.
 
 ``folder_paths`` is a ComfyUI-runtime module, so it is imported lazily inside
 the methods — the module stays importable without it installed. There is no
@@ -34,9 +41,10 @@ class PickNodeBase:
 
     # Subclasses set these: UPLOAD_KEY is the combo config key ComfyUI's frontend
     # recognizes for this kind (e.g. "image_upload"); CONTENT_TYPES filters the
-    # dropdown via folder_paths.filter_files_content_types.
-    UPLOAD_KEY: ClassVar[str]
-    CONTENT_TYPES: ClassVar[tuple[Literal["image", "video", "audio", "model"], ...]]
+    # dropdown via folder_paths.filter_files_content_types. Left unset (None),
+    # the dropdown lists every file with no upload button — PickFile's case.
+    UPLOAD_KEY: ClassVar[str | None] = None
+    CONTENT_TYPES: ClassVar[tuple[Literal["image", "video", "audio", "model"], ...] | None] = None
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
@@ -46,10 +54,12 @@ class PickNodeBase:
 
         input_dir = folder_paths.get_input_directory()
         files = [f for f in os.listdir(input_dir) if os.path.isfile(os.path.join(input_dir, f))]
-        files = folder_paths.filter_files_content_types(files, list(cls.CONTENT_TYPES))
+        if cls.CONTENT_TYPES is not None:
+            files = folder_paths.filter_files_content_types(files, list(cls.CONTENT_TYPES))
+        options: dict[str, bool] = {cls.UPLOAD_KEY: True} if cls.UPLOAD_KEY is not None else {}
         return {
             "required": {
-                "file": (sorted(files), {cls.UPLOAD_KEY: True}),
+                "file": (sorted(files), options),
             },
         }
 

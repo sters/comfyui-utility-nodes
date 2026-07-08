@@ -99,7 +99,7 @@ General prompt utilities, independent of the tag bundle system: `Text Concat` (`
 
 `Aspect Ratio Preset` (`AspectRatioPreset`) and the metadata round-trip nodes — `Save Image with Metadata` (`SaveImageWithMetadata`), `Set Metadata` (`MetadataSet`, builds the `CUUN_METADATA` bundle `SaveImageWithMetadata` embeds), `Load Image with Metadata` (`LoadImageWithMetadata`), `Extract Image Metadata` (`ExtractImageMetadata`), `Get Metadata Value` (`MetadataGetValue`) — all under `UtilityNodes/Image`.
 
-`Seed` (`Seed`) and the file-picker family — `Pick Image` (`PickImage`), `Pick Video` (`PickVideo`), `Pick Audio` (`PickAudio`), `Pick Mesh` (`PickMesh`), one per content kind ComfyUI's frontend natively supports upload/preview for — each a chooser like the matching built-in loader that just emits the resolved path, under `UtilityNodes/Util`.
+`Seed` (`Seed`) and the file-picker family — `Pick Image` (`PickImage`), `Pick Video` (`PickVideo`), `Pick Audio` (`PickAudio`), `Pick Mesh` (`PickMesh`), one per content kind ComfyUI's frontend natively supports upload/preview for, each a chooser like the matching built-in loader that just emits the resolved path — plus `Pick File` (`PickFile`), a plain dropdown over any file in the input folder (no upload button, since ComfyUI has no generic "any file" upload kind) for everything the four typed pickers don't cover, under `UtilityNodes/Util`.
 
 ## Development
 
