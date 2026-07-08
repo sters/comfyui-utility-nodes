@@ -293,6 +293,82 @@ SITUATION_PRESETS: dict[str, tuple[str, ...]] = {
         "smile",
         "looking_at_viewer",
     ),
+    # ── Character-context situations (location sets pairing; no costume tags)
+    "hospital_ward": (
+        # pairs naturally with nurse / healer chars
+        "hospital",
+        "indoors",
+        "afternoon",
+        "soft_lighting",
+        "sitting",
+        "smile",
+        "looking_at_viewer",
+    ),
+    "dojo_practice": (
+        # pairs naturally with fighter / samurai / kunoichi chars
+        "indoors",
+        "morning",
+        "sunlight",
+        "dynamic_pose",
+        "determined",
+        "serious",
+    ),
+    "ancient_ruins": (
+        # pairs naturally with knight / samurai / warrior chars
+        "ruins",
+        "outdoors",
+        "evening",
+        "dramatic_lighting",
+        "dynamic_pose",
+        "serious",
+    ),
+    "enchanted_forest": (
+        # pairs naturally with elf / witch / ranger chars
+        "forest",
+        "outdoors",
+        "afternoon",
+        "natural_lighting",
+        "mist",
+        "standing",
+        "looking_ahead",
+    ),
+    "magic_workshop": (
+        # pairs naturally with witch / mage chars
+        "indoors",
+        "night",
+        "candlelight",
+        "sparkles",
+        "serious",
+        "holding_wand",
+    ),
+    "idol_backstage": (
+        # pairs naturally with idol chars
+        "stage",
+        "indoors",
+        "night",
+        "spotlight",
+        "holding_microphone",
+        "smile",
+        "looking_at_viewer",
+    ),
+    "beach_sports": (
+        # pairs naturally with cheerleader / athletic chars
+        "beach",
+        "outdoors",
+        "noon",
+        "sunny",
+        "dynamic_pose",
+        "smile",
+        "happy",
+    ),
+    "detective_office": (
+        # pairs naturally with detective char
+        "office",
+        "indoors",
+        "afternoon",
+        "serious",
+        "looking_to_the_side",
+    ),
 }
 
 
