@@ -5,6 +5,7 @@ from ._base import PresetNodeBase
 # CharacterPreset (or hand-built character bundles) via TagsBuild — the
 # merge resolves any conflicting expressions through MUTEX_GROUPS.
 PERSONALITY_PRESETS: dict[str, tuple[str, ...]] = {
+    # ── Existing presets ──────────────────────────────────────────────────
     "tsundere": (
         "blush",
         "embarrassed",
@@ -149,6 +150,78 @@ PERSONALITY_PRESETS: dict[str, tuple[str, ...]] = {
         "glaring",
         "narrowed_eyes",
         "clenched_hands",
+    ),
+    # ── New presets ───────────────────────────────────────────────────────
+    "deredere": (
+        "happy",
+        "smile",
+        "sparkling_eyes",
+        "blush",
+        "looking_at_viewer",
+        "open_mouth",
+        ":d",
+    ),
+    "onee_san": (
+        "wry_smile",
+        "smile",
+        "looking_down",
+        "light_blush",
+        "hand_on_another's_head",
+    ),
+    "imouto": (
+        ":d",
+        "happy",
+        "blush_stickers",
+        "open_mouth",
+        "waving",
+    ),
+    "sadistic": (
+        "smug",
+        "smirk",
+        "looking_down",
+        "crossed_arms",
+        "glaring",
+    ),
+    "stoic_warrior": (
+        "serious",
+        "determined",
+        "looking_to_the_side",
+        "closed_mouth",
+    ),
+    "lovestruck": (
+        "blush",
+        "sparkling_eyes",
+        "closed_eyes",
+        "smile",
+        "embarrassed",
+        ":d",
+    ),
+    "curious": (
+        "wide-eyed",
+        "open_mouth",
+        "surprised",
+        "looking_up",
+    ),
+    "burnout": (
+        "bored",
+        "tired",
+        "looking_away",
+        "half-closed_eyes",
+        "drowsy",
+    ),
+    "chuunibyou": (
+        "serious",
+        "arm_up",
+        "narrowed_eyes",
+        "smug",
+        "determined",
+    ),
+    "melancholic": (
+        "sad",
+        "looking_down",
+        "tearful",
+        "parted_lips",
+        "looking_away",
     ),
 }
 

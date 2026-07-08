@@ -1,5 +1,6 @@
 from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.build import TagsBuild
+from nodes.tags.sources.preset._base import RANDOM_OPTION
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.nsfw_scene import NSFW_SCENE_PRESETS, NsfwScenePreset
 from nodes.tags.sources.preset.personality import PersonalityPreset
@@ -12,8 +13,8 @@ def _build(scene: str) -> Spec:
 def test_input_types_lists_all_scenes() -> None:
     spec = NsfwScenePreset.INPUT_TYPES()
     options, meta = spec["required"]["scene"]
-    assert set(options) == set(NSFW_SCENE_PRESETS)
-    assert meta["default"] in NSFW_SCENE_PRESETS
+    assert set(options) == set(NSFW_SCENE_PRESETS) | {RANDOM_OPTION}
+    assert meta["default"] == RANDOM_OPTION
 
 
 def test_vanilla_emits_expected_tags() -> None:

@@ -1,5 +1,6 @@
 from nodes.tags._base import Spec
 from nodes.tags.build import TagsBuild
+from nodes.tags.sources.preset._base import RANDOM_OPTION
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.situation import SITUATION_PRESETS, SituationPreset
 
@@ -11,8 +12,8 @@ def _build_situation(name: str) -> Spec:
 def test_situation_preset_input_lists_all() -> None:
     spec = SituationPreset.INPUT_TYPES()
     options, meta = spec["required"]["situation"]
-    assert set(options) == set(SITUATION_PRESETS)
-    assert meta["default"] in SITUATION_PRESETS
+    assert set(options) == set(SITUATION_PRESETS) | {RANDOM_OPTION}
+    assert meta["default"] == RANDOM_OPTION
 
 
 def test_summer_beach_emits_expected_tags() -> None:

@@ -2,6 +2,7 @@ from typing import Any
 
 from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.build import TagsBuild
+from nodes.tags.sources.preset._base import RANDOM_OPTION
 from nodes.tags.sources.preset.character import PRESETS, CharacterPreset
 
 
@@ -14,8 +15,21 @@ def _build(preset: str, **kw: Any) -> tuple[str, Spec]:
 def test_input_types_lists_all_presets() -> None:
     spec = CharacterPreset.INPUT_TYPES()
     options, meta = spec["required"]["preset"]
-    assert set(options) == set(PRESETS)
-    assert meta["default"] in PRESETS
+    assert set(options) == set(PRESETS) | {RANDOM_OPTION}
+    assert meta["default"] == RANDOM_OPTION
+
+
+def test_random_option_returns_bundle_choice() -> None:
+    spec = CharacterPreset().build(RANDOM_OPTION)[0]
+    assert spec.kind == "bundle_choice"
+    assert len(spec.bundles) == len(PRESETS)
+
+
+def test_random_resolves_to_valid_preset_via_tagsbuild() -> None:
+    bundle = CharacterPreset().build(RANDOM_OPTION)[0]
+    prompt, _warnings, _out = TagsBuild().build(", ", seed=42, bundle_1=bundle)
+    assert isinstance(prompt, str)
+    assert len(prompt) > 0
 
 
 def test_preset_emits_full_tag_list() -> None:

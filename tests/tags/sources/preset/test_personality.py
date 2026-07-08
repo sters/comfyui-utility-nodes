@@ -2,6 +2,7 @@ from typing import Any
 
 from nodes.tags._base import Spec, TaggedSelection
 from nodes.tags.build import TagsBuild
+from nodes.tags.sources.preset._base import RANDOM_OPTION
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.personality import PERSONALITY_PRESETS, PersonalityPreset
 
@@ -17,8 +18,8 @@ def _build_character(name: str) -> Spec:
 def test_personality_preset_input_lists_all() -> None:
     spec = PersonalityPreset.INPUT_TYPES()
     options, meta = spec["required"]["personality"]
-    assert set(options) == set(PERSONALITY_PRESETS)
-    assert meta["default"] in PERSONALITY_PRESETS
+    assert set(options) == set(PERSONALITY_PRESETS) | {RANDOM_OPTION}
+    assert meta["default"] == RANDOM_OPTION
 
 
 def test_tsundere_emits_expected_tags() -> None:

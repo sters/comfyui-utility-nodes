@@ -6,6 +6,7 @@ from ._base import PresetNodeBase
 # Conflicts with non-NSFW clothing presets are resolved automatically
 # (e.g. `nude`-containing presets drop competing outfit tags).
 NSFW_SCENE_PRESETS: dict[str, tuple[str, ...]] = {
+    # ── Existing presets ──────────────────────────────────────────────────
     "vanilla_missionary": (
         "missionary",
         "vaginal",
@@ -224,6 +225,63 @@ NSFW_SCENE_PRESETS: dict[str, tuple[str, ...]] = {
         "blush",
         "looking_back",
         "embarrassed",
+    ),
+    # ── New presets ───────────────────────────────────────────────────────
+    "reverse_cowgirl": (
+        "reverse_cowgirl_position",
+        "vaginal",
+        "moaning",
+        "blush",
+        "looking_back",
+        "nude",
+        "sweat",
+    ),
+    "prone_bone": (
+        "prone_bone",
+        "sex_from_behind",
+        "ahegao",
+        "nude",
+        "on_stomach",
+        "sweat",
+        "heart-shaped_pupils",
+    ),
+    "cunnilingus_receive": (
+        "cunnilingus",
+        "spread_legs",
+        "blush",
+        "moaning",
+        "closed_eyes",
+        "nude",
+        "on_back",
+        "sweat",
+    ),
+    "vibrator_tease": (
+        "vibrator_under_clothes",
+        "blush",
+        "embarrassed",
+        "trembling",
+        "parted_lips",
+        "looking_at_viewer",
+        "school_uniform",
+    ),
+    "creampie_aftermath": (
+        "after_vaginal",
+        "cum_in_pussy",
+        "blush",
+        "lying",
+        "on_back",
+        "closed_eyes",
+        "nude",
+        "ahegao",
+    ),
+    "wall_slam": (
+        "wall_slam",
+        "standing_sex",
+        "vaginal",
+        "blush",
+        "nude",
+        "looking_at_viewer",
+        "open_mouth",
     ),
 }
 
