@@ -446,6 +446,13 @@ SITUATION_PRESETS: dict[str, tuple[str, ...]] = {
         "smile",
         "looking_at_viewer",
     ),
+    "locker_room": (
+        # pairs naturally with athletic / sports chars
+        "locker_room",
+        "indoors",
+        "afternoon",
+        "looking_at_viewer",
+    ),
 }
 
 

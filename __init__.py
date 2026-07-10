@@ -18,6 +18,7 @@ _KEY_PREFIX = "UtilityNodes"
 # node". Add one line per such rename; never remove an old entry once shipped.
 _LEGACY_RENAMES = {
     "UtilityNodesTagsMerge": "UtilityNodesTagsBuild",
+    "UtilityNodesNsfwScenePreset": "UtilityNodesNsfwActPreset",
 }
 
 

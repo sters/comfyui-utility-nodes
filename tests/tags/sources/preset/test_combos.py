@@ -1,4 +1,4 @@
-"""Integration tests for layering CharacterPreset + PersonalityPreset + NsfwScenePreset.
+"""Integration tests for layering CharacterPreset + PersonalityPreset + NsfwActPreset.
 
 Each row of COMBOS is one realistic 1/2/3-preset stack. The test asserts
 which tags must end up in the final prompt and which must have been
@@ -11,7 +11,7 @@ import pytest
 
 from nodes.tags.build import TagsBuild
 from nodes.tags.sources.preset.character import CharacterPreset
-from nodes.tags.sources.preset.nsfw_scene import NsfwScenePreset
+from nodes.tags.sources.preset.nsfw_act import NsfwActPreset
 from nodes.tags.sources.preset.personality import PersonalityPreset
 
 
@@ -31,7 +31,7 @@ def _combo(
     for cls, name in (
         (CharacterPreset, char),
         (PersonalityPreset, pers),
-        (NsfwScenePreset, scene),
+        (NsfwActPreset, scene),
     ):
         if name is None:
             continue
