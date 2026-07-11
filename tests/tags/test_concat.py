@@ -1,6 +1,4 @@
-import pytest
-
-from nodes.tags._base import Spec, TaggedSelection
+from nodes.tags._base import Spec, TaggedSelection, mix_seed, resolve_spec
 from nodes.tags.concat import TagsConcat
 from nodes.tags.random_pick import TagsRandomPick
 from nodes.tags.sources.preset.character import CharacterPreset
@@ -47,10 +45,23 @@ def test_concat_no_inputs_returns_empty_bundle() -> None:
     assert spec == Spec(kind="fixed", pool=())
 
 
-def test_concat_rejects_unresolved_input() -> None:
+def test_concat_passes_through_lone_unresolved_input() -> None:
     (pick,) = TagsRandomPick().pick(count=1, bundle=_fixed(_sel("x", ("a", "b"))))
-    with pytest.raises(ValueError, match="TagsConcat"):
-        TagsConcat().concat(bundle_1=pick)
+    (spec,) = TagsConcat().concat(bundle_1=pick)
+    assert spec.kind == "composite"
+    assert spec.children == (pick,)
+
+
+def test_concat_composites_fixed_and_unresolved_inputs_in_order() -> None:
+    fixed = _fixed(_sel("y", ("z",)))
+    (pick,) = TagsRandomPick().pick(count=1, bundle=_fixed(_sel("x", ("a", "b"))))
+    (spec,) = TagsConcat().concat(bundle_1=fixed, bundle_2=pick)
+    assert spec.kind == "composite"
+    assert spec.children == (fixed, pick)
+    # Resolves cleanly downstream (as TagsBuild would), fixed part first.
+    resolved = resolve_spec(mix_seed(spec, 0))
+    assert resolved[0] == _sel("y", ("z",))
+    assert resolved[1].category == "random_pick"
 
 
 def test_concat_feeds_random_pick_over_combined_pool() -> None:

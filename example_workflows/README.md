@@ -16,18 +16,22 @@ free-form text into both the positive and negative streams:
 ```
 MetaPony(scores+rating_safe+source_anime, extra="1girl, solo") ─┐
 CharacterPreset(witch) ─┤
-PersonalityPreset(confident) ─┼─► TagsBuild ─► CLIPTextEncode (positive)
-SituationPreset(summer_beach) ─┤
+PersonalityPreset(confident) ─┼─► TagsConcat ─► TagsBuild ─► CLIPTextEncode (positive)
+SituationPreset(summer_beach) ─┤                          │
 MetaQuality(masterpiece, best_quality, very_aesthetic) ─┘        │
                                                                  │
 BadQuality(worst_quality, low_quality, lowres, …) ─┐             │
-BadGeneral(bad_anatomy, …) ─────────────────────────┼─► TagsBuild ─► CLIPTextEncode (negative)
+BadGeneral(bad_anatomy, …) ─────────────────────────┼─► TagsConcat ─► TagsBuild ─► CLIPTextEncode (negative)
                                                                  │
 CheckpointLoader(autismmixSDXL_autismmixPony) ─┬─► MODEL ────────►│ KSampler ─► VAEDecode ─► PreviewImage
                                                ├─► CLIP           │  (euler_ancestral, 25 steps, cfg 7)
                                                └─► VAE ──────────►│
 EmptyLatentImage(1024×1024×1) ──────────────────────────────────►│
 ```
+
+`TagsBuild` now takes a single `bundle` input, so each side's several presets are
+first merged with `TagsConcat` before the merged bundle is wired into `TagsBuild`
+for conflict resolution.
 
 `MetaPony` supplies the positive score/rating/source prefix and demonstrates the
 `extra` field ("1girl, solo"). The negative side pairs **Bad: Quality** (the
@@ -45,7 +49,7 @@ positive-prompt pipeline:
 ```
 CharacterPreset(miko) ─┐
 PersonalityPreset(genki) ─┤
-SituationPreset(shrine_visit) ─┼─► TagsBuild ─► CLIPTextEncode (positive)
+SituationPreset(shrine_visit) ─┼─► TagsConcat ─► TagsBuild ─► CLIPTextEncode (positive)
 MetaQuality ─┘                                           │
                                                          │
 BadGeneral ─► TagsBuild ─► CLIPTextEncode (negative) ────│
@@ -58,7 +62,9 @@ EmptyLatentImage(512×512×1) ────────────────�
 
 > Every tag node now emits only a `bundle` (CUUN_TAGS) — to turn a bundle into
 > the STRING a `CLIPTextEncode` needs, route it through `TagsBuild`. That's why
-> the negative side gains a small `BadGeneral ─► TagsBuild` hop.
+> the negative side gains a small `BadGeneral ─► TagsBuild` hop. `TagsBuild`
+> takes a single `bundle` input, so the positive side's four presets are
+> merged with `TagsConcat` first.
 
 After loading the template:
 
@@ -120,12 +126,12 @@ Same model-name caveat as `character_pipeline.json`.
 
 ### `inspector_debug.json`
 
-Minimal debug-only graph (no model / sampler) for the **Tags: Bundle Inspector** node. Two tag-source nodes feed into `TagsBuild`, and the Inspector composes both the surviving bundle (grouped by layer/category) and the merge `warnings` into one `report` STRING. Since the pack's nodes aren't OUTPUT_NODEs, the `report` is wired into a built-in **`PreviewAny`** so the graph has a terminator and the text is visible after Queue Prompt.
+Minimal debug-only graph (no model / sampler) for the **Tags: Bundle Inspector** node. Two tag-source nodes are merged with `TagsConcat` and fed into `TagsBuild`, and the Inspector composes both the surviving bundle (grouped by layer/category) and the merge `warnings` into one `report` STRING. Since the pack's nodes aren't OUTPUT_NODEs, the `report` is wired into a built-in **`PreviewAny`** so the graph has a terminator and the text is visible after Queue Prompt.
 
 ```
 BodyExposure(nude) ─────────┐
-                            ├─► TagsBuild ─► (bundle)   ─► TagsBundleInspector ─► report ─► PreviewAny
-ClothingTops(shirt) ────────┘             └─► (warnings) ─►
+                            ├─► TagsConcat ─► TagsBuild ─► (bundle)   ─► TagsBundleInspector ─► report ─► PreviewAny
+ClothingTops(shirt) ────────┘                           └─► (warnings) ─►
 ```
 
 Because `nude` triggers a TAG_CONFLICTS entry that drops all clothing, the report shows `shirt` in the `--- dropped ---` section while `nude` survives under `[exposure]`. Drop the Inspector inline between `TagsBuild` and `CLIPTextEncode` in your own graphs to make conflict resolution visible at a glance.

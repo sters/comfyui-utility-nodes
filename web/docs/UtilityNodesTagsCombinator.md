@@ -1,6 +1,6 @@
 # Tags Combinator (axes × bundles)
 
-`UtilityNodes/TagMaster` menu tree. Cartesian product over up to 8 axes of `CUUN_TAGS`. Each axis is either a **list of resolved bundles** to enumerate, or a **single unresolved bundle** (wired directly from `TagsRandomPick`/`TagsRandomBundle`) to defer — not cross-multiplied, resolved once independently per combination. Each combination is emitted as one **`CUUN_TAGS` Spec** — already-resolved when there was no deferred axis, or a composite of the fixed part and the deferred part when there was. The combinator does **not** merge or resolve conflicts itself — wire `bundle` into a `TagsBuild` `bundle_i` slot, which ComfyUI broadcasts over the list to validate and flatten one prompt per combination.
+`UtilityNodes/TagMaster` menu tree. Cartesian product over up to 8 axes of `CUUN_TAGS`. Each axis is either a **list of resolved bundles** to enumerate, or a **single unresolved bundle** (wired directly from `TagsRandomPick`/`TagsRandomBundle`) to defer — not cross-multiplied, resolved once independently per combination. Each combination is emitted as one **`CUUN_TAGS` Spec** — already-resolved when there was no deferred axis, or a composite of the fixed part and the deferred part when there was. The combinator does **not** merge or resolve conflicts itself — wire `bundle` into `TagsBuild`'s `bundle` input, which ComfyUI broadcasts over the list to validate and flatten one prompt per combination.
 
 ## Inputs
 
@@ -25,7 +25,7 @@ Unwired / empty axes are skipped (they don't zero out the product). Any number o
 ## Wiring
 
 ```
-Combinator.bundle ─→ TagsBuild.bundle_1 ─→ (prompt) ─→ CLIPTextEncode ─→ KSampler ─→ SaveImage
+Combinator.bundle ─→ TagsBuild.bundle ─→ (prompt) ─→ CLIPTextEncode ─→ KSampler ─→ SaveImage
              (broadcast per combination; emits prompt + warnings lists)
 ```
 

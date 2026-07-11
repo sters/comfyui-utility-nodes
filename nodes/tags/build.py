@@ -3,25 +3,22 @@ from typing import Any, ClassVar
 from ._base import TAGS_TYPE, Spec, TaggedSelection, mix_seed, resolve_spec
 from ._conflicts import MUTEX_GROUPS, TAG_CONFLICTS
 
-_MAX_INPUTS = 20
 _EXTRA_CATEGORY = "extra"
 
 
 class TagsBuild:
-    """The pipeline's terminal build step: resolves any unresolved bundles, then
-    applies cross-bundle conflict rules, and flattens everything into a prompt.
+    """The pipeline's terminal build step: resolves an unresolved bundle, then
+    applies conflict rules, and flattens everything into a prompt.
 
-    Every `bundle_i` input is a `Spec` — either already-resolved
-    (`kind="fixed"`, from tag-toggle nodes, presets, a `TagsCombinator`/
-    `TagsBuildFromRules` combo with no deferred axis, etc.) or still-unresolved
-    (from `TagsRandomPick` / `TagsRandomBundle`, or a `TagsCombinator`/
-    `TagsBuildFromRules` combo that folded in a deferred axis). This is the
-    only node in the pipeline with a `seed` — `TagsRandomPick`/`TagsRandomBundle`
-    carry none of their own. Each unresolved input is resolved here using
-    `seed` XOR-mixed with its own slot index (so multiple unresolved inputs on
-    one call still diverge), then their resulting selections are merged
-    alongside the already-fixed inputs through the same mutex/conflict
-    pipeline.
+    `bundle` is a single `Spec` — either already-resolved (`kind="fixed"`,
+    from a tag-toggle node, a preset, a `TagsConcat` merge of several, or a
+    `TagsCombinator`/`TagsBuildFromRules` combo with no deferred axis) or
+    still-unresolved (from `TagsRandomPick` / `TagsRandomBundle`, or a
+    `TagsCombinator`/`TagsBuildFromRules` combo that folded in a deferred
+    axis). Merging several tag sources or expanding combinations happens
+    upstream — via `TagsConcat` or `TagsCombinator` — before the result is
+    wired into this single slot. This is the only node in the pipeline with a
+    `seed` — `TagsRandomPick`/`TagsRandomBundle` carry none of their own.
     """
 
     RETURN_TYPES: ClassVar[tuple[str, ...]] = ("STRING", "STRING", TAGS_TYPE)
@@ -31,42 +28,32 @@ class TagsBuild:
 
     @classmethod
     def INPUT_TYPES(cls) -> dict[str, Any]:
-        optional: dict[str, Any] = {
-            "extra": ("STRING", {"multiline": True, "default": ""}),
-        }
-        for i in range(1, _MAX_INPUTS + 1):
-            optional[f"bundle_{i}"] = (TAGS_TYPE,)
         return {
             "required": {
                 "separator": ("STRING", {"multiline": False, "default": ", "}),
                 "seed": ("INT", {"default": 0, "min": 0, "max": 0xFFFFFFFFFFFFFFFF, "control_after_generate": True}),
             },
-            "optional": optional,
+            "optional": {
+                "bundle": (TAGS_TYPE,),
+                "extra": ("STRING", {"multiline": True, "default": ""}),
+            },
         }
 
-    def build(self, separator: str, seed: int = 0, extra: str = "", **kwargs: Any) -> tuple[str, str, Spec]:
+    def build(
+        self, separator: str, seed: int = 0, extra: str = "", bundle: Spec | None = None
+    ) -> tuple[str, str, Spec]:
         sep = separator.encode("utf-8").decode("unicode_escape") if separator else ", "
         warnings: list[str] = []
 
-        # 1. Collect all incoming selections in input order: unresolved specs
-        #    resolved (mixing this node's `seed` with each one's own slot
-        #    index) first, then already-fixed ones. Unresolved specs going
-        #    first means an explicit `bundle_i` override (e.g. a HairColor
-        #    node) wins over a random pick via the usual
-        #    last-occurrence-wins MUTEX_GROUPS rule below.
+        # 1. Resolve the incoming bundle, if any. An unresolved spec is
+        #    rolled here using this node's `seed`; an already-fixed one is
+        #    used as-is.
         selections: list[TaggedSelection] = []
-        specs: list[tuple[int, Spec]] = []
-        for i in range(1, _MAX_INPUTS + 1):
-            spec = kwargs.get(f"bundle_{i}")
-            if spec is None:
-                continue
-            specs.append((i, spec))
-        for i, spec in specs:
-            if spec.kind != "fixed":
-                selections.extend(resolve_spec(mix_seed(spec, seed ^ i)))
-        for _i, spec in specs:
-            if spec.kind == "fixed":
-                selections.extend(spec.pool)
+        if bundle is not None:
+            if bundle.kind != "fixed":
+                selections.extend(resolve_spec(mix_seed(bundle, seed)))
+            else:
+                selections.extend(bundle.pool)
 
         # 2. Apply mutex_within: per category, keep only the first selection.
         seen_mutex: dict[str, TaggedSelection] = {}
@@ -147,7 +134,7 @@ class TagsBuild:
                 )
             final.append(sel)
 
-        # 4. Flatten into prompt + append user-supplied extra.
+        # 5. Flatten into prompt + append user-supplied extra.
         parts: list[str] = []
         for sel in final:
             parts.extend(sel.tags)

@@ -6,11 +6,11 @@
 
 - `bundle_1` … `bundle_10` (CUUN_TAGS, optional): the candidate bundles — a mix of already-resolved and still-unresolved (another Random Pick/Random Bundle, or a Combinator/Build from Rules `bundle`) is fine; whichever gets picked is resolved when Build runs. Unwired or empty-fixed inputs are ignored.
 
-This node has **no `seed` input** — the only seed in the pipeline lives on [Build](UtilityNodesTagsBuild.md) (the actual build step), which XOR-mixes it with this node's own output's slot index when resolving. Set `control_after_generate` to `randomize` on `TagsBuild`'s `seed` to re-roll every run.
+This node has **no `seed` input** — the only seed in the pipeline lives on [Build](UtilityNodesTagsBuild.md) (the actual build step), which uses it when resolving. Set `control_after_generate` to `randomize` on `TagsBuild`'s `seed` to re-roll every run.
 
 ## Outputs
 
-- `bundle` (CUUN_TAGS): an unresolved "pick one of these" bundle carrying the candidates. Wire it into one of [Build](UtilityNodesTagsBuild.md)'s `bundle_i` inputs to resolve it immediately, or into a [Combinator](UtilityNodesTagsCombinator.md)/[Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i` to make it a *deferred axis* — not cross-multiplied, resolved once independently per combination.
+- `bundle` (CUUN_TAGS): an unresolved "pick one of these" bundle carrying the candidates. Wire it into [Build](UtilityNodesTagsBuild.md)'s `bundle` input to resolve it immediately, or into a [Combinator](UtilityNodesTagsCombinator.md)/[Build from Rules](UtilityNodesTagsBuildFromRules.md) `axis_i` to make it a *deferred axis* — not cross-multiplied, resolved once independently per combination.
 
 ## Behavior
 
@@ -25,7 +25,7 @@ Random-one-per-run prompts need no [Combinator](UtilityNodesTagsCombinator.md) /
 ```
 CharacterPreset A ─┐
 CharacterPreset B ─┤
-CharacterPreset C ─┼─► TagsRandomBundle() ─► TagsBuild.bundle_1 (seed=…, randomize) ─► one random character per run
+CharacterPreset C ─┼─► TagsRandomBundle() ─► TagsBuild.bundle (seed=…, randomize) ─► one random character per run
 CharacterPreset D ─┘
 ```
 

@@ -9,6 +9,10 @@ def _build_situation(name: str) -> Spec:
     return SituationPreset().build(name)[0]
 
 
+def _merged(*specs: Spec) -> Spec:
+    return Spec(kind="fixed", pool=tuple(sel for spec in specs for sel in spec.pool))
+
+
 def test_situation_preset_input_lists_all() -> None:
     spec = SituationPreset.INPUT_TYPES()
     options, meta = spec["required"]["situation"]
@@ -26,7 +30,7 @@ def test_summer_beach_emits_expected_tags() -> None:
 def test_character_plus_situation_layers_cleanly() -> None:
     miko = CharacterPreset().build("miko")[0]
     shrine = _build_situation("shrine_visit")
-    out = TagsBuild().build(", ", bundle_1=miko, bundle_2=shrine)
+    out = TagsBuild().build(", ", bundle=_merged(miko, shrine))
     tokens = str(out[0]).split(", ")
     for t in ("miko", "hakama", "shrine"):
         assert t in tokens

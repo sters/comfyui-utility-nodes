@@ -12,6 +12,10 @@ def _build(preset: str, **kw: Any) -> tuple[str, Spec]:
     return ", ".join(t for sel in spec.pool for t in sel.tags), spec
 
 
+def _merged(*specs: Spec) -> Spec:
+    return Spec(kind="fixed", pool=tuple(sel for spec in specs for sel in spec.pool))
+
+
 def test_input_types_lists_all_presets() -> None:
     spec = CharacterPreset.INPUT_TYPES()
     options, meta = spec["required"]["preset"]
@@ -27,7 +31,7 @@ def test_random_option_returns_bundle_choice() -> None:
 
 def test_random_resolves_to_valid_preset_via_tagsbuild() -> None:
     bundle = CharacterPreset().build(RANDOM_OPTION)[0]
-    prompt, _warnings, _out = TagsBuild().build(", ", seed=42, bundle_1=bundle)
+    prompt, _warnings, _out = TagsBuild().build(", ", seed=42, bundle=bundle)
     assert isinstance(prompt, str)
     assert len(prompt) > 0
 
@@ -50,7 +54,7 @@ def test_preset_extra_appended_as_separate_selection() -> None:
 
 def test_preset_pipes_through_tagsmerge_cleanly() -> None:
     _, bundle = _build("miko")
-    out = TagsBuild().build(", ", bundle_1=bundle)
+    out = TagsBuild().build(", ", bundle=bundle)
     assert out[0] == ", ".join(PRESETS["miko"])
 
 
@@ -60,7 +64,7 @@ def test_two_presets_with_conflicts_get_resolved() -> None:
     # gets deduped via mutex_group (hair length).
     _, nun_bundle = _build("nun")
     _, maid_bundle = _build("maid")
-    out = TagsBuild().build(", ", bundle_1=nun_bundle, bundle_2=maid_bundle)
+    out = TagsBuild().build(", ", bundle=_merged(nun_bundle, maid_bundle))
     prompt = str(out[0])
     tokens = prompt.split(", ")
     # long_hair appears in both presets and is kept (duplicates are
@@ -76,7 +80,7 @@ def test_preset_layered_with_nude_drops_clothing() -> None:
     # drops the preset's clothing tags.
     _, miko_bundle = _build("miko")
     nude_sel = Spec(kind="fixed", pool=(TaggedSelection("body.exposure", "exposure", ("nude",), False),))
-    out = TagsBuild().build(", ", bundle_1=nude_sel, bundle_2=miko_bundle)
+    out = TagsBuild().build(", ", bundle=_merged(nude_sel, miko_bundle))
     prompt = str(out[0])
     tokens = prompt.split(", ")
     assert "nude" in tokens

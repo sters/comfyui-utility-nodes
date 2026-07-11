@@ -1,9 +1,9 @@
 {
   "version": 1,
   "state": {
-    "lastNodeId": 16,
+    "lastNodeId": 18,
     "lastGroupid": 0,
-    "lastLinkId": 18,
+    "lastLinkId": 20,
     "lastRerouteId": 0
   },
   "nodes": [
@@ -264,33 +264,13 @@
         260
       ],
       "flags": {},
-      "order": 6,
+      "order": 7,
       "mode": 0,
       "inputs": [
         {
-          "name": "bundle_1",
+          "name": "bundle",
           "type": "CUUN_TAGS",
-          "link": 5
-        },
-        {
-          "name": "bundle_2",
-          "type": "CUUN_TAGS",
-          "link": 6
-        },
-        {
-          "name": "bundle_3",
-          "type": "CUUN_TAGS",
-          "link": 7
-        },
-        {
-          "name": "bundle_4",
-          "type": "CUUN_TAGS",
-          "link": 8
-        },
-        {
-          "name": "bundle_5",
-          "type": "CUUN_TAGS",
-          "link": 9
+          "link": 19
         }
       ],
       "outputs": [
@@ -337,7 +317,7 @@
         420
       ],
       "flags": {},
-      "order": 7,
+      "order": 8,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -387,7 +367,7 @@
         320
       ],
       "flags": {},
-      "order": 8,
+      "order": 9,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -432,18 +412,13 @@
         180
       ],
       "flags": {},
-      "order": 9,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
-          "name": "bundle_1",
+          "name": "bundle",
           "type": "CUUN_TAGS",
-          "link": 10
-        },
-        {
-          "name": "bundle_2",
-          "type": "CUUN_TAGS",
-          "link": 11
+          "link": 20
         }
       ],
       "outputs": [
@@ -490,7 +465,7 @@
         120
       ],
       "flags": {},
-      "order": 10,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -537,7 +512,7 @@
         120
       ],
       "flags": {},
-      "order": 11,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -584,7 +559,7 @@
         110
       ],
       "flags": {},
-      "order": 12,
+      "order": 14,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -618,7 +593,7 @@
         280
       ],
       "flags": {},
-      "order": 13,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
@@ -677,7 +652,7 @@
         50
       ],
       "flags": {},
-      "order": 14,
+      "order": 16,
       "mode": 0,
       "inputs": [
         {
@@ -718,7 +693,7 @@
         420
       ],
       "flags": {},
-      "order": 15,
+      "order": 17,
       "mode": 0,
       "inputs": [
         {
@@ -730,6 +705,103 @@
       "outputs": [],
       "properties": {
         "Node name for S&R": "PreviewImage"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 17,
+      "type": "UtilityNodesTagsConcat",
+      "pos": [
+        230,
+        40
+      ],
+      "size": [
+        170,
+        160
+      ],
+      "flags": {},
+      "order": 6,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bundle_1",
+          "type": "CUUN_TAGS",
+          "link": 5
+        },
+        {
+          "name": "bundle_2",
+          "type": "CUUN_TAGS",
+          "link": 6
+        },
+        {
+          "name": "bundle_3",
+          "type": "CUUN_TAGS",
+          "link": 7
+        },
+        {
+          "name": "bundle_4",
+          "type": "CUUN_TAGS",
+          "link": 8
+        },
+        {
+          "name": "bundle_5",
+          "type": "CUUN_TAGS",
+          "link": 9
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            19
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UtilityNodesTagsConcat"
+      },
+      "widgets_values": []
+    },
+    {
+      "id": 18,
+      "type": "UtilityNodesTagsConcat",
+      "pos": [
+        230,
+        1120
+      ],
+      "size": [
+        170,
+        100
+      ],
+      "flags": {},
+      "order": 10,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bundle_1",
+          "type": "CUUN_TAGS",
+          "link": 10
+        },
+        {
+          "name": "bundle_2",
+          "type": "CUUN_TAGS",
+          "link": 11
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            20
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UtilityNodesTagsConcat"
       },
       "widgets_values": []
     }
@@ -771,7 +843,7 @@
       "id": 5,
       "origin_id": 2,
       "origin_slot": 0,
-      "target_id": 7,
+      "target_id": 17,
       "target_slot": 0,
       "type": "CUUN_TAGS"
     },
@@ -779,7 +851,7 @@
       "id": 6,
       "origin_id": 3,
       "origin_slot": 0,
-      "target_id": 7,
+      "target_id": 17,
       "target_slot": 1,
       "type": "CUUN_TAGS"
     },
@@ -787,7 +859,7 @@
       "id": 7,
       "origin_id": 4,
       "origin_slot": 0,
-      "target_id": 7,
+      "target_id": 17,
       "target_slot": 2,
       "type": "CUUN_TAGS"
     },
@@ -795,7 +867,7 @@
       "id": 8,
       "origin_id": 5,
       "origin_slot": 0,
-      "target_id": 7,
+      "target_id": 17,
       "target_slot": 3,
       "type": "CUUN_TAGS"
     },
@@ -803,7 +875,7 @@
       "id": 9,
       "origin_id": 6,
       "origin_slot": 0,
-      "target_id": 7,
+      "target_id": 17,
       "target_slot": 4,
       "type": "CUUN_TAGS"
     },
@@ -811,7 +883,7 @@
       "id": 10,
       "origin_id": 8,
       "origin_slot": 0,
-      "target_id": 10,
+      "target_id": 18,
       "target_slot": 0,
       "type": "CUUN_TAGS"
     },
@@ -819,7 +891,7 @@
       "id": 11,
       "origin_id": 9,
       "origin_slot": 0,
-      "target_id": 10,
+      "target_id": 18,
       "target_slot": 1,
       "type": "CUUN_TAGS"
     },
@@ -878,6 +950,22 @@
       "target_id": 16,
       "target_slot": 0,
       "type": "IMAGE"
+    },
+    {
+      "id": 19,
+      "origin_id": 17,
+      "origin_slot": 0,
+      "target_id": 7,
+      "target_slot": 0,
+      "type": "CUUN_TAGS"
+    },
+    {
+      "id": 20,
+      "origin_id": 18,
+      "origin_slot": 0,
+      "target_id": 10,
+      "target_slot": 0,
+      "type": "CUUN_TAGS"
     }
   ],
   "groups": [],

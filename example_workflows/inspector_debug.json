@@ -1,9 +1,9 @@
 {
   "version": 1,
   "state": {
-    "lastNodeId": 5,
+    "lastNodeId": 6,
     "lastGroupid": 0,
-    "lastLinkId": 5,
+    "lastLinkId": 6,
     "lastRerouteId": 0
   },
   "nodes": [
@@ -89,18 +89,13 @@
         180
       ],
       "flags": {},
-      "order": 2,
+      "order": 3,
       "mode": 0,
       "inputs": [
         {
-          "name": "bundle_1",
+          "name": "bundle",
           "type": "CUUN_TAGS",
-          "link": 1
-        },
-        {
-          "name": "bundle_2",
-          "type": "CUUN_TAGS",
-          "link": 2
+          "link": 6
         }
       ],
       "outputs": [
@@ -148,7 +143,7 @@
         200
       ],
       "flags": {},
-      "order": 3,
+      "order": 4,
       "mode": 0,
       "inputs": [
         {
@@ -200,7 +195,7 @@
         160
       ],
       "flags": {},
-      "order": 4,
+      "order": 5,
       "mode": 0,
       "inputs": [
         {
@@ -214,6 +209,47 @@
         "Node name for S&R": "PreviewAny"
       },
       "widgets_values": []
+    },
+    {
+      "id": 6,
+      "type": "UtilityNodesTagsConcat",
+      "pos": [
+        220,
+        40
+      ],
+      "size": [
+        160,
+        100
+      ],
+      "flags": {},
+      "order": 2,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bundle_1",
+          "type": "CUUN_TAGS",
+          "link": 1
+        },
+        {
+          "name": "bundle_2",
+          "type": "CUUN_TAGS",
+          "link": 2
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            6
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UtilityNodesTagsConcat"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -221,7 +257,7 @@
       "id": 1,
       "origin_id": 1,
       "origin_slot": 0,
-      "target_id": 3,
+      "target_id": 6,
       "target_slot": 0,
       "type": "CUUN_TAGS"
     },
@@ -229,7 +265,7 @@
       "id": 2,
       "origin_id": 2,
       "origin_slot": 0,
-      "target_id": 3,
+      "target_id": 6,
       "target_slot": 1,
       "type": "CUUN_TAGS"
     },
@@ -256,6 +292,14 @@
       "target_id": 5,
       "target_slot": 0,
       "type": "STRING"
+    },
+    {
+      "id": 6,
+      "origin_id": 6,
+      "origin_slot": 0,
+      "target_id": 3,
+      "target_slot": 0,
+      "type": "CUUN_TAGS"
     }
   ],
   "groups": [],

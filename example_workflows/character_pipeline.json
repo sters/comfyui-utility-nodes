@@ -1,9 +1,9 @@
 {
   "version": 1,
   "state": {
-    "lastNodeId": 14,
+    "lastNodeId": 15,
     "lastGroupid": 0,
-    "lastLinkId": 17,
+    "lastLinkId": 18,
     "lastRerouteId": 0
   },
   "nodes": [
@@ -218,28 +218,13 @@
         180
       ],
       "flags": {},
-      "order": 5,
+      "order": 6,
       "mode": 0,
       "inputs": [
         {
-          "name": "bundle_1",
+          "name": "bundle",
           "type": "CUUN_TAGS",
-          "link": 5
-        },
-        {
-          "name": "bundle_2",
-          "type": "CUUN_TAGS",
-          "link": 6
-        },
-        {
-          "name": "bundle_3",
-          "type": "CUUN_TAGS",
-          "link": 7
-        },
-        {
-          "name": "bundle_4",
-          "type": "CUUN_TAGS",
-          "link": 8
+          "link": 18
         }
       ],
       "outputs": [
@@ -285,7 +270,7 @@
         320
       ],
       "flags": {},
-      "order": 6,
+      "order": 7,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -329,7 +314,7 @@
         120
       ],
       "flags": {},
-      "order": 7,
+      "order": 8,
       "mode": 0,
       "title": "Positive (from TagsBuild)",
       "inputs": [
@@ -376,7 +361,7 @@
         120
       ],
       "flags": {},
-      "order": 8,
+      "order": 9,
       "mode": 0,
       "title": "Negative (Bad: General)",
       "inputs": [
@@ -423,7 +408,7 @@
         110
       ],
       "flags": {},
-      "order": 9,
+      "order": 10,
       "mode": 0,
       "inputs": [],
       "outputs": [
@@ -457,7 +442,7 @@
         260
       ],
       "flags": {},
-      "order": 10,
+      "order": 11,
       "mode": 0,
       "inputs": [
         {
@@ -516,7 +501,7 @@
         50
       ],
       "flags": {},
-      "order": 11,
+      "order": 12,
       "mode": 0,
       "inputs": [
         {
@@ -557,7 +542,7 @@
         280
       ],
       "flags": {},
-      "order": 12,
+      "order": 13,
       "mode": 0,
       "inputs": [
         {
@@ -584,11 +569,11 @@
         140
       ],
       "flags": {},
-      "order": 14,
+      "order": 15,
       "mode": 0,
       "inputs": [
         {
-          "name": "bundle_1",
+          "name": "bundle",
           "type": "CUUN_TAGS",
           "link": 16
         }
@@ -623,7 +608,58 @@
         0,
         ""
       ],
-      "title": "Merge → STRING"
+      "title": "Merge \u2192 STRING"
+    },
+    {
+      "id": 15,
+      "type": "UtilityNodesTagsConcat",
+      "pos": [
+        220,
+        40
+      ],
+      "size": [
+        160,
+        120
+      ],
+      "flags": {},
+      "order": 4,
+      "mode": 0,
+      "inputs": [
+        {
+          "name": "bundle_1",
+          "type": "CUUN_TAGS",
+          "link": 5
+        },
+        {
+          "name": "bundle_2",
+          "type": "CUUN_TAGS",
+          "link": 6
+        },
+        {
+          "name": "bundle_3",
+          "type": "CUUN_TAGS",
+          "link": 7
+        },
+        {
+          "name": "bundle_4",
+          "type": "CUUN_TAGS",
+          "link": 8
+        }
+      ],
+      "outputs": [
+        {
+          "name": "bundle",
+          "type": "CUUN_TAGS",
+          "links": [
+            18
+          ],
+          "slot_index": 0
+        }
+      ],
+      "properties": {
+        "Node name for S&R": "UtilityNodesTagsConcat"
+      },
+      "widgets_values": []
     }
   ],
   "links": [
@@ -663,7 +699,7 @@
       "id": 5,
       "origin_id": 2,
       "origin_slot": 0,
-      "target_id": 6,
+      "target_id": 15,
       "target_slot": 0,
       "type": "CUUN_TAGS"
     },
@@ -671,7 +707,7 @@
       "id": 6,
       "origin_id": 3,
       "origin_slot": 0,
-      "target_id": 6,
+      "target_id": 15,
       "target_slot": 1,
       "type": "CUUN_TAGS"
     },
@@ -679,7 +715,7 @@
       "id": 7,
       "origin_id": 4,
       "origin_slot": 0,
-      "target_id": 6,
+      "target_id": 15,
       "target_slot": 2,
       "type": "CUUN_TAGS"
     },
@@ -687,7 +723,7 @@
       "id": 8,
       "origin_id": 5,
       "origin_slot": 0,
-      "target_id": 6,
+      "target_id": 15,
       "target_slot": 3,
       "type": "CUUN_TAGS"
     },
@@ -754,6 +790,14 @@
       "target_id": 9,
       "target_slot": 1,
       "type": "STRING"
+    },
+    {
+      "id": 18,
+      "origin_id": 15,
+      "origin_slot": 0,
+      "target_id": 6,
+      "target_slot": 0,
+      "type": "CUUN_TAGS"
     }
   ],
   "groups": [],

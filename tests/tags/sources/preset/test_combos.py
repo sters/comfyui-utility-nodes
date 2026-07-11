@@ -9,6 +9,7 @@ from typing import Any
 
 import pytest
 
+from nodes.tags._base import Spec
 from nodes.tags.build import TagsBuild
 from nodes.tags.sources.preset.character import CharacterPreset
 from nodes.tags.sources.preset.nsfw_act import NsfwActPreset
@@ -26,8 +27,9 @@ def _combo(
     scene: str | None = None,
     extra: str = "",
 ) -> list[str]:
-    bundles: dict[str, Any] = {}
-    i = 1
+    # Mirrors what a TagsConcat merge of the wired preset bundles would
+    # produce, since TagsBuild only takes a single already-merged bundle.
+    pool: list[Any] = []
     for cls, name in (
         (CharacterPreset, char),
         (PersonalityPreset, pers),
@@ -35,9 +37,8 @@ def _combo(
     ):
         if name is None:
             continue
-        bundles[f"bundle_{i}"] = _bundle(cls, name)
-        i += 1
-    out = TagsBuild().build(", ", extra=extra, **bundles)
+        pool.extend(_bundle(cls, name).pool)
+    out = TagsBuild().build(", ", extra=extra, bundle=Spec(kind="fixed", pool=tuple(pool)))
     prompt = str(out[0])
     return prompt.split(", ") if prompt else []
 

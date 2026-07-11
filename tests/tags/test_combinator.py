@@ -23,7 +23,7 @@ def _make_explode_axis(category: str, tags: tuple[str, ...], mutex: bool = False
 
 def _prompt(bundle: Spec) -> str:
     # Combinator now emits Specs; merging is the downstream TagsBuild's job.
-    prompt, _, _ = TagsBuild().build(", ", bundle_1=bundle)
+    prompt, _, _ = TagsBuild().build(", ", bundle=bundle)
     return str(prompt)
 
 
@@ -185,7 +185,7 @@ def test_combinator_deeply_nested_mixed_axes_resolves_end_to_end() -> None:
     assert len(outer_bundles) == 1
     assert outer_bundles[0].kind == "composite"
 
-    prompt, warnings, _ = TagsBuild().build(", ", seed=123, bundle_1=outer_bundles[0])
+    prompt, warnings, _ = TagsBuild().build(", ", seed=123, bundle=outer_bundles[0])
     assert warnings == ""
     tokens = prompt.split(", ")
 
@@ -216,7 +216,7 @@ def test_combinator_deeply_nested_axes_reroll_independently_across_seeds() -> No
     seen_chars: set[str] = set()
     seen_hair: set[str] = set()
     for seed in range(30):
-        prompt, _, _ = TagsBuild().build(", ", seed=seed, bundle_1=outer_bundles[0])
+        prompt, _, _ = TagsBuild().build(", ", seed=seed, bundle=outer_bundles[0])
         tokens = set(prompt.split(", "))
         seen_chars |= tokens & {"char_a", "char_b"}
         seen_hair |= tokens & {"red_hair", "blue_hair"}

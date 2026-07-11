@@ -15,6 +15,10 @@ def _build_character(name: str) -> Spec:
     return CharacterPreset().build(name)[0]
 
 
+def _merged(*specs: Spec) -> Spec:
+    return Spec(kind="fixed", pool=tuple(sel for spec in specs for sel in spec.pool))
+
+
 def test_personality_preset_input_lists_all() -> None:
     spec = PersonalityPreset.INPUT_TYPES()
     options, meta = spec["required"]["personality"]
@@ -34,7 +38,7 @@ def test_character_plus_personality_layers_cleanly() -> None:
     # to the otherwise neutral miko bundle.
     miko = _build_character("miko")
     tsundere = _build_personality("tsundere")
-    out = TagsBuild().build(", ", bundle_1=miko, bundle_2=tsundere)
+    out = TagsBuild().build(", ", bundle=_merged(miko, tsundere))
     tokens = str(out[0]).split(", ")
     # miko visuals
     for t in ("miko", "hakama", "long_hair", "black_hair"):
@@ -50,7 +54,7 @@ def test_genki_and_tsundere_conflict_resolves() -> None:
     # frown override genki's smile/grin.
     genki = _build_personality("genki")
     tsundere = _build_personality("tsundere")
-    out = TagsBuild().build(", ", bundle_1=genki, bundle_2=tsundere)
+    out = TagsBuild().build(", ", bundle=_merged(genki, tsundere))
     tokens = str(out[0]).split(", ")
     assert "frown" in tokens
     assert "smile" not in tokens
@@ -65,7 +69,7 @@ def test_kuudere_expressionless_drops_active_expression() -> None:
     # Put the smile bundle first to keep expressionless.
     kuudere = _build_personality("kuudere")
     smile_bundle = Spec(kind="fixed", pool=(TaggedSelection("ext", "ext", ("smile",), False),))
-    out = TagsBuild().build(", ", bundle_1=smile_bundle, bundle_2=kuudere)
+    out = TagsBuild().build(", ", bundle=_merged(smile_bundle, kuudere))
     tokens = str(out[0]).split(", ")
     assert "expressionless" in tokens
     assert "smile" not in tokens
